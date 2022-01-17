@@ -13,12 +13,13 @@ Including another URLconf
     1. Import the include() function: from django.urls import include, path
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
-import environ
 import os
 
-from config.settings import BASE_DIR
+import environ
 from django.contrib import admin
-from django.urls import path, include
+from django.urls import include, path
+
+from config.settings import BASE_DIR
 
 env = environ.Env()
 environ.Env.read_env(os.path.join(BASE_DIR, ".env"))
