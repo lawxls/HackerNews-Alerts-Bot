@@ -16,13 +16,12 @@ Including another URLconf
 import os
 
 import environ
+from django.conf import settings
 from django.contrib import admin
 from django.urls import include, path
 
-from config.settings import BASE_DIR
-
 env = environ.Env()
-environ.Env.read_env(os.path.join(BASE_DIR, ".env"))
+environ.Env.read_env(os.path.join(settings.BASE_DIR, ".env"))
 
 urlpatterns = [
     path(env("ADMIN_URL"), admin.site.urls),
