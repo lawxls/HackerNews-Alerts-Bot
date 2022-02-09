@@ -25,12 +25,18 @@ django==4.0.1
     #   -r requirements.in
     #   django-debug-toolbar
     #   django-extensions
-django_debug_toolbar==3.2.4
+    #   django-stubs
+    #   django-stubs-ext
+django-debug-toolbar==3.2.4
     # via -r requirements.in
 django-environ==0.8.1
     # via -r requirements.in
 django-extensions==3.1.5
     # via -r requirements.in
+django-stubs==1.9.0
+    # via -r requirements.in
+django-stubs-ext==0.3.1
+    # via django-stubs
 executing==0.8.2
     # via
     #   icecream
@@ -48,7 +54,9 @@ matplotlib-inline==0.1.3
 mccabe==0.6.1
     # via flake8
 mypy==0.931
-    # via -r requirements.in
+    # via
+    #   -r requirements.in
+    #   django-stubs
 mypy-extensions==0.4.3
     # via
     #   black
@@ -87,6 +95,8 @@ sqlparse==0.4.2
     #   django-debug-toolbar
 stack-data==0.1.4
     # via ipython
+toml==0.10.2
+    # via django-stubs
 tomli==1.2.3
     # via
     #   black
@@ -95,9 +105,15 @@ traitlets==5.1.1
     # via
     #   ipython
     #   matplotlib-inline
+types-pytz==2021.3.4
+    # via django-stubs
+types-pyyaml==6.0.4
+    # via django-stubs
 typing-extensions==4.0.1
     # via
     #   black
+    #   django-stubs
+    #   django-stubs-ext
     #   mypy
 wcwidth==0.2.5
     # via prompt-toolkit
