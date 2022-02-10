@@ -2,8 +2,6 @@ import logging
 from datetime import timedelta
 
 from django.contrib.postgres.fields import ArrayField
-from django.contrib.postgres.indexes import GinIndex
-from django.contrib.postgres.search import SearchVectorField
 from django.db import models
 from django.template.defaultfilters import slugify
 from django.utils import timezone
@@ -26,7 +24,6 @@ class Thread(TimeStampedModel, models.Model):
     score = models.IntegerField(null=True)
     comments_count = models.IntegerField(null=True)
     comments_link = models.URLField(max_length=250, null=True)
-    vector_search = SearchVectorField(null=True)
 
     objects = models.Manager()
     lastweek = LastWeekThreads()
@@ -35,7 +32,6 @@ class Thread(TimeStampedModel, models.Model):
         return f"({self.pk}) {self.title}"
 
     class Meta:
-        indexes = (GinIndex(fields=["vector_search"]),)
         ordering = ["-score"]
 
 
