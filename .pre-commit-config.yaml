@@ -40,10 +40,4 @@ repos:
     rev: v0.931
     hooks:
     -   id: mypy
-        additional_dependencies: [
-            django-stubs==1.9.0,
-            django-environ==0.8.1,
-            django-extensions==3.1.5,
-            django_debug_toolbar==3.2.4,
-            psycopg2-binary
-        ]
+        args: [--config=mypy.ini]
