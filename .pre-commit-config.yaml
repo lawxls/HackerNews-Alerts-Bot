@@ -40,4 +40,4 @@ repos:
     rev: v0.931
     hooks:
     -   id: mypy
-        args: [--config=mypy.ini]
+        args: [--config=setup.cfg]
