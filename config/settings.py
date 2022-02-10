@@ -20,8 +20,11 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
+    # 3rd party apps
     "django_extensions",
     "debug_toolbar",
+    # local apps
+    "newsletter",
 ]
 
 INTERNAL_IPS = [
