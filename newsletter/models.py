@@ -16,7 +16,7 @@ class LastWeekThreads(models.Manager):
 
 
 class Thread(TimeStampedModel, models.Model):
-    """Parsed thread (story, post) from hackernews"""
+    """Parsed thread (story) from hackernews"""
 
     thread_id = models.PositiveBigIntegerField(unique=True, help_text="hackernews thread id")
     link = models.URLField(max_length=700)
