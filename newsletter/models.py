@@ -10,11 +10,6 @@ from model_utils.models import TimeStampedModel
 logging.basicConfig(level="DEBUG")
 
 
-class LastWeekThreads(models.Manager):
-    def get_queryset(self):
-        return super().get_queryset().filter(created_at__gte=timezone.now() - timedelta(days=7))
-
-
 class Thread(TimeStampedModel, models.Model):
     """Parsed thread (story) from hackernews"""
 
@@ -24,6 +19,12 @@ class Thread(TimeStampedModel, models.Model):
     score = models.IntegerField(null=True)
     comments_count = models.IntegerField(null=True)
     comments_link = models.URLField(max_length=250, null=True)
+
+    class LastWeekThreads(models.Manager):
+        def get_queryset(self):
+            return (
+                super().get_queryset().filter(created_at__gte=timezone.now() - timedelta(days=7))
+            )
 
     objects = models.Manager()
     lastweek = LastWeekThreads()
@@ -35,28 +36,26 @@ class Thread(TimeStampedModel, models.Model):
         ordering = ["-score"]
 
 
-class NewsletterWeekdayChoices(models.TextChoices):
-    """The weekday on which the newsletter will be sent"""
-
-    MONDAY = "MONDAY"
-    TUESDAY = "TUESDAY"
-    WEDNESDAY = "WEDNESDAY"
-    THURSDAY = "THURSDAY"
-    FRIDAY = "FRIDAY"
-    SATURDAY = "SATURDAY"
-    SUNDAY = "SUNDAY"
-
-
-class NewsletterThreadsCountChoices(models.TextChoices):
-    """Max number of threads per single tag"""
-
-    THREE = 3
-    FIVE = 5
-    TEN = 10
-
-
 class Newsletter(TimeStampedModel, models.Model):
     """Customizable email newsletter"""
+
+    class NewsletterWeekdayChoices(models.TextChoices):
+        """The weekday on which the newsletter will be sent"""
+
+        MONDAY = "MONDAY"
+        TUESDAY = "TUESDAY"
+        WEDNESDAY = "WEDNESDAY"
+        THURSDAY = "THURSDAY"
+        FRIDAY = "FRIDAY"
+        SATURDAY = "SATURDAY"
+        SUNDAY = "SUNDAY"
+
+    class NewsletterThreadsCountChoices(models.TextChoices):
+        """Max number of threads per single tag"""
+
+        THREE = 3
+        FIVE = 5
+        TEN = 10
 
     name = models.CharField(max_length=200)
     email = models.EmailField()
