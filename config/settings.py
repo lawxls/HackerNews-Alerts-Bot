@@ -1,11 +1,11 @@
-import os
+from pathlib import Path
 
 import environ
 
-BASE_DIR = os.path.dirname(os.path.dirname(__file__))
+BASE_DIR = Path(__file__).resolve().parent.parent
 
 env = environ.Env()
-environ.Env.read_env(os.path.join(BASE_DIR, ".env"))
+environ.Env.read_env(str(BASE_DIR.joinpath(".env")))
 
 SECRET_KEY = env("SECRET_KEY")
 
