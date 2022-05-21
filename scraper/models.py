@@ -15,6 +15,7 @@ class Thread(TimeStampedModel, models.Model):
     link = models.URLField(max_length=700, verbose_name="story link")
     title = models.CharField(max_length=100, verbose_name="thread title")
     score = models.IntegerField(null=True, verbose_name="thread score")
+    thread_created_at = models.DateTimeField(verbose_name="parsed thread date of creation")
     comments_count = models.IntegerField(null=True, verbose_name="thread comments count")
     comments_link = models.URLField(
         max_length=250, null=True, verbose_name="link to thread comments"
