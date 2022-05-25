@@ -1,7 +1,8 @@
 version: '3.9'
 
 services:
-  web:
+
+  django:
     build: .
     command: python manage.py runserver 0.0.0.0:8000
     volumes:
@@ -11,14 +12,72 @@ services:
     env_file:
       - ./.env
     depends_on:
-      - db
-  db:
+      - postgres
+
+  postgres:
     image: postgres:14.0-alpine
     volumes:
-      - ./data/db:/var/lib/postgresql/data
+      - postgres_data:/var/lib/postgresql/data
     env_file:
       - ./.env
     environment:
       - POSTGRES_USER=${DBUSER}
       - POSTGRES_PASSWORD=${DBPASSWORD}
       - POSTGRES_DB=${DBNAME}
+
+  rabbitmq:
+    image: rabbitmq:3.10-management-alpine
+    ports:
+      - 5672:5672
+      - 15672:15672
+    env_file:
+      - ./.env
+    volumes:
+      - rabbitmq_data:/var/lib/rabbitmq/
+      - rabbitmq_log:/var/log/rabbitmq/
+    environment:
+      RABBITMQ_DEFAULT_USER: ${RABBITMQUSER}
+      RABBITMQ_DEFAULT_PASS: ${RABBITMQPASSWORD}
+
+  celery_worker:
+    build: .
+    command: celery -A config worker -l info
+    volumes:
+      - .:/application
+    env_file:
+      - ./.env
+    depends_on:
+      - django
+      - postgres
+      - rabbitmq
+
+  celery_beat:
+    build: .
+    command: celery -A config beat -l info
+    volumes:
+      - .:/application
+    env_file:
+      - ./.env
+    depends_on:
+      - django
+      - postgres
+      - rabbitmq
+
+  flower:
+    build: .
+    command: celery -A config flower
+    volumes:
+      - .:/application
+    env_file:
+      - ./.env
+    ports:
+      - 5555:5555
+    depends_on:
+      - django
+      - postgres
+      - rabbitmq
+
+volumes:
+  postgres_data:
+  rabbitmq_data:
+  rabbitmq_log:

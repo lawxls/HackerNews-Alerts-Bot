@@ -23,6 +23,7 @@ INSTALLED_APPS = [
     # 3rd party apps
     "django_extensions",
     "debug_toolbar",
+    "django_celery_results",
     # local apps
     "scraper",
     "newsletter",
@@ -100,3 +101,8 @@ USE_TZ = True
 STATIC_URL = "static/"
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
+
+CELERY_ENABLED = True
+CELERY_BROKER_URL = env("CELERY_BROKER_URL")
+CELERY_RESULT_BACKEND = "django-db"
+CELERY_CACHE_BACKEND = "django-cache"
