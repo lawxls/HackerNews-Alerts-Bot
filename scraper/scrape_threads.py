@@ -11,11 +11,11 @@ from scraper.utils import start_request_session
 
 class ThreadScraper:
     """
-    Scrape and save threads from hackernews pages using BeautifulSoup
+    Scrape and save (or update) threads from news.ycombinator.com/news by pages using BeautifulSoup
 
     >>> from scraper.scrape_threads import ThreadScraper
     >>> thread_scraper = ThreadScraper()
-    >>> thread_scraper.scrape_and_save_threads()
+    >>> thread_scraper.scrape_pages_and_save_threads()
     <list[Thread]>
     """
 
@@ -24,7 +24,7 @@ class ThreadScraper:
     def __init__(self):
         return
 
-    def scrape_and_save_threads(self, page_count: int = 10) -> list[Thread]:
+    def scrape_pages_and_save_threads(self, page_count: int = 10) -> list[Thread]:
 
         hn_session = start_request_session(domen=self.HACKERNEWS_DOMEN)
 
@@ -39,15 +39,13 @@ class ThreadScraper:
             for row in rows:
                 if isinstance(row.get("class"), list) and row.get("class")[0] == "athing":
 
-                    data_row = row
-
-                    scraped_thread = self.parse_data(data_row=data_row)
+                    scraped_thread = self.parse_data_and_create_scraped_thread(data_row=row)
                     thread = self.create_or_update_thread(scraped_thread=scraped_thread)
                     threads.append(thread)
 
         return threads
 
-    def parse_data(self, data_row) -> ScrapedThread:
+    def parse_data_and_create_scraped_thread(self, data_row) -> ScrapedThread:
 
         thread_id = data_row.get("id")
         thread_title = data_row.find("a", class_="titlelink").text
@@ -98,10 +96,8 @@ class ThreadScraper:
 
     def create_or_update_thread(self, scraped_thread: ScrapedThread) -> Thread:
 
-        scraped_thread_dict = dict(scraped_thread)
-
         thread, _ = Thread.objects.update_or_create(
-            thread_id=scraped_thread_dict.get("thread_id"), defaults=scraped_thread_dict
+            thread_id=scraped_thread.get("thread_id"), defaults=dict(scraped_thread)
         )
 
         return thread
