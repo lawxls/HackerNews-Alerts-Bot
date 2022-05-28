@@ -5,7 +5,7 @@ from dateutil import parser, tz
 from django.utils import timezone
 
 from scraper.models import Thread
-from scraper.types import ScrapedThread
+from scraper.types import ScrapedThreadData, ThreadMetaData
 from scraper.utils import start_request_session
 
 
@@ -39,19 +39,31 @@ class ThreadScraper:
             for row in rows:
                 if isinstance(row.get("class"), list) and row.get("class")[0] == "athing":
 
-                    scraped_thread = self.parse_data_and_create_scraped_thread(data_row=row)
-                    thread = self.create_or_update_thread(scraped_thread=scraped_thread)
+                    scraped_thread_data = self.parse_thread_data(data_row=row)
+                    thread = self.create_or_update_thread(scraped_thread_data=scraped_thread_data)
                     threads.append(thread)
 
         return threads
 
-    def parse_data_and_create_scraped_thread(self, data_row) -> ScrapedThread:
+    def parse_thread_data(self, data_row) -> ScrapedThreadData:
 
         thread_id = data_row.get("id")
         thread_title = data_row.find("a", class_="titlelink").text
         story_link = data_row.find("a", class_="titlelink").get("href")
 
-        meta_data_row = data_row.find_next_sibling()
+        thread_meta_data = self.parse_thread_meta_data(meta_data_row=data_row.find_next_sibling())
+
+        return ScrapedThreadData(
+            thread_id=thread_id,
+            title=thread_title,
+            link=story_link,
+            score=thread_meta_data.get("thread_score", 0),
+            thread_created_at=thread_meta_data.get("thread_created_at", timezone.now()),
+            comments_count=thread_meta_data.get("comments_count", 0),
+            comments_link=thread_meta_data.get("comments_link"),
+        )
+
+    def parse_thread_meta_data(self, meta_data_row) -> ThreadMetaData:
 
         thread_score = 0
         if thread_score_span := meta_data_row.find("td", class_="subtext").find(
@@ -84,20 +96,17 @@ class ThreadScraper:
         except AttributeError:
             comments_link = None
 
-        return ScrapedThread(
-            thread_id=thread_id,
-            title=thread_title,
-            link=story_link,
-            score=thread_score,
+        return ThreadMetaData(
+            thread_score=thread_score,
             thread_created_at=thread_created_at,
             comments_count=comments_count,
             comments_link=comments_link,
         )
 
-    def create_or_update_thread(self, scraped_thread: ScrapedThread) -> Thread:
+    def create_or_update_thread(self, scraped_thread_data: ScrapedThreadData) -> Thread:
 
         thread, _ = Thread.objects.update_or_create(
-            thread_id=scraped_thread.get("thread_id"), defaults=dict(scraped_thread)
+            thread_id=scraped_thread_data.get("thread_id"), defaults=dict(scraped_thread_data)
         )
 
         return thread
