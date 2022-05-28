@@ -6,6 +6,8 @@
 #
 amqp==5.1.1
     # via kombu
+apscheduler==3.6.3
+    # via python-telegram-bot
 asgiref==3.5.1
     # via django
 asttokens==2.0.5
@@ -18,13 +20,17 @@ beautifulsoup4==4.11.1
     # via -r requirements.in
 billiard==3.6.4.0
     # via celery
+cachetools==4.2.2
+    # via python-telegram-bot
 celery==5.2.6
     # via
     #   -r requirements.in
     #   django-celery-results
     #   flower
 certifi==2021.10.8
-    # via requests
+    # via
+    #   python-telegram-bot
+    #   requests
 charset-normalizer==2.0.12
     # via requests
 click==8.1.3
@@ -125,14 +131,21 @@ pygments==2.12.0
     #   ipython
 python-dateutil==2.8.2
     # via -r requirements.in
+python-telegram-bot==13.12
+    # via -r requirements.in
 pytz==2022.1
     # via
+    #   apscheduler
     #   celery
     #   flower
+    #   python-telegram-bot
+pytz-deprecation-shim==0.1.0.post0
+    # via tzlocal
 requests==2.27.1
     # via -r requirements.in
 six==1.16.0
     # via
+    #   apscheduler
     #   asttokens
     #   click-repl
     #   python-dateutil
@@ -149,7 +162,9 @@ tomli==2.0.1
     #   django-stubs
     #   mypy
 tornado==6.1
-    # via flower
+    # via
+    #   flower
+    #   python-telegram-bot
 traitlets==5.2.0
     # via
     #   ipython
@@ -169,10 +184,15 @@ typing-extensions==4.2.0
     #   django-stubs
     #   django-stubs-ext
     #   mypy
+tzdata==2022.1
+    # via pytz-deprecation-shim
+tzlocal==4.2
+    # via apscheduler
 urllib3==1.26.9
     # via requests
 vine==5.0.0
     # via
+    #   amqp
     #   celery
     #   kombu
 wcwidth==0.2.5
