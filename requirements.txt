@@ -14,6 +14,8 @@ asttokens==2.0.5
     # via
     #   icecream
     #   stack-data
+attrs==21.4.0
+    # via pytest
 backcall==0.2.0
     # via ipython
 beautifulsoup4==4.11.1
@@ -75,6 +77,10 @@ executing==0.8.3
     # via
     #   icecream
     #   stack-data
+factory-boy==3.2.1
+    # via -r requirements.in
+faker==13.12.0
+    # via factory-boy
 flake8==4.0.1
     # via -r requirements.in
 flower==1.0.0
@@ -85,6 +91,8 @@ icecream==2.1.2
     # via -r requirements.in
 idna==3.3
     # via requests
+iniconfig==1.1.1
+    # via pytest
 ipython==8.3.0
     # via -r requirements.in
 jedi==0.18.1
@@ -103,12 +111,16 @@ mypy==0.930
     #   django-stubs
 mypy-extensions==0.4.3
     # via mypy
+packaging==21.3
+    # via pytest
 parso==0.8.3
     # via jedi
 pexpect==4.8.0
     # via ipython
 pickleshare==0.7.5
     # via ipython
+pluggy==1.0.0
+    # via pytest
 prometheus-client==0.14.1
     # via flower
 prompt-toolkit==3.0.29
@@ -121,6 +133,8 @@ ptyprocess==0.7.0
     # via pexpect
 pure-eval==0.2.2
     # via stack-data
+py==1.11.0
+    # via pytest
 pycodestyle==2.8.0
     # via flake8
 pyflakes==2.4.0
@@ -129,8 +143,18 @@ pygments==2.12.0
     # via
     #   icecream
     #   ipython
-python-dateutil==2.8.2
+pyparsing==3.0.9
+    # via packaging
+pytest==7.1.2
+    # via
+    #   -r requirements.in
+    #   pytest-django
+pytest-django==4.5.2
     # via -r requirements.in
+python-dateutil==2.8.2
+    # via
+    #   -r requirements.in
+    #   faker
 python-telegram-bot==13.12
     # via -r requirements.in
 pytz==2022.1
@@ -161,6 +185,7 @@ tomli==2.0.1
     # via
     #   django-stubs
     #   mypy
+    #   pytest
 tornado==6.1
     # via
     #   flower
