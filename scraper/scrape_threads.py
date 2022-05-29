@@ -32,8 +32,8 @@ class ThreadScraper:
         for p_num in range(1, page_count + 1):
             sleep(0.5)
 
-            page_request = hn_session.get(f"{self.HACKERNEWS_DOMEN}news?p={p_num}")
-            page = BeautifulSoup(page_request.text, "lxml")
+            response = hn_session.get(f"{self.HACKERNEWS_DOMEN}news?p={p_num}")
+            page = BeautifulSoup(response.text, "lxml")
 
             rows = page.find_all("tr")
             for row in rows:
