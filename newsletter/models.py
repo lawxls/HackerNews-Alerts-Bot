@@ -9,7 +9,7 @@ logging.basicConfig(level="DEBUG")
 
 
 class Newsletter(TimeStampedModel, models.Model):
-    """Customizable email newsletter"""
+    """Customizable newsletter"""
 
     class NewsletterWeekdayChoices(models.TextChoices):
         """The weekday on which the newsletter will be sent"""
@@ -30,8 +30,6 @@ class Newsletter(TimeStampedModel, models.Model):
         TEN = 10
 
     name = models.CharField(max_length=200, verbose_name="newsletter name")
-    email = models.EmailField(verbose_name="email subscribed to this newsletter")
-    verified = models.BooleanField(default=False, verbose_name="email verified")
     weekday = models.CharField(
         max_length=50,
         choices=NewsletterWeekdayChoices.choices,
@@ -44,9 +42,22 @@ class Newsletter(TimeStampedModel, models.Model):
         default=NewsletterThreadsCountChoices.FIVE,
         help_text="max number of threads per single tag",
     )
-    slug = models.SlugField(max_length=250)
     tags = ArrayField(models.CharField(max_length=80), verbose_name="newsletter tags")
     domens = ArrayField(models.CharField(max_length=80), verbose_name="newsletter domens")
+
+    def __str__(self):
+        return f"({self.pk}) {self.name}"
+
+    class Meta:
+        ordering = ["-created"]
+
+
+class EmailNewsletter(Newsletter):
+    """email newsletter"""
+
+    email = models.EmailField(verbose_name="email subscribed to this newsletter")
+    verified = models.BooleanField(default=False, verbose_name="email verified")
+    slug = models.SlugField(max_length=250)
 
     def __str__(self):
         return f"({self.pk}) {self.name}"
@@ -54,6 +65,18 @@ class Newsletter(TimeStampedModel, models.Model):
     def save(self, *args, **kwargs):
         self.slug = slugify(self.name)
         super().save(*args, **kwargs)
+
+    class Meta:
+        ordering = ["-created"]
+
+
+class TelegramNewsletter(Newsletter):
+    """telegram newsletter"""
+
+    user_id = models.PositiveIntegerField(verbose_name="telegram user id")
+
+    def __str__(self):
+        return f"({self.pk}) {self.name}"
 
     class Meta:
         ordering = ["-created"]
