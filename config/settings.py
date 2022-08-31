@@ -27,6 +27,7 @@ INSTALLED_APPS = [
     # local apps
     "scraper",
     "newsletter",
+    "telegram_feed",
 ]
 
 INTERNAL_IPS = [
