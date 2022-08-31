@@ -11,7 +11,7 @@ from scraper.utils import start_request_session
 
 class ThreadScraper:
     """
-    Scrape and save (or update) threads from news.ycombinator.com/news by pages using BeautifulSoup
+    Scrape and save (or update) threads from news.ycombinator.com/news by pages
 
     >>> from scraper.scrape_threads import ThreadScraper
     >>> thread_scraper = ThreadScraper()

@@ -1,11 +1,5 @@
-import logging
-from datetime import timedelta
-
 from django.db import models
-from django.utils import timezone
 from model_utils.models import TimeStampedModel
-
-logging.basicConfig(level="DEBUG")
 
 
 class Thread(TimeStampedModel, models.Model):
@@ -20,15 +14,6 @@ class Thread(TimeStampedModel, models.Model):
     comments_link = models.URLField(
         max_length=250, null=True, verbose_name="link to thread comments"
     )
-
-    class LastWeekThreads(models.Manager):
-        def get_queryset(self):
-            return (
-                super().get_queryset().filter(created_at__gte=timezone.now() - timedelta(days=7))
-            )
-
-    objects = models.Manager()
-    lastweek = LastWeekThreads()
 
     def __str__(self):
         return f"({self.pk}) {self.title}"
