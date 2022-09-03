@@ -20,3 +20,18 @@ class UserFeed(TimeStampedModel, models.Model):
 
     class Meta:
         ordering = ["-created"]
+
+
+class TelegramUpdate(TimeStampedModel, models.Model):
+    """Update data from getUpdates method"""
+
+    update_id = models.PositiveIntegerField()
+    chat_id = models.PositiveBigIntegerField(verbose_name="telegram chat id")
+    date = models.DateTimeField()
+    text = models.TextField()
+
+    def __str__(self):
+        return f"({self.pk}) {self.update_id}"
+
+    class Meta:
+        ordering = ["-created"]
