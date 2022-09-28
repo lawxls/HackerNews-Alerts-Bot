@@ -24,7 +24,7 @@ class GetUpdates:
             payload["offset"] = last_telegram_update.update_id + 1
 
         response = requests.get(
-            f"https://api.telegram.org/bot{settings.TELEGRAM_TOKEN}", params=payload
+            f"https://api.telegram.org/bot{settings.TELEGRAM_TOKEN}/getUpdates", params=payload
         )
 
         if response.json().get("ok") is True:
