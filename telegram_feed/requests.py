@@ -21,11 +21,16 @@ class GetUpdates:
 
     def request_updates(self, token: str = settings.TELEGRAM_TOKEN) -> list[UpdateData] | None:
 
-        payload = {}
+        payload = {"timeout": 2}
         if last_telegram_update := TelegramUpdate.objects.first():
             payload["offset"] = last_telegram_update.update_id + 1
 
         response = requests.get(f"https://api.telegram.org/bot{token}/getUpdates", params=payload)
+
+        if response.json().get("ok") is False:
+            if error_code := response.json().get("error_code"):
+                if error_code == 409:
+                    return []
 
         if response.json().get("ok") is True:
             result = response.json().get("result")
