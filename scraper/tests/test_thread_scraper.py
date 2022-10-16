@@ -1,6 +1,6 @@
 import pytest
 
-from scraper.scrape_threads import ThreadScraper
+from scraper.service import ThreadScraper
 
 
 class TestThreadScraper:
