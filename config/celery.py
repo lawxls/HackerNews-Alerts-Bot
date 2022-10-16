@@ -13,7 +13,11 @@ app.conf.beat_schedule = {
     "thread_scraper_cron_task": {
         "task": "scraper.tasks.thread_scraper_cron_task",
         "schedule": crontab(minute="*/2"),
-    }
+    },
+    "respond_to_updates_task": {
+        "task": "telegram_feed.tasks.respond_to_updates_task",
+        "schedule": 3.0,
+    },
 }
 
 
