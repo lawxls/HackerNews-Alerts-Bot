@@ -4,15 +4,6 @@ from django.db import models
 from model_utils.models import TimeStampedModel
 
 
-class UserMessageType(models.TextChoices):
-    START_COMMAND = "START_COMMAND"
-    HELP_COMMAND = "HELP_COMMAND"
-    LIST_KEYWORDS_COMMAND = "LIST_KEYWORDS_COMMAND"
-    CREATE_KEYWORDS_COMMAND = "CREATE_KEYWORDS_COMMAND"
-    DELETE_KEYWORDS_COMMAND = "DELETE_KEYWORDS_COMMAND"
-    UNDEFINED_COMMAND = "UNDEFINED_COMMAND"
-
-
 class UserFeed(TimeStampedModel, models.Model):
     """Personalized telegram feed"""
 
