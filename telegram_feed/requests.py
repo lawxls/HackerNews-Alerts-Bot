@@ -11,21 +11,26 @@ from telegram_feed.types import UpdateData
 class GetUpdates:
     """getUpdates telegram method"""
 
-    def get_updates(self, token: str = settings.TELEGRAM_TOKEN) -> list[TelegramUpdate] | None:
+    def __init__(self, token: str = settings.TELEGRAM_TOKEN) -> None:
+        self.token = token
 
-        updates_data = self.request_updates(token=token)
+    def get_updates(self) -> list[TelegramUpdate] | None:
+
+        updates_data = self.request_updates()
         if updates_data is None:
             return None
 
         return self.save_updates(updates_data=updates_data)
 
-    def request_updates(self, token: str = settings.TELEGRAM_TOKEN) -> list[UpdateData] | None:
+    def request_updates(self) -> list[UpdateData] | None:
 
         payload = {"timeout": 2}
         if last_telegram_update := TelegramUpdate.objects.first():
             payload["offset"] = last_telegram_update.update_id + 1
 
-        response = requests.get(f"https://api.telegram.org/bot{token}/getUpdates", params=payload)
+        response = requests.get(
+            f"https://api.telegram.org/bot{self.token}/getUpdates", params=payload
+        )
 
         if response.json().get("ok") is False:
             if error_code := response.json().get("error_code"):
