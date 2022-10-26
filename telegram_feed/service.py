@@ -26,19 +26,17 @@ class TelegramService:
                 return self.respond_to_undefined_command()
 
     def check_user_message(self) -> str:
-        if not self.telegram_update.text:
-            return UserMessageType.UNDEFINED_COMMAND
 
-        match self.telegram_update.text.split()[0]:
-            case "/start":
+        match self.telegram_update.text.split():
+            case ["/start"]:
                 return UserMessageType.START_COMMAND
-            case "/help":
+            case ["/help"]:
                 return UserMessageType.HELP_COMMAND
-            case "/keywords":
+            case ["/keywords"]:
                 return UserMessageType.LIST_KEYWORDS_COMMAND
-            case "/create":
+            case ["/add", _, *_]:
                 return UserMessageType.CREATE_KEYWORDS_COMMAND
-            case "/delete":
+            case ["/remove", _, *_]:
                 return UserMessageType.DELETE_KEYWORDS_COMMAND
             case _:
                 return UserMessageType.UNDEFINED_COMMAND
@@ -47,7 +45,7 @@ class TelegramService:
 
         return (
             "Hi! To start receiving personalized Hacker News stories you need "
-            "to create keywords. Use /create [keyword1, keyword2...] command. "
+            "to create keywords. Use /add [keyword1, keyword2...] command. "
             "To filter out stories by score "
             "use /set_min_score score command. (Current score threshold is 1). "
             "Type /help for more information"
@@ -63,19 +61,31 @@ class TelegramService:
 
         return (
             "To list your keywords you need to create them first. "
-            "Use /create [keyword1, keyword2...] command."
+            "Use /add [keyword1, keyword2...] command."
         )
 
     def respond_to_create_keywords_command(self) -> str:
+        keywords = self.telegram_update.text.replace("/add", "").strip().split(", ")
+
         if user_feed := UserFeed.objects.filter(chat_id=self.telegram_update.chat_id).first():
+
+            current_keywords = user_feed.keywords
+            current_keywords.extend(keywords)
+            user_feed.keywords = list(set(current_keywords))
+            user_feed.save()
+
             keywords_str = ", ".join(user_feed.keywords)
+            return "Keywords added. " f"Your current keywords list: {keywords_str}"
+
+        if len(keywords) > 100:
+            return "Too many keywords! Max 100 keywords allowed!"
+
+        if len(max(keywords, key=len)) > 1000:
             return (
-                "Your keywords list has been created already!\n"
-                f"Your keywords are: {keywords_str}\n"
-                "Type /help to see information about edit or delete keyword commands"
+                "One of the keywords contains too many characters! "
+                "Please input keywords that have less than 1000 characters!"
             )
 
-        keywords = self.telegram_update.text.replace("/create", "").strip().split(", ")
         UserFeed.objects.create(chat_id=self.telegram_update.chat_id, keywords=keywords)
 
         keywords_str = ", ".join(keywords)
@@ -85,24 +95,32 @@ class TelegramService:
         )
 
     def respond_to_delete_keywords_command(self) -> str:
-        if user_feed := UserFeed.objects.filter(chat_id=self.telegram_update.chat_id).first():
-            keywords_to_del = self.telegram_update.text.replace("/delete", "").strip().split(", ")
+        user_feed = UserFeed.objects.filter(chat_id=self.telegram_update.chat_id).first()
+        if user_feed is None:
+            return (
+                "To delete keywords you need to create them first. "
+                "Use /add [keyword1, keyword2...] command."
+            )
 
-            keywords = user_feed.keywords
-            for k in keywords_to_del:
-                if k in keywords:
-                    keywords.remove(k)
+        if len(user_feed.keywords) == 1:
+            user_feed.delete()
+            return (
+                "Successfully deleted! "
+                "It was your last keyword and thus you will no longer receive stories!"
+            )
 
-            user_feed.keywords = keywords
-            user_feed.save()
+        keywords_to_del = self.telegram_update.text.replace("/remove", "").strip().split(", ")
 
-            keywords_str = ", ".join(keywords)
-            return f"Keywords successfully deleted! Your current keywords list: {keywords_str}"
+        keywords = user_feed.keywords
+        for k in keywords_to_del:
+            if k in keywords:
+                keywords.remove(k)
 
-        return (
-            "To delete keywords you need to create them first. "
-            "Use /create [keyword1, keyword2...] command."
-        )
+        user_feed.keywords = keywords
+        user_feed.save()
+
+        keywords_str = ", ".join(keywords)
+        return f"Keywords successfully deleted! Your current keywords list: {keywords_str}"
 
     def respond_to_undefined_command(self) -> str:
         return "You ok lil bro?"
