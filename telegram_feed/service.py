@@ -71,7 +71,7 @@ class TelegramService:
 
             current_keywords = user_feed.keywords
             current_keywords.extend(keywords)
-            user_feed.keywords = list(set(current_keywords))
+            user_feed.keywords = sorted(set(current_keywords))
             user_feed.save()
 
             keywords_str = ", ".join(user_feed.keywords)
@@ -102,24 +102,22 @@ class TelegramService:
                 "Use /add [keyword1, keyword2...] command."
             )
 
-        if len(user_feed.keywords) == 1:
+        keywords_to_del = self.telegram_update.text.replace("/remove", "").strip().split(", ")
+        keywords_to_del_set = set(keywords_to_del)
+        keywords_set = set(user_feed.keywords)
+        keywords_set.difference_update(keywords_to_del_set)
+        updated_keywords = sorted(keywords_set)
+        user_feed.keywords = updated_keywords
+        user_feed.save()
+
+        if not updated_keywords:
             user_feed.delete()
             return (
                 "Successfully deleted! "
-                "It was your last keyword and thus you will no longer receive stories!"
+                "You deleted your last keywords and thus you will no longer receive stories!"
             )
 
-        keywords_to_del = self.telegram_update.text.replace("/remove", "").strip().split(", ")
-
-        keywords = user_feed.keywords
-        for k in keywords_to_del:
-            if k in keywords:
-                keywords.remove(k)
-
-        user_feed.keywords = keywords
-        user_feed.save()
-
-        keywords_str = ", ".join(keywords)
+        keywords_str = ", ".join(updated_keywords)
         return f"Keywords successfully deleted! Your current keywords list: {keywords_str}"
 
     def respond_to_undefined_command(self) -> str:
