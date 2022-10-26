@@ -22,10 +22,14 @@ class TelegramService:
                 return self.respond_to_create_keywords_command()
             case UserMessageType.DELETE_KEYWORDS_COMMAND:
                 return self.respond_to_delete_keywords_command()
+            case UserMessageType.SET_THRESHOLD_COMMAND:
+                return self.respond_to_set_threshold_command()
+            case UserMessageType.STOP_COMMAND:
+                return self.respond_to_stop_command()
             case _:
                 return self.respond_to_undefined_command()
 
-    def check_user_message(self) -> str:
+    def check_user_message(self) -> str:  # type: ignore[return]
 
         match self.telegram_update.text.split():
             case ["/start"]:
@@ -38,6 +42,10 @@ class TelegramService:
                 return UserMessageType.CREATE_KEYWORDS_COMMAND
             case ["/remove", _, *_]:
                 return UserMessageType.DELETE_KEYWORDS_COMMAND
+            case ["/set_threshold", score] if score.isnumeric():  # type: ignore
+                return UserMessageType.SET_THRESHOLD_COMMAND
+            case ["/stop"]:
+                return UserMessageType.STOP_COMMAND
             case _:
                 return UserMessageType.UNDEFINED_COMMAND
 
@@ -72,7 +80,7 @@ class TelegramService:
             current_keywords = user_feed.keywords
             current_keywords.extend(keywords)
             user_feed.keywords = sorted(set(current_keywords))
-            user_feed.save()
+            user_feed.save(update_fields=["keywords"])
 
             keywords_str = ", ".join(user_feed.keywords)
             return "Keywords added. " f"Your current keywords list: {keywords_str}"
@@ -108,7 +116,7 @@ class TelegramService:
         keywords_set.difference_update(keywords_to_del_set)
         updated_keywords = sorted(keywords_set)
         user_feed.keywords = updated_keywords
-        user_feed.save()
+        user_feed.save(update_fields=["keywords"])
 
         if not updated_keywords:
             user_feed.delete()
@@ -119,6 +127,34 @@ class TelegramService:
 
         keywords_str = ", ".join(updated_keywords)
         return f"Keywords successfully deleted! Your current keywords list: {keywords_str}"
+
+    def respond_to_set_threshold_command(self) -> str:
+        user_feed = UserFeed.objects.filter(chat_id=self.telegram_update.chat_id).first()
+        if user_feed is None:
+            return (
+                "To set score threshold create keywords first. "
+                "Use /add [keyword1, keyword2...] command."
+            )
+
+        user_feed.score_threshold = int(
+            self.telegram_update.text.replace("/set_threshold", "").strip()
+        )
+        user_feed.save(update_fields=["score_threshold"])
+
+        return (
+            "Score threshold is set! "
+            f"From now on you will be receiving stories with {user_feed.score_threshold} "
+            "score or higher"
+        )
+
+    def respond_to_stop_command(self) -> str:
+        user_feed = UserFeed.objects.filter(chat_id=self.telegram_update.chat_id).first()
+        if user_feed is None:
+            return "We don't keep any of your data lil bro!"
+
+        user_feed.delete()
+
+        return "Success! All your data is gone!"
 
     def respond_to_undefined_command(self) -> str:
         return "You ok lil bro?"

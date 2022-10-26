@@ -152,3 +152,43 @@ class TestTelegramService:
             "To delete keywords you need to create them first. "
             "Use /add [keyword1, keyword2...] command."
         )
+
+    @pytest.mark.django_db
+    def test_respond_to_user_message_set_threshold_command_success(self):
+        UserFeedFactory.create(chat_id=1, keywords=["python", "django"])
+        telegram_update = TelegramUpdateFactory.create(chat_id=1, text="/set_threshold 100")
+        text_response = TelegramService(
+            telegram_update=telegram_update
+        ).respond_to_set_threshold_command()
+
+        assert text_response == (
+            "Score threshold is set! "
+            "From now on you will be receiving stories with 100 score or higher"
+        )
+
+    @pytest.mark.django_db
+    def test_respond_to_user_message_set_threshold_command_not_created_error(self):
+        telegram_update = TelegramUpdateFactory.create(text="/set_threshold 100")
+        text_response = TelegramService(
+            telegram_update=telegram_update
+        ).respond_to_set_threshold_command()
+
+        assert text_response == (
+            "To set score threshold create keywords first. "
+            "Use /add [keyword1, keyword2...] command."
+        )
+
+    @pytest.mark.django_db
+    def test_respond_to_user_message_stop_command_success(self):
+        UserFeedFactory.create(chat_id=1, keywords=["python", "django"])
+        telegram_update = TelegramUpdateFactory.create(chat_id=1, text="/stop")
+        text_response = TelegramService(telegram_update=telegram_update).respond_to_stop_command()
+
+        assert text_response == "Success! All your data is gone!"
+
+    @pytest.mark.django_db
+    def test_respond_to_user_message_stop_command_not_created_error(self):
+        telegram_update = TelegramUpdateFactory.create(text="/stop")
+        text_response = TelegramService(telegram_update=telegram_update).respond_to_stop_command()
+
+        assert text_response == "We don't keep any of your data lil bro!"
