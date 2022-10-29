@@ -13,7 +13,7 @@ class ThreadScraper:
     """
     Scrape and save (or update) threads from news.ycombinator.com/news by pages
 
-    >>> from scraper.scrape_threads import ThreadScraper
+    >>> from scraper.service import ThreadScraper
     >>> thread_scraper = ThreadScraper()
     >>> thread_scraper.scrape_pages_and_save_threads()
     <list[Thread]>
