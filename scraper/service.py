@@ -48,8 +48,8 @@ class ThreadScraper:
     def parse_thread_data(self, data_row) -> ScrapedThreadData:
 
         thread_id = data_row.get("id")
-        thread_title = data_row.find("a", class_="titlelink").text
-        story_link = data_row.find("a", class_="titlelink").get("href")
+        thread_title = data_row.find("span", class_="titleline").find("a").text
+        story_link = data_row.find("span", class_="titleline").find("a").get("href")
 
         thread_meta_data = self.parse_thread_meta_data(meta_data_row=data_row.find_next_sibling())
 
