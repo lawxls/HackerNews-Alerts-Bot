@@ -3,6 +3,8 @@ from django.core.validators import MaxValueValidator
 from django.db import models
 from model_utils.models import TimeStampedModel
 
+from scraper.models import Thread
+
 
 class UserFeed(TimeStampedModel, models.Model):
     """Personalized telegram feed"""
@@ -14,6 +16,7 @@ class UserFeed(TimeStampedModel, models.Model):
         default=10,
         validators=[MaxValueValidator(1000)],
     )
+    threads = models.ManyToManyField(Thread, related_name="user_feeds")
 
     def __str__(self):
         return f"({self.pk}) {self.chat_id}"
