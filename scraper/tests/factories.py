@@ -1,3 +1,4 @@
+from django.utils import timezone
 from factory import Faker
 from factory.django import DjangoModelFactory
 
@@ -11,7 +12,7 @@ class ThreadFactory(DjangoModelFactory):
     comments_link = Faker("url")
     score = Faker("pyint")
     comments_count = Faker("pyint")
-    thread_created_at = Faker("date_time")
+    thread_created_at = timezone.now()
 
     class Meta:
         model = Thread

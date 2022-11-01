@@ -75,9 +75,9 @@ class GetUpdates:
 class SendMessage:
     """sendMessage telegram method"""
 
-    def send_message(self, telegram_update: TelegramUpdate, text: str) -> bool:
+    def send_message(self, chat_id: int, text: str) -> bool:
 
-        payload: dict = {"chat_id": telegram_update.chat_id, "text": text}
+        payload: dict = {"chat_id": chat_id, "text": text}
 
         response = requests.get(
             f"https://api.telegram.org/bot{settings.TELEGRAM_TOKEN}/sendMessage", params=payload
