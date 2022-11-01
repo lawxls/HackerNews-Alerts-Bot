@@ -5,7 +5,7 @@ from scraper.service import ThreadScraper
 
 class TestThreadScraper:
     @pytest.mark.django_db
-    def test_scraping_main_page(self):
+    def test_scraping_main_page_success(self):
         """
         Test scraping news.ycombinator.com/news page.
 
