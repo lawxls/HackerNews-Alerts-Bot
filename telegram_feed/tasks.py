@@ -1,5 +1,4 @@
 import datetime
-from time import sleep
 
 from django.utils import timezone
 
@@ -8,6 +7,7 @@ from scraper.models import Thread
 from telegram_feed.models import UserFeed
 from telegram_feed.requests import GetUpdates, SendMessage
 from telegram_feed.service import TelegramService
+from telegram_feed.utils import send_threads_to_telegram_feed
 
 
 @celery_app.task
@@ -21,21 +21,15 @@ def send_stories_to_user_chats_task():
 
         for keyword in user_feed.keywords:
             threads_by_keyword = threads_from_24_hours.filter(
-                title__icontains=keyword, score__gte=user_feed.score_threshold
+                title__icontains=keyword,
+                score__gte=user_feed.score_threshold,
+                comments_link__isnull=False,  # exclude YC hiring posts
             )
             threads_by_keywords = threads_by_keywords | threads_by_keyword
 
         new_threads = threads_by_keywords.difference(user_feed.threads.all())
-        for new_thread in new_threads:
-            sleep(1)
-
-            text = (
-                f"{new_thread.title} "
-                f"(Score: {new_thread.score}, created: {str(new_thread.thread_created_at)}"
-            )
-            SendMessage().send_message(chat_id=user_feed.chat_id, text=text)
-
-            user_feed.threads.add(new_thread)
+        send_threads_to_telegram_feed(user_feed=user_feed, threads=new_threads)
+        user_feed.threads.add(*new_threads)
 
 
 @celery_app.task
