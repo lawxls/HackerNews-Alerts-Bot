@@ -1,3 +1,4 @@
+import json
 from datetime import datetime
 
 import requests
@@ -75,9 +76,19 @@ class GetUpdates:
 class SendMessage:
     """sendMessage telegram method"""
 
-    def send_message(self, chat_id: int, text: str) -> bool:
+    def send_message(
+        self,
+        chat_id: int,
+        text: str,
+        inline_keyboard_markup: dict | None = None,
+        parse_mode: str | None = None,
+    ) -> bool:
 
         payload: dict = {"chat_id": chat_id, "text": text}
+        if inline_keyboard_markup:
+            payload["reply_markup"] = json.dumps(inline_keyboard_markup)
+        if parse_mode:
+            payload["parse_mode"] = parse_mode
 
         response = requests.get(
             f"https://api.telegram.org/bot{settings.TELEGRAM_TOKEN}/sendMessage", params=payload
