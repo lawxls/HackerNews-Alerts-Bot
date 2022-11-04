@@ -4,7 +4,7 @@ from django.contrib import admin
 from django.urls import include, path
 
 env = environ.Env()
-environ.Env.read_env(str(settings.BASE_DIR.joinpath(".env")))
+environ.Env.read_env(str(settings.BASE_DIR.joinpath(".env")), overwrite=True)
 
 urlpatterns = [
     path(env("ADMIN_URL"), admin.site.urls),
