@@ -82,22 +82,12 @@ class RespondToMessageService:
 
     def respond_to_list_keywords_command(self) -> str:
         if user_feed := UserFeed.objects.filter(chat_id=self.telegram_update.chat_id).first():
-            return ", ".join(user_feed.keywords)
+            return "\n".join(user_feed.keywords)
 
         return "Fail! Add keywords first. /help for info"
 
     def respond_to_create_keywords_command(self) -> str:
         keywords = self.telegram_update.text.replace("/add", "").strip().split(", ")
-
-        if user_feed := UserFeed.objects.filter(chat_id=self.telegram_update.chat_id).first():
-
-            current_keywords = user_feed.keywords
-            current_keywords.extend(keywords)
-            user_feed.keywords = sorted(set(current_keywords))
-            user_feed.save(update_fields=["keywords"])
-
-            keywords_str = ", ".join(user_feed.keywords)
-            return f"Success! Keyword(s) added. Current keywords list: {keywords_str}"
 
         if len(keywords) > 50:
             return "Fail! Keywords limit of 50 is reached"
@@ -107,6 +97,21 @@ class RespondToMessageService:
 
         if len(min(keywords, key=len)) < 3:
             return "Fail! Keywords must be at least 3 characters long"
+
+        if user_feed := UserFeed.objects.filter(chat_id=self.telegram_update.chat_id).first():
+
+            current_keywords = user_feed.keywords
+            current_keywords.extend(keywords)
+            new_keywords_list = sorted(set(current_keywords))
+
+            if len(new_keywords_list) > 50:
+                return "Fail! Keywords limit of 50 is reached"
+
+            user_feed.keywords = new_keywords_list
+            user_feed.save(update_fields=["keywords"])
+
+            keywords_str = "\n".join(user_feed.keywords)
+            return f"Success! Keyword(s) added. Current keywords list:\n{keywords_str}"
 
         UserFeed.objects.create(chat_id=self.telegram_update.chat_id, keywords=keywords)
 
@@ -120,10 +125,12 @@ class RespondToMessageService:
         keywords_to_del = self.telegram_update.text.replace("/remove", "").strip().split(", ")
         keywords_to_del_set = set(keywords_to_del)
         keywords_set = set(user_feed.keywords)
+
+        if not bool(set(keywords_set) & set(keywords_to_del_set)):
+            return "Fail! Not found in keywords list"
+
         keywords_set.difference_update(keywords_to_del_set)
         updated_keywords = sorted(keywords_set)
-        user_feed.keywords = updated_keywords
-        user_feed.save(update_fields=["keywords"])
 
         if not updated_keywords:
             user_feed.delete()
@@ -132,8 +139,11 @@ class RespondToMessageService:
                 "As you have emptied your keywords list, the bot will be silent for now"
             )
 
-        keywords_str = ", ".join(updated_keywords)
-        return f"Success! Keyword(s) deleted.\nCurrent keywords list: {keywords_str}"
+        user_feed.keywords = updated_keywords
+        user_feed.save(update_fields=["keywords"])
+
+        keywords_str = "\n".join(updated_keywords)
+        return f"Success! Keyword(s) deleted. Current keywords list:\n{keywords_str}"
 
     def respond_to_set_threshold_command(self) -> str:
         user_feed = UserFeed.objects.filter(chat_id=self.telegram_update.chat_id).first()
@@ -158,7 +168,7 @@ class RespondToMessageService:
 
         user_feed.delete()
 
-        return "Success! Bot is stopped, the data is erased"
+        return "Success! Bot is stopped, your data is erased"
 
     def respond_to_undefined_command(self) -> str:
         return "Huh? Type /help to see the list of implemented commands"

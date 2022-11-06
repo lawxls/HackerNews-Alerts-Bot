@@ -113,7 +113,7 @@ class TestRespondToMessageService:
 
     @pytest.mark.django_db
     def test_respond_to_user_message_create_keywords_command_short_keyword_error(self):
-        keywords_list = ["".join("s" for _ in range(2)) for _ in range(2)]
+        keywords_list = ["ss" for _ in range(2)]
         keywords_str = ", ".join(keywords_list)
 
         telegram_update = TelegramUpdateFactory.create(text=f"/add {keywords_str}")
@@ -133,7 +133,7 @@ class TestRespondToMessageService:
             telegram_update=telegram_update
         ).respond_to_user_message()
 
-        keywords_str = "python, javascript, rust, linux, booba"
+        keywords_str = "\n".join(["python", "javascript", "rust", "linux", "booba"])
 
         assert text_response == keywords_str
 
@@ -158,10 +158,10 @@ class TestRespondToMessageService:
             telegram_update=telegram_update
         ).respond_to_user_message()
 
-        keywords_str = "booba"
+        keywords_str = "\n".join(["booba"])
 
         assert (
-            text_response == f"Success! Keyword(s) deleted.\nCurrent keywords list: {keywords_str}"
+            text_response == f"Success! Keyword(s) deleted. Current keywords list:\n{keywords_str}"
         )
 
     @pytest.mark.django_db
@@ -190,6 +190,16 @@ class TestRespondToMessageService:
         ).respond_to_user_message()
 
         assert text_response == "Fail! Add keywords first. /help for info"
+
+    @pytest.mark.django_db
+    def test_respond_to_user_message_delete_keywords_command_not_found_error(self):
+        UserFeedFactory.create(chat_id=1, keywords=["python", "django"])
+        telegram_update = TelegramUpdateFactory.create(chat_id=1, text="/remove rust")
+        text_response = RespondToMessageService(
+            telegram_update=telegram_update
+        ).respond_to_user_message()
+
+        assert text_response == "Fail! Not found in keywords list"
 
     @pytest.mark.django_db
     def test_respond_to_user_message_set_threshold_command_success(self):
@@ -222,7 +232,7 @@ class TestRespondToMessageService:
             telegram_update=telegram_update
         ).respond_to_stop_command()
 
-        assert text_response == "Success! Bot is stopped, the data is erased"
+        assert text_response == "Success! Bot is stopped, your data is erased"
 
     @pytest.mark.django_db
     def test_respond_to_user_message_stop_command_not_created_error(self):
