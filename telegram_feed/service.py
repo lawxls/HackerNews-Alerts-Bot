@@ -1,9 +1,17 @@
 from telegram_feed.models import TelegramUpdate, UserFeed
-from telegram_feed.types import UserMessageType
 
 
-class TelegramService:
+class RespondToMessageService:
     """telegram user text response logic"""
+
+    START_COMMAND = "START_COMMAND"
+    HELP_COMMAND = "HELP_COMMAND"
+    LIST_KEYWORDS_COMMAND = "LIST_KEYWORDS_COMMAND"
+    CREATE_KEYWORDS_COMMAND = "CREATE_KEYWORDS_COMMAND"
+    DELETE_KEYWORDS_COMMAND = "DELETE_KEYWORDS_COMMAND"
+    SET_THRESHOLD_COMMAND = "SET_THRESHOLD_COMMAND"
+    STOP_COMMAND = "STOP_COMMAND"
+    UNDEFINED_COMMAND = "UNDEFINED_COMMAND"
 
     def __init__(self, telegram_update: TelegramUpdate) -> None:
         self.telegram_update = telegram_update
@@ -12,19 +20,19 @@ class TelegramService:
         user_message_type = self.check_user_message()
 
         match user_message_type:
-            case UserMessageType.START_COMMAND:
-                return self.respond_to_start_command()
-            case UserMessageType.HELP_COMMAND:
+            case self.START_COMMAND:  # same response as help command
                 return self.respond_to_help_command()
-            case UserMessageType.LIST_KEYWORDS_COMMAND:
+            case self.HELP_COMMAND:
+                return self.respond_to_help_command()
+            case self.LIST_KEYWORDS_COMMAND:
                 return self.respond_to_list_keywords_command()
-            case UserMessageType.CREATE_KEYWORDS_COMMAND:
+            case self.CREATE_KEYWORDS_COMMAND:
                 return self.respond_to_create_keywords_command()
-            case UserMessageType.DELETE_KEYWORDS_COMMAND:
+            case self.DELETE_KEYWORDS_COMMAND:
                 return self.respond_to_delete_keywords_command()
-            case UserMessageType.SET_THRESHOLD_COMMAND:
+            case self.SET_THRESHOLD_COMMAND:
                 return self.respond_to_set_threshold_command()
-            case UserMessageType.STOP_COMMAND:
+            case self.STOP_COMMAND:
                 return self.respond_to_stop_command()
             case _:
                 return self.respond_to_undefined_command()
@@ -33,44 +41,50 @@ class TelegramService:
 
         match self.telegram_update.text.split():
             case ["/start"]:
-                return UserMessageType.START_COMMAND
+                return self.START_COMMAND
             case ["/help"]:
-                return UserMessageType.HELP_COMMAND
+                return self.HELP_COMMAND
             case ["/keywords"]:
-                return UserMessageType.LIST_KEYWORDS_COMMAND
+                return self.LIST_KEYWORDS_COMMAND
             case ["/add", _, *_]:
-                return UserMessageType.CREATE_KEYWORDS_COMMAND
+                return self.CREATE_KEYWORDS_COMMAND
             case ["/remove", _, *_]:
-                return UserMessageType.DELETE_KEYWORDS_COMMAND
-            case ["/set_threshold", score] if score.isnumeric():  # type: ignore
-                return UserMessageType.SET_THRESHOLD_COMMAND
+                return self.DELETE_KEYWORDS_COMMAND
+            case ["/set_score", score] if score.isnumeric():  # type: ignore
+                return self.SET_THRESHOLD_COMMAND
             case ["/stop"]:
-                return UserMessageType.STOP_COMMAND
+                return self.STOP_COMMAND
             case _:
-                return UserMessageType.UNDEFINED_COMMAND
+                return self.UNDEFINED_COMMAND
 
     def respond_to_start_command(self) -> str:
-
-        return (
-            "Hi! To start receiving personalized Hacker News stories you need "
-            "to create keywords. Use /add [keyword1, keyword2...] command. "
-            "To filter out stories by score "
-            "use /set_min_score score command. (Current score threshold is 1). "
-            "Type /help for more information"
-        )
+        pass
 
     def respond_to_help_command(self) -> str:
-        return "No elp"
+        return (
+            "This is a bot for creating your own, personalized feed of stories from Hacker News.\n"
+            "Manage your keywords, set score threshold.\n"
+            "Keyword search implemented via case-insensitive containment test.\n\n"
+            "🔻 COMMANDS\n\n"
+            "/add keyword1, second keyword, keyword3\n"
+            "Add keywords. Separate by comma.\n\n"
+            "/set_score 100\n"
+            "Receive stories only when they reach a certain score. Default is 10.\n\n"
+            "/keywords\n"
+            "List your keywords.\n\n"
+            "/remove keyword1, second keyword, keyword3\n"
+            "Remove keywords. Separate by comma.\n\n"
+            "/help\n"
+            "Show this message.\n\n"
+            "/stop\n"
+            "Stop the bot. Erases your data."
+        )
 
     def respond_to_list_keywords_command(self) -> str:
         if user_feed := UserFeed.objects.filter(chat_id=self.telegram_update.chat_id).first():
-            keywords_str = ", ".join(user_feed.keywords)
-            return f"Your keywords are: {keywords_str}"
+            return ", ".join(user_feed.keywords)
 
-        return (
-            "To list your keywords you need to create them first. "
-            "Use /add [keyword1, keyword2...] command."
-        )
+        return "Fail! Add keywords first. /help for info"
 
     def respond_to_create_keywords_command(self) -> str:
         keywords = self.telegram_update.text.replace("/add", "").strip().split(", ")
@@ -83,32 +97,25 @@ class TelegramService:
             user_feed.save(update_fields=["keywords"])
 
             keywords_str = ", ".join(user_feed.keywords)
-            return "Keywords added. " f"Your current keywords list: {keywords_str}"
+            return f"Success! Keyword(s) added. Current keywords list: {keywords_str}"
 
-        if len(keywords) > 100:
-            return "Too many keywords! Max 100 keywords allowed!"
+        if len(keywords) > 50:
+            return "Fail! Keywords limit of 50 is reached"
 
-        if len(max(keywords, key=len)) > 1000:
-            return (
-                "One of the keywords contains too many characters! "
-                "Please input keywords that have less than 1000 characters!"
-            )
+        if len(max(keywords, key=len)) > 80:
+            return "Fail! Maximum keyword length is 80 characters"
+
+        if len(min(keywords, key=len)) < 3:
+            return "Fail! Keywords must be at least 3 characters long"
 
         UserFeed.objects.create(chat_id=self.telegram_update.chat_id, keywords=keywords)
 
-        keywords_str = ", ".join(keywords)
-        return (
-            "Set up complete! You will be receiving stories "
-            f"if story title will contain one of these keywords: {keywords_str}"
-        )
+        return "Success! Keyword(s) list created. You may want to use /set_score command now"
 
     def respond_to_delete_keywords_command(self) -> str:
         user_feed = UserFeed.objects.filter(chat_id=self.telegram_update.chat_id).first()
         if user_feed is None:
-            return (
-                "To delete keywords you need to create them first. "
-                "Use /add [keyword1, keyword2...] command."
-            )
+            return "Fail! Add keywords first. /help for info"
 
         keywords_to_del = self.telegram_update.text.replace("/remove", "").strip().split(", ")
         keywords_to_del_set = set(keywords_to_del)
@@ -121,40 +128,37 @@ class TelegramService:
         if not updated_keywords:
             user_feed.delete()
             return (
-                "Successfully deleted! "
-                "You deleted your last keywords and thus you will no longer receive stories!"
+                "Success! Keyword(s) deleted. "
+                "As you have emptied your keywords list, the bot will be silent for now"
             )
 
         keywords_str = ", ".join(updated_keywords)
-        return f"Keywords successfully deleted! Your current keywords list: {keywords_str}"
+        return f"Success! Keyword(s) deleted.\nCurrent keywords list: {keywords_str}"
 
     def respond_to_set_threshold_command(self) -> str:
         user_feed = UserFeed.objects.filter(chat_id=self.telegram_update.chat_id).first()
         if user_feed is None:
-            return (
-                "To set score threshold create keywords first. "
-                "Use /add [keyword1, keyword2...] command."
-            )
+            return "Fail! Add keywords first. /help for info"
 
         user_feed.score_threshold = int(
-            self.telegram_update.text.replace("/set_threshold", "").strip()
+            self.telegram_update.text.replace("/set_score", "").strip()
         )
         user_feed.save(update_fields=["score_threshold"])
 
         return (
-            "Score threshold is set! "
-            f"From now on you will be receiving stories with {user_feed.score_threshold} "
-            "score or higher"
+            "Success! Score threshold is set. "
+            "From now on you will be receiving stories only when they reach "
+            f"{user_feed.score_threshold} points"
         )
 
     def respond_to_stop_command(self) -> str:
         user_feed = UserFeed.objects.filter(chat_id=self.telegram_update.chat_id).first()
         if user_feed is None:
-            return "We don't keep any of your data lil bro!"
+            return "Fail! Bot cannot be stopped (data not found)"
 
         user_feed.delete()
 
-        return "Success! All your data is gone!"
+        return "Success! Bot is stopped, the data is erased"
 
     def respond_to_undefined_command(self) -> str:
-        return "You ok lil bro?"
+        return "Huh? Type /help to see the list of implemented commands"
