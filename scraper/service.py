@@ -8,44 +8,97 @@ from scraper.models import Thread
 from scraper.types import ScrapedThreadData, ThreadMetaData
 from scraper.utils import start_request_session
 
+HACKERNEWS_DOMEN = "https://news.ycombinator.com/"
+
 
 class ThreadScraper:
     """
-    Scrape and save (or update) threads from news.ycombinator.com/news by pages
+    Scrape and (create or update) threads from Hacker News /newest or /news pages
 
     >>> from scraper.service import ThreadScraper
-    >>> thread_scraper = ThreadScraper()
-    >>> thread_scraper.scrape_pages_and_save_threads()
-    <list[Thread]>
+    >>> newest_threads_scraper = ThreadScraper()
+    >>> newest_threads_scraper.scrape()
+    -> <list[Thread]>
     """
 
-    HACKERNEWS_DOMEN = "https://news.ycombinator.com/"
+    NEWS = "NEWS"
+    NEWEST = "NEWEST"
 
-    def __init__(self):
-        return
+    def __init__(self, page_to_scrape: str = NEWEST, news_page_count: int = 0) -> None:
+        self.page_to_scrape = page_to_scrape
+        self.hn_request_session = start_request_session(domen=HACKERNEWS_DOMEN)
+        self.thread_parser = ThreadParser(page_to_parse=page_to_scrape)
 
-    def scrape_pages_and_save_threads(self, page_count: int = 10) -> list[Thread]:
+        if page_to_scrape == self.NEWS:
+            self.news_page_count = 1
+        else:
+            self.news_page_count = news_page_count
 
-        hn_session = start_request_session(domen=self.HACKERNEWS_DOMEN)
+    def scrape(self) -> list[Thread]:
+        if self.page_to_scrape == self.NEWS:
+            scraped_threads = self.scrape_news_pages()
+        elif self.page_to_scrape == self.NEWEST:
+            scraped_threads = self.scrape_newest_page()
 
         threads = []
-        for p_num in range(1, page_count + 1):
-            sleep(0.5)
-
-            response = hn_session.get(f"{self.HACKERNEWS_DOMEN}news?p={p_num}")
-            page = BeautifulSoup(response.text, "lxml")
-
-            rows = page.find_all("tr")
-            for row in rows:
-                if isinstance(row.get("class"), list) and row.get("class")[0] == "athing":
-
-                    scraped_thread_data = self.parse_thread_data(data_row=row)
-                    thread = self.create_or_update_thread(scraped_thread_data=scraped_thread_data)
-                    threads.append(thread)
+        for scraped_thread in scraped_threads:
+            thread = self.create_or_update_thread(scraped_thread_data=scraped_thread)
+            threads.append(thread)
 
         return threads
 
-    def parse_thread_data(self, data_row) -> ScrapedThreadData:
+    def scrape_newest_page(self) -> list[ScrapedThreadData]:
+        response = self.hn_request_session.get(f"{HACKERNEWS_DOMEN}newest")
+        page = BeautifulSoup(response.text, "lxml")
+
+        return self.thread_parser.parse(bs4_page_data=page)
+
+    def scrape_news_pages(self) -> list[ScrapedThreadData]:
+        scraped_threads = []
+        for p_num in range(1, self.news_page_count + 1):
+            sleep(0.5)
+
+            response = self.hn_request_session.get(f"{HACKERNEWS_DOMEN}news?p={p_num}")
+            page = BeautifulSoup(response.text, "lxml")
+
+            page_scraped_threads = self.thread_parser.parse(bs4_page_data=page)
+            scraped_threads.extend(page_scraped_threads)
+
+        return scraped_threads
+
+    def create_or_update_thread(self, scraped_thread_data: ScrapedThreadData) -> Thread:
+
+        thread, _ = Thread.objects.update_or_create(
+            thread_id=scraped_thread_data.get("thread_id"), defaults=dict(scraped_thread_data)
+        )
+
+        return thread
+
+
+class ThreadParser:
+    """
+    Parse threads from Hacker News /newest or /news page
+
+    >>> parser = ThreadParser()
+    >>> parser.parse(bs4_page_data=bs4_page_data)
+    -> <list[ScrapedThreadData]>
+    """
+
+    def __init__(self, page_to_parse: str = ThreadScraper.NEWEST) -> None:
+        self.page_to_parse = page_to_parse
+
+    def parse(self, bs4_page_data: BeautifulSoup) -> list[ScrapedThreadData]:
+        parsed_threads = []
+
+        rows = bs4_page_data.find_all("tr")
+        for row in rows:
+            if isinstance(row.get("class"), list) and row.get("class")[0] == "athing":
+                parsed_thread = self.parse_thread_data(data_row=row)
+                parsed_threads.append(parsed_thread)
+
+        return parsed_threads
+
+    def parse_thread_data(self, data_row: BeautifulSoup) -> ScrapedThreadData:
 
         thread_id = data_row.get("id")
         thread_title = data_row.find("span", class_="titleline").find("a").text
@@ -63,13 +116,13 @@ class ThreadScraper:
             comments_link=thread_meta_data.get("comments_link"),
         )
 
-    def parse_thread_meta_data(self, meta_data_row) -> ThreadMetaData:
+    def parse_thread_meta_data(self, meta_data_row: BeautifulSoup) -> ThreadMetaData:
 
         thread_score = 0
         if thread_score_span := meta_data_row.find("td", class_="subtext").find(
             "span", class_="score"
         ):
-            thread_score = int(thread_score_span.text.replace(" points", ""))
+            thread_score = int("".join(i for i in thread_score_span.text if i.isdigit()))
 
         thread_created_at = timezone.now()
         if thread_created_at_span := meta_data_row.find("td", class_="subtext").find(
@@ -78,11 +131,16 @@ class ThreadScraper:
             thread_created_at = parser.parse(thread_created_at_span.get("title"))
             thread_created_at = thread_created_at.astimezone(tz.UTC)
 
-        comments_data_hyperlink = (
-            meta_data_row.find("td", class_="subtext")
-            .find("a", string="hide")
-            .next_element.next_element.next_element
-        )
+        if self.page_to_parse == ThreadScraper.NEWS:
+            comments_data_hyperlink = (
+                meta_data_row.find("td", class_="subtext")
+                .find("a", string="hide")
+                .next_element.next_element.next_element
+            )
+        elif self.page_to_parse == ThreadScraper.NEWEST:
+            comments_data_hyperlink = meta_data_row.find(
+                "a", class_="hnpast"
+            ).next_element.next_element.next_element
 
         comments_count = 0
         if "comment" in comments_data_hyperlink.text:
@@ -102,11 +160,3 @@ class ThreadScraper:
             comments_count=comments_count,
             comments_link=comments_link,
         )
-
-    def create_or_update_thread(self, scraped_thread_data: ScrapedThreadData) -> Thread:
-
-        thread, _ = Thread.objects.update_or_create(
-            thread_id=scraped_thread_data.get("thread_id"), defaults=dict(scraped_thread_data)
-        )
-
-        return thread
