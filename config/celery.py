@@ -14,6 +14,10 @@ app.conf.beat_schedule = {
         "task": "scraper.tasks.new_threads_scraper_cron_task",
         "schedule": crontab(minute="*/2"),
     },
+    "main_page_threads_scraper_cron_task": {
+        "task": "scraper.tasks.main_page_threads_scraper_cron_task",
+        "schedule": crontab(minute="*/5"),
+    },
     "respond_to_updates_task": {
         "task": "telegram_feed.tasks.respond_to_updates_task",
         "schedule": 5.0,
