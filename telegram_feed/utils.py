@@ -9,15 +9,20 @@ from telegram_feed.requests import SendMessage
 from telegram_feed.types import InlineKeyboardButton
 
 
-def send_threads_to_telegram_feed(user_feed: UserFeed, threads: QuerySet[Thread]) -> bool:
+def send_threads_to_telegram_feed(user_feed: UserFeed, threads: "QuerySet[Thread]") -> bool:
     for thread in threads:
         sleep(1)
 
         thread_created_at_str = thread.thread_created_at.strftime("%B %d, %H:%M")
+        escaped_title = escape_markdown(text=thread.title, version=2)
+        escaped_story_link = escape_markdown(text=thread.link, version=2, entity_type="text_link")
+        escaped_comments_link = escape_markdown(
+            text=thread.comments_link, version=2, entity_type="text_link"  # type: ignore
+        )
         text = (
-            f"[*{thread.title}*]({thread.link}) \n\n"
+            f"[*{escaped_title}*]({escaped_story_link}) \n\n"
             f"{thread.score}\\+ points \\| [{thread.comments_count}\\+ "
-            f"comments]({thread.comments_link}) \\| {thread_created_at_str}"
+            f"comments]({escaped_comments_link}) \\| {thread_created_at_str}"
         )
 
         read_button = InlineKeyboardButton(text="read", url=thread.link)
