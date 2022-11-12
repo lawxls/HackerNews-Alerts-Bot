@@ -20,7 +20,7 @@ app.conf.beat_schedule = {
     },
     "send_stories_to_user_chats_task": {
         "task": "telegram_feed.tasks.send_stories_to_user_chats_task",
-        "schedule": crontab(minute="*/5"),
+        "schedule": crontab(minute="*/1"),
     },
 }
 
