@@ -104,6 +104,10 @@ class ThreadParser:
         thread_title = data_row.find("span", class_="titleline").find("a").text
         story_link = data_row.find("span", class_="titleline").find("a").get("href")
 
+        # hacker news post without a url
+        if "https://" not in story_link and "item?id=" in story_link:
+            story_link = f"https://news.ycombinator.com/{story_link}"
+
         thread_meta_data = self.parse_thread_meta_data(meta_data_row=data_row.find_next_sibling())
 
         return ScrapedThreadData(
