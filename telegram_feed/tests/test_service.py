@@ -18,7 +18,7 @@ class TestRespondToMessageService:
         "/add keyword1, second keyword, keyword3\n"
         "Add keywords. Separate by comma.\n\n"
         "/set_score 100\n"
-        "Receive stories only when they reach a certain score. Default is 10.\n\n"
+        "Receive stories only when they reach a certain score. Default is 2.\n\n"
         "/keywords\n"
         "List your keywords.\n\n"
         "/remove keyword1, second keyword, keyword3\n"

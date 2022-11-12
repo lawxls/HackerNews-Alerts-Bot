@@ -13,8 +13,8 @@ class UserFeed(TimeStampedModel, models.Model):
     keywords = ArrayField(models.CharField(max_length=80), verbose_name="feed keywords")
     score_threshold = models.PositiveSmallIntegerField(
         verbose_name="Threshold to pass for a story to be sent",
-        default=10,
-        validators=[MaxValueValidator(1000)],
+        default=2,
+        validators=[MaxValueValidator(10000)],
     )
     threads = models.ManyToManyField(Thread, related_name="user_feeds")
 
