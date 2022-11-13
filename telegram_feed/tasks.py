@@ -11,11 +11,12 @@ from telegram_feed.utils import send_threads_to_telegram_feed
 
 
 @celery_app.task
-def send_stories_to_user_chats_task():
+def send_stories_to_user_chats_task() -> bool:
     date_from = timezone.now() - datetime.timedelta(days=1)
     threads_from_24_hours = Thread.objects.filter(created__gte=date_from)
 
     user_feeds = UserFeed.objects.all()
+    stories_sent_to_feeds = []
     for user_feed in user_feeds:
         threads_by_keywords = Thread.objects.none()
 
@@ -28,8 +29,11 @@ def send_stories_to_user_chats_task():
             threads_by_keywords = threads_by_keywords | threads_by_keyword
 
         new_threads = threads_by_keywords.difference(user_feed.threads.all())
-        send_threads_to_telegram_feed(user_feed=user_feed, threads=new_threads)
+        stories_sent = send_threads_to_telegram_feed(user_feed=user_feed, threads=new_threads)
         user_feed.threads.add(*new_threads)
+        stories_sent_to_feeds.append(stories_sent)
+
+    return all(stories_sent_to_feeds)
 
 
 @celery_app.task

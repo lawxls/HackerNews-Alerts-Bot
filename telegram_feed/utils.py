@@ -10,6 +10,7 @@ from telegram_feed.types import InlineKeyboardButton
 
 
 def send_threads_to_telegram_feed(user_feed: UserFeed, threads: "QuerySet[Thread]") -> bool:
+    messages_sent = []
     for thread in threads:
         sleep(1)
 
@@ -32,14 +33,15 @@ def send_threads_to_telegram_feed(user_feed: UserFeed, threads: "QuerySet[Thread
 
         inline_keyboard_markup = {"inline_keyboard": [[read_button, comments_button]]}
 
-        SendMessage().send_message(
+        sent = SendMessage().send_message(
             chat_id=user_feed.chat_id,
             text=text,
             inline_keyboard_markup=inline_keyboard_markup,
             parse_mode="MarkdownV2",
         )
+        messages_sent.append(sent)
 
-    return True
+    return all(messages_sent)
 
 
 def escape_markdown(text: str, version: int = 1, entity_type: str = None) -> str:
