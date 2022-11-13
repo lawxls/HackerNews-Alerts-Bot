@@ -13,7 +13,7 @@ from telegram_feed.utils import send_threads_to_telegram_feed
 @celery_app.task
 def send_stories_to_user_chats_task():
     date_from = timezone.now() - datetime.timedelta(days=1)
-    threads_from_24_hours = Thread.objects.filter(thread_created_at__gte=date_from)
+    threads_from_24_hours = Thread.objects.filter(created__gte=date_from)
 
     user_feeds = UserFeed.objects.all()
     for user_feed in user_feeds:
