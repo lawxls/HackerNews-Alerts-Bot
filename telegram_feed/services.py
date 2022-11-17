@@ -191,8 +191,8 @@ class RespondToMessageService:
         return "Huh? Type /help to see the list of implemented commands"
 
 
-def send_threads_to_telegram_feed(user_feed: UserFeed, threads: "QuerySet[Thread]") -> bool:
-    messages_sent = []
+def send_threads_to_telegram_feed(user_feed: UserFeed, threads: QuerySet[Thread]) -> bool:
+    messages_sent: list[bool] = []
     for thread in threads:
         sleep(1)
 

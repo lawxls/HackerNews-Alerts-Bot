@@ -1,4 +1,5 @@
 import json
+from collections.abc import Mapping, MutableMapping
 from datetime import datetime
 
 import requests
@@ -6,7 +7,7 @@ from django.conf import settings
 from django.utils.timezone import make_aware
 
 from telegram_feed.models import TelegramUpdate
-from telegram_feed.types import UpdateData
+from telegram_feed.types import InlineKeyboardButton, UpdateData
 
 
 class GetUpdates:
@@ -80,11 +81,11 @@ class SendMessage:
         self,
         chat_id: int,
         text: str,
-        inline_keyboard_markup: dict | None = None,
+        inline_keyboard_markup: Mapping[str, list[list[InlineKeyboardButton]]] | None = None,
         parse_mode: str | None = None,
     ) -> bool:
 
-        payload: dict = {"chat_id": chat_id, "text": text}
+        payload: MutableMapping[str, int | str] = {"chat_id": chat_id, "text": text}
         if inline_keyboard_markup:
             payload["reply_markup"] = json.dumps(inline_keyboard_markup)
         if parse_mode:
