@@ -59,7 +59,7 @@ class TestSendStoriesToUserChatsTask:
 
         date_from = timezone.now() - datetime.timedelta(days=2)
         thread1 = ThreadFactory.create(
-            title="test title with Python keyword 2 days old", thread_created_at=date_from
+            title="test title with Python keyword 2 days old", created=date_from
         )
         thread2 = ThreadFactory.create(title="test title with Python keyword new")
 

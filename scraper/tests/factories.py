@@ -13,6 +13,7 @@ class ThreadFactory(DjangoModelFactory):
     score = Faker("pyint")
     comments_count = Faker("pyint")
     thread_created_at = timezone.now()
+    created = timezone.now()
 
     class Meta:
         model = Thread
