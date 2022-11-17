@@ -102,9 +102,11 @@ class ThreadParser:
 
         thread_id = data_row.get("id")
         thread_title = data_row.find("span", class_="titleline").find("a").text
+        # add whitespaces before and after thread title for full word matching
+        thread_title_with_whitespaces = f" {thread_title} "
         story_link = data_row.find("span", class_="titleline").find("a").get("href")
 
-        # hacker news post without a url
+        # hacker news post without url
         if "https://" not in story_link and "item?id=" in story_link:
             story_link = f"https://news.ycombinator.com/{story_link}"
 
@@ -112,7 +114,7 @@ class ThreadParser:
 
         return ScrapedThreadData(
             thread_id=thread_id,
-            title=thread_title,
+            title=thread_title_with_whitespaces,
             link=story_link,
             score=thread_meta_data.get("thread_score", 0),
             thread_created_at=thread_meta_data.get("thread_created_at", timezone.now()),
