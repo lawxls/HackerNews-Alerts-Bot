@@ -61,7 +61,9 @@ class TestSendStoriesToUserChatsTask:
         thread1 = ThreadFactory.create(
             title="test title with Python keyword 2 days old", created=date_from
         )
-        thread2 = ThreadFactory.create(title="test title with Python keyword new")
+        thread2 = ThreadFactory.create(
+            title="test title with Python keyword new", created=timezone.now()
+        )
 
         send_stories_to_user_chats_task()
 
