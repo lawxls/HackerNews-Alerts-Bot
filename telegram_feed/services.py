@@ -70,17 +70,22 @@ class RespondToMessageService:
 
     def respond_to_help_command(self) -> str:
         return (
-            "This is a bot for creating your own, personalized feed of stories from Hacker News.\n"
-            "Manage your keywords, set score threshold.\n"
+            "You can use this bot to create personal feed of stories from Hacker News.\n"
+            "Just add keywords, maybe set score threshold "
+            "and the bot will send stories when "
+            "any of these keywords are mentioned in thread titles.\n"
             "Keyword search implemented via case-insensitive containment test.\n\n"
             "🔻 COMMANDS\n\n"
-            "/add keyword1, second keyword, keyword3\n"
-            "Add keywords. Separate by comma.\n\n"
+            "/add python, machine learning, _ai_\n"
+            "Add keywords. Separate by comma.\n"
+            "To only match a whole word add underscore before and after desired keyword. "
+            "Underscores will be replaced with whitespace, "
+            "so '_ai_' will be equivalent to ' ai '\n\n"
             "/set_score 100\n"
             "Receive stories only when they reach a certain score. Default is 2.\n\n"
             "/keywords\n"
             "List your keywords.\n\n"
-            "/remove keyword1, second keyword, keyword3\n"
+            "/remove python, machine learning, _ai_\n"
             "Remove keywords. Separate by comma.\n\n"
             "/help\n"
             "Show this message.\n\n"
@@ -95,7 +100,9 @@ class RespondToMessageService:
         return "Fail! Add keywords first. /help for info"
 
     def respond_to_create_keywords_command(self) -> str:
-        keywords = self.telegram_update.text.replace("/add", "").strip().split(", ")
+        keywords = (
+            self.telegram_update.text.replace("/add", "").strip().replace("_", " ").split(", ")
+        )
 
         if len(keywords) > 50:
             return "Fail! Keywords limit of 50 is reached"
@@ -130,7 +137,9 @@ class RespondToMessageService:
         if user_feed is None:
             return "Fail! Add keywords first. /help for info"
 
-        keywords_to_del = self.telegram_update.text.replace("/remove", "").strip().split(", ")
+        keywords_to_del = (
+            self.telegram_update.text.replace("/remove", "").strip().replace("_", " ").split(", ")
+        )
         keywords_to_del_set = set(keywords_to_del)
         keywords_set = set(user_feed.keywords)
 

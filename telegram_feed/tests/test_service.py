@@ -11,17 +11,22 @@ from telegram_feed.tests.factories import TelegramUpdateFactory, UserFeedFactory
 class TestRespondToMessageService:
 
     HELP_COMMAND_RESPONSE = (
-        "This is a bot for creating your own, personalized feed of stories from Hacker News.\n"
-        "Manage your keywords, set score threshold.\n"
+        "You can use this bot to create personal feed of stories from Hacker News.\n"
+        "Just add keywords, maybe set score threshold "
+        "and the bot will send stories when "
+        "any of these keywords are mentioned in thread titles.\n"
         "Keyword search implemented via case-insensitive containment test.\n\n"
         "🔻 COMMANDS\n\n"
-        "/add keyword1, second keyword, keyword3\n"
-        "Add keywords. Separate by comma.\n\n"
+        "/add python, machine learning, _ai_\n"
+        "Add keywords. Separate by comma.\n"
+        "To only match a whole word add underscore before and after desired keyword. "
+        "Underscores will be replaced with whitespace, "
+        "so '_ai_' will be equivalent to ' ai '\n\n"
         "/set_score 100\n"
         "Receive stories only when they reach a certain score. Default is 2.\n\n"
         "/keywords\n"
         "List your keywords.\n\n"
-        "/remove keyword1, second keyword, keyword3\n"
+        "/remove python, machine learning, _ai_\n"
         "Remove keywords. Separate by comma.\n\n"
         "/help\n"
         "Show this message.\n\n"
@@ -82,6 +87,20 @@ class TestRespondToMessageService:
 
         user_feed = UserFeed.objects.get(chat_id=1)
         keywords = ["python", "javascript", "cucumber", "carrot", "tomato", "potato"]
+
+        assert set(user_feed.keywords) == set(keywords)
+        assert "Success! Keyword(s) added. Current keywords list:" in text_response
+
+    @pytest.mark.django_db
+    def test_respond_to_user_message_create_keywords_to_match_whole_word_success(self):
+        UserFeedFactory.create(chat_id=1, keywords=["python"])
+        telegram_update = TelegramUpdateFactory.create(chat_id=1, text="/add _ai_")
+        text_response = RespondToMessageService(
+            telegram_update=telegram_update
+        ).respond_to_user_message()
+
+        user_feed = UserFeed.objects.get(chat_id=1)
+        keywords = ["python", " ai "]
 
         assert set(user_feed.keywords) == set(keywords)
         assert "Success! Keyword(s) added. Current keywords list:" in text_response
