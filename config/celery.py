@@ -20,7 +20,7 @@ app.conf.beat_schedule = {
     },
     "respond_to_updates_task": {
         "task": "telegram_feed.tasks.respond_to_updates_task",
-        "schedule": 4.0,
+        "schedule": 5.0,
     },
     "send_stories_to_user_chats_task": {
         "task": "telegram_feed.tasks.send_stories_to_user_chats_task",
