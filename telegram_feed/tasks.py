@@ -6,7 +6,7 @@ from config import celery_app
 from scraper.models import Thread
 from telegram_feed.models import UserFeed
 from telegram_feed.requests import GetUpdates, SendMessage
-from telegram_feed.service import RespondToMessageService
+from telegram_feed.services import RespondToMessageService
 from telegram_feed.utils import send_threads_to_telegram_feed
 
 

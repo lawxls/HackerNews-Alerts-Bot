@@ -4,7 +4,7 @@ from string import ascii_lowercase, digits
 import pytest
 
 from telegram_feed.models import UserFeed
-from telegram_feed.service import RespondToMessageService
+from telegram_feed.services import RespondToMessageService
 from telegram_feed.tests.factories import TelegramUpdateFactory, UserFeedFactory
 
 
