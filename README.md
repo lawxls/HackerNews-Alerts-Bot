@@ -5,7 +5,7 @@ Just add keywords, maybe set score threshold (default is 1) and the bot will sen
 ![Screenshot_25](https://user-images.githubusercontent.com/76647266/201554168-e98c4666-cf85-4968-8110-6554f85419ff.png)
 
 
-### COMMANDS
+## COMMANDS
 
 ```/add python, machine learning, _ai_```
 
