@@ -10,7 +10,7 @@ Add keywords, set score threshold. Keyword search implemented via case-insensiti
 
 ```/add keyword1, second keyword, keyword3``` Add keywords. Separate by comma.
 
-```/set_score 100``` Receive stories only when they reach a certain score. Default is 2.
+```/set_score 100``` Receive stories only when they reach a certain score. Default is 1.
 
 ```/keywords``` Lists your keywords.
 

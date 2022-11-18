@@ -71,7 +71,7 @@ class RespondToMessageService:
     def respond_to_help_command(self) -> str:
         return (
             "You can use this bot to create personal feed of stories from Hacker News.\n"
-            "Just add keywords, maybe set score threshold "
+            "Just add keywords, maybe set score threshold (default is 1)"
             "and the bot will send stories when "
             "any of these keywords are mentioned in thread titles.\n"
             "Keyword search implemented via case-insensitive containment test.\n\n"
@@ -80,9 +80,11 @@ class RespondToMessageService:
             "Add keywords. Separate by comma.\n"
             "To only match a whole word add underscore before and after desired keyword. "
             "Underscores will be replaced with whitespace, "
-            "so '_ai_' will be equivalent to ' ai '\n\n"
+            "so '_ai_' will be equivalent to ' ai '.\n"
+            "Btw, this will match even if the keyword "
+            "is the first or the last word of the title\n\n"
             "/set_score 100\n"
-            "Receive stories only when they reach a certain score. Default is 2.\n\n"
+            "Filter out stories by score. Default is 1.\n\n"
             "/keywords\n"
             "List your keywords.\n\n"
             "/remove python, machine learning, _ai_\n"

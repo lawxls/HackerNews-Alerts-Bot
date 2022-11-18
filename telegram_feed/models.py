@@ -7,13 +7,13 @@ from scraper.models import Thread
 
 
 class UserFeed(TimeStampedModel, models.Model):
-    """Personalized telegram feed"""
+    """Telegram user feed"""
 
     chat_id = models.PositiveIntegerField(verbose_name="telegram chat id")
     keywords = ArrayField(models.CharField(max_length=80), verbose_name="feed keywords")
     score_threshold = models.PositiveSmallIntegerField(
         verbose_name="Threshold to pass for a story to be sent",
-        default=2,
+        default=1,
         validators=[MaxValueValidator(10000)],
     )
     threads = models.ManyToManyField(Thread, related_name="user_feeds")
