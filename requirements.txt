@@ -102,7 +102,7 @@ matplotlib-inline==0.1.6
     # via ipython
 mccabe==0.7.0
     # via flake8
-mypy==0.971
+mypy==0.990
     # via
     #   -r requirements.in
     #   django-stubs
