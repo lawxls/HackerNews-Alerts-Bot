@@ -15,9 +15,18 @@ class ThreadScraper:
     """
     Scrape and (create or update) threads from Hacker News /newest or /news pages
 
-    >>> from scraper.service import ThreadScraper
+    Scrape /newest page
+    >>> from scraper.parsers import ThreadScraper
     >>> newest_threads_scraper = ThreadScraper()
     >>> newest_threads_scraper.scrape()
+    -> <list[Thread]>
+
+    Scrape threads from first 10 /news pages
+    >>> from scraper.parsers import ThreadScraper
+    >>> news_page_threads_scraper = ThreadScraper(
+            page_to_scrape=ThreadScraper.NEWS, news_page_count=10
+        )
+    >>> news_page_threads_scraper.scrape()
     -> <list[Thread]>
     """
 
@@ -28,11 +37,7 @@ class ThreadScraper:
         self.page_to_scrape = page_to_scrape
         self.hn_request_session = start_request_session(domen=HACKERNEWS_DOMEN)
         self.thread_parser = ThreadParser(page_to_parse=page_to_scrape)
-
-        if page_to_scrape == self.NEWS:
-            self.news_page_count = 1
-        else:
-            self.news_page_count = news_page_count
+        self.news_page_count = 1 if page_to_scrape == self.NEWS else news_page_count
 
     def scrape(self) -> list[Thread]:
         if self.page_to_scrape == self.NEWS:
