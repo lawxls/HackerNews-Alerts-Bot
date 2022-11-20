@@ -1,7 +1,7 @@
 import re
 
 
-def escape_markdown(text: str, version: int = 1, entity_type: str = None) -> str:
+def escape_markdown(text: str, version: int = 1, entity_type: str | None = None) -> str:
     """
     Helper function to escape telegram markup symbols.
     Args:
