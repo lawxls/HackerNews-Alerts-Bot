@@ -11,7 +11,7 @@ from telegram_feed.tests.factories import UserFeedFactory
 
 class TestSendStoriesToUserChatsTask:
     @pytest.mark.django_db
-    @mock.patch("telegram_feed.requests.SendMessage.send_message")
+    @mock.patch("telegram_feed.requests.SendMessageRequest.send_message")
     def test_send_stories(self, send_message_mock):
         send_message_mock.return_value = True
 
@@ -30,7 +30,7 @@ class TestSendStoriesToUserChatsTask:
         assert thread4 not in user_feed.threads.all()
 
     @pytest.mark.django_db
-    @mock.patch("telegram_feed.requests.SendMessage.send_message")
+    @mock.patch("telegram_feed.requests.SendMessageRequest.send_message")
     def test_score_threshold(self, send_message_mock):
         send_message_mock.return_value = True
 
@@ -49,7 +49,7 @@ class TestSendStoriesToUserChatsTask:
         assert thread2 not in user_feed.threads.all()
 
     @pytest.mark.django_db
-    @mock.patch("telegram_feed.requests.SendMessage.send_message")
+    @mock.patch("telegram_feed.requests.SendMessageRequest.send_message")
     def test_sending_stories_from_past_24_hours(self, send_message_mock):
         send_message_mock.return_value = True
 
@@ -71,7 +71,7 @@ class TestSendStoriesToUserChatsTask:
         assert thread2 in user_feed.threads.all()
 
     @pytest.mark.django_db
-    @mock.patch("telegram_feed.requests.SendMessage.send_message")
+    @mock.patch("telegram_feed.requests.SendMessageRequest.send_message")
     def test_sending_stories_to_multiple_user_feeds(self, send_message_mock):
         send_message_mock.return_value = True
 
