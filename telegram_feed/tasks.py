@@ -5,7 +5,7 @@ from django.utils import timezone
 from config import celery_app
 from scraper.models import Thread
 from telegram_feed.models import UserFeed
-from telegram_feed.requests import GetUpdates, SendMessage
+from telegram_feed.requests import GetUpdatesRequest, SendMessageRequest
 from telegram_feed.services import (
     RespondToMessageService,
     send_threads_to_telegram_feed,
@@ -39,8 +39,14 @@ def send_stories_to_user_chats_task() -> bool:
 
 
 @celery_app.task
-def respond_to_updates_task():
-    telegram_updates = GetUpdates().get_updates()
+def respond_to_updates_task() -> bool:
+    """Cron task that responds to user messages"""
+
+    telegram_updates = GetUpdatesRequest().get_updates()
+
+    send_message_request = SendMessageRequest()
     for update in telegram_updates:
         text_response = RespondToMessageService(telegram_update=update).respond_to_user_message()
-        SendMessage().send_message(chat_id=update.chat_id, text=text_response)
+        send_message_request.send_message(chat_id=update.chat_id, text=text_response)
+
+    return True

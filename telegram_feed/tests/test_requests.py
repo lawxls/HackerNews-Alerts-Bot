@@ -1,11 +1,11 @@
 import pytest
 
-from telegram_feed.requests import GetUpdates
+from telegram_feed.requests import GetUpdatesRequest
 
 
-class TestGetUpdates:
+class TestGetUpdatesRequest:
     @pytest.mark.django_db
     def test_get_updates_method_success(self):
-        update_objs = GetUpdates().get_updates()
+        update_objs = GetUpdatesRequest().get_updates()
 
         assert isinstance(update_objs, list)

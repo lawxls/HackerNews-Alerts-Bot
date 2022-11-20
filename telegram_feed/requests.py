@@ -6,25 +6,28 @@ import requests
 from django.conf import settings
 from django.utils.timezone import make_aware
 
+from telegram_feed.exceptions import TelegramRequestError
 from telegram_feed.models import TelegramUpdate
 from telegram_feed.types import InlineKeyboardButton, UpdateData
 
 
-class GetUpdates:
+class GetUpdatesRequest:
     """getUpdates telegram method"""
 
     def __init__(self, token: str = settings.TELEGRAM_TOKEN) -> None:
         self.token = token
 
-    def get_updates(self) -> list[TelegramUpdate] | None:
+    def get_updates(self) -> list[TelegramUpdate]:
+        updates = self.request_updates()
+        return self.save_updates(updates=updates)
 
-        updates_data = self.request_updates()
-        if updates_data is None:
-            return None
+    def request_updates(self) -> list[UpdateData]:
+        """
+        Requests telegram updates (user messages)
 
-        return self.save_updates(updates_data=updates_data)
-
-    def request_updates(self) -> list[UpdateData] | None:
+        raises:
+            TelegramRequestError: Telegram API request error
+        """
 
         payload = {"timeout": 2}
         if last_telegram_update := TelegramUpdate.objects.first():
@@ -33,33 +36,33 @@ class GetUpdates:
         response = requests.get(
             f"https://api.telegram.org/bot{self.token}/getUpdates", params=payload
         )
+        json_response = response.json()
 
-        if response.json().get("ok") is False:
-            if error_code := response.json().get("error_code"):
-                if error_code == 409:
-                    return []
+        if json_response["ok"] is False:
+            if json_response["error_code"] == 409:
+                return []
+            else:
+                # add error_code note in python 3.11
+                raise TelegramRequestError("Telegram API request error")
 
-        if response.json().get("ok") is True:
-            result = response.json().get("result")
+        result = json_response.get("result")
 
-            updates_data = []
-            for update_data_dict in result:
-                update_data = UpdateData(
-                    update_id=update_data_dict.get("update_id"),
-                    chat_id=update_data_dict.get("message").get("chat").get("id"),
-                    text=update_data_dict.get("message").get("text"),
-                    unix_timestamp_date=update_data_dict.get("message").get("date"),
-                )
-                updates_data.append(update_data)
+        updates: list[UpdateData] = []
+        for update_data_dict in result:
+            update_data = UpdateData(
+                update_id=update_data_dict.get("update_id"),
+                chat_id=update_data_dict.get("message").get("chat").get("id"),
+                text=update_data_dict.get("message").get("text"),
+                unix_timestamp_date=update_data_dict.get("message").get("date"),
+            )
+            updates.append(update_data)
 
-            return updates_data
+        return updates
 
-        return None
+    def save_updates(self, updates: list[UpdateData]) -> list[TelegramUpdate]:
 
-    def save_updates(self, updates_data: list[UpdateData]) -> list[TelegramUpdate]:
-
-        update_objs = []
-        for update_data in updates_data:
+        update_objs: list[TelegramUpdate] = []
+        for update_data in updates:
             date = datetime.utcfromtimestamp(update_data.unix_timestamp_date)
             aware_datetime = make_aware(date)
 
@@ -74,7 +77,7 @@ class GetUpdates:
         return update_objs
 
 
-class SendMessage:
+class SendMessageRequest:
     """sendMessage telegram method"""
 
     def send_message(

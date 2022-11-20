@@ -4,7 +4,7 @@ from django.db.models.query import QuerySet
 
 from scraper.models import Thread
 from telegram_feed.models import TelegramUpdate, UserFeed
-from telegram_feed.requests import SendMessage
+from telegram_feed.requests import SendMessageRequest
 from telegram_feed.types import InlineKeyboardButton
 from telegram_feed.utils import escape_markdown
 
@@ -217,7 +217,7 @@ def send_threads_to_telegram_feed(user_feed: UserFeed, threads: QuerySet[Thread]
 
         inline_keyboard_markup = {"inline_keyboard": [[read_button, comments_button]]}
 
-        sent = SendMessage().send_message(
+        sent = SendMessageRequest().send_message(
             chat_id=user_feed.chat_id,
             text=text,
             inline_keyboard_markup=inline_keyboard_markup,
