@@ -1,4 +1,5 @@
 from time import sleep
+from typing import NoReturn
 
 from django.db.models.query import QuerySet
 
@@ -65,7 +66,7 @@ class RespondToMessageService:
             case _:
                 return self.UNDEFINED_COMMAND
 
-    def respond_to_start_command(self) -> str:
+    def respond_to_start_command(self) -> NoReturn:
         pass
 
     def respond_to_help_command(self) -> str:
