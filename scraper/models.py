@@ -20,3 +20,22 @@ class Thread(TimeStampedModel, models.Model):
 
     class Meta:
         ordering = ["-score"]
+
+
+class Comment(TimeStampedModel, models.Model):
+    """Parsed thread comment from hackernews"""
+
+    thread = models.ForeignKey(
+        Thread, on_delete=models.SET_NULL, null=True, related_name="comments"
+    )
+    thread_id_int = models.PositiveIntegerField(verbose_name="hackernews thread id")
+    comment_created_at = models.DateTimeField(verbose_name="parsed comment date of creation")
+    username = models.CharField(max_length=20, verbose_name="comment's creator username")
+    body = models.TextField(verbose_name="comment's text body")
+    reply_link = models.URLField(max_length=255, verbose_name="link to comment reply page")
+
+    def __str__(self):
+        return f"({self.pk}) {self.body[:100]}"
+
+    class Meta:
+        ordering = ["-created"]
