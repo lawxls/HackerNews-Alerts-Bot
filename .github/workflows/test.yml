@@ -48,4 +48,4 @@ jobs:
         TELEGRAM_TOKEN: token
         TELEGRAM_TOKEN_TEST: token-test
       run: |
-        pytest --create-db
+        pytest --ignore=telegram_feed/tests/test_requests.py
