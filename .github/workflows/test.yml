@@ -34,4 +34,4 @@ jobs:
         TELEGRAM_TOKEN: token
         TELEGRAM_TOKEN_TEST: token-test
       run: |
-        pytest
+        pytest --create-db
