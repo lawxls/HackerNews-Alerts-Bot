@@ -26,10 +26,10 @@ jobs:
       env:
         SECRET_KEY: very-secret-key
         DEBUG: 69
-        DBNAME: db
-        DBUSER: user
-        DBPASSWORD: password
-        DBHOST: host
+        DBNAME: test
+        DBUSER: postgres
+        DBPASSWORD: postgres
+        DBHOST: localhost
         CELERY_BROKER_URL: broker-url
         TELEGRAM_TOKEN: token
         TELEGRAM_TOKEN_TEST: token-test
