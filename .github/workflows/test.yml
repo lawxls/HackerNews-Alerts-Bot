@@ -23,5 +23,7 @@ jobs:
         python -m pip install --upgrade pip
         pip install -r requirements.txt
     - name: Pytest command
+      env:
+        SECRET_KEY: very-secret-key
       run: |
         pytest
