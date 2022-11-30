@@ -5,6 +5,20 @@ on: [push, pull_request]
 jobs:
   test:
     runs-on: ubuntu-latest
+    services:
+      postgres_main:
+        image: postgres:14
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: test_db
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
     steps:
     - uses: actions/checkout@v3
     - name: Python 3.10 setup
@@ -26,7 +40,7 @@ jobs:
       env:
         SECRET_KEY: very-secret-key
         DEBUG: 69
-        DBNAME: test
+        DBNAME: test_db
         DBUSER: postgres
         DBPASSWORD: postgres
         DBHOST: localhost
