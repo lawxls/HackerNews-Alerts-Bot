@@ -3,9 +3,9 @@ from model_utils.models import TimeStampedModel
 
 
 class Thread(TimeStampedModel, models.Model):
-    """Parsed thread (story) from hackernews"""
+    """Parsed thread (story)"""
 
-    thread_id = models.PositiveBigIntegerField(unique=True, help_text="hackernews thread id")
+    thread_id = models.PositiveBigIntegerField(unique=True, help_text="thread id")
     link = models.URLField(max_length=700, verbose_name="story link")
     title = models.CharField(max_length=100, verbose_name="thread title")
     score = models.IntegerField(null=True, verbose_name="thread score")
@@ -23,16 +23,16 @@ class Thread(TimeStampedModel, models.Model):
 
 
 class Comment(TimeStampedModel, models.Model):
-    """Parsed thread comment from hackernews"""
+    """Parsed thread comment"""
 
     thread = models.ForeignKey(
         Thread, on_delete=models.SET_NULL, null=True, related_name="comments"
     )
-    thread_id_int = models.PositiveIntegerField(verbose_name="hackernews thread id")
+    comment_id = models.PositiveIntegerField(verbose_name="comment id")
+    thread_id_int = models.PositiveIntegerField(verbose_name="thread id")
     comment_created_at = models.DateTimeField(verbose_name="parsed comment date of creation")
     username = models.CharField(max_length=20, verbose_name="comment's creator username")
     body = models.TextField(verbose_name="comment's text body")
-    reply_link = models.URLField(max_length=255, verbose_name="link to comment reply page")
 
     def __str__(self):
         return f"({self.pk}) {self.body[:100]}"
