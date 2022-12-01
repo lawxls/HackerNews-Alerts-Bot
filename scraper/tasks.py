@@ -1,5 +1,5 @@
 from config import celery_app
-from scraper.parsers import ThreadScraper
+from scraper.thread_scraper import ThreadScraper
 
 
 @celery_app.task

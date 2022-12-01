@@ -2,13 +2,12 @@ from time import sleep
 
 from bs4 import BeautifulSoup
 from dateutil import parser, tz
+from django.conf import settings
 from django.utils import timezone
 
 from scraper.models import Thread
 from scraper.types import ScrapedThreadData, ThreadMetaData
 from scraper.utils import start_request_session
-
-HACKERNEWS_DOMEN = "https://news.ycombinator.com/"
 
 
 class ThreadScraper:
@@ -35,7 +34,7 @@ class ThreadScraper:
 
     def __init__(self, page_to_scrape: str = NEWEST, news_page_count: int = 0) -> None:
         self.page_to_scrape = page_to_scrape
-        self.hn_request_session = start_request_session(domen=HACKERNEWS_DOMEN)
+        self.hn_request_session = start_request_session(domen=settings.HACKERNEWS_URL)
         self.thread_parser = ThreadParser(page_to_parse=page_to_scrape)
         self.news_page_count = 1 if page_to_scrape == self.NEWS else news_page_count
 
@@ -45,15 +44,10 @@ class ThreadScraper:
         elif self.page_to_scrape == self.NEWEST:
             scraped_threads = self.scrape_newest_page()
 
-        threads = []
-        for scraped_thread in scraped_threads:
-            thread = self.create_or_update_thread(scraped_thread_data=scraped_thread)
-            threads.append(thread)
-
-        return threads
+        return self.create_or_update_threads(scraped_threads)
 
     def scrape_newest_page(self) -> list[ScrapedThreadData]:
-        response = self.hn_request_session.get(f"{HACKERNEWS_DOMEN}newest")
+        response = self.hn_request_session.get(f"{settings.HACKERNEWS_URL}newest")
         page = BeautifulSoup(response.text, "lxml")
 
         return self.thread_parser.parse(bs4_page_data=page)
@@ -63,7 +57,7 @@ class ThreadScraper:
         for p_num in range(1, self.news_page_count + 1):
             sleep(0.5)
 
-            response = self.hn_request_session.get(f"{HACKERNEWS_DOMEN}news?p={p_num}")
+            response = self.hn_request_session.get(f"{settings.HACKERNEWS_URL}news?p={p_num}")
             page = BeautifulSoup(response.text, "lxml")
 
             page_scraped_threads = self.thread_parser.parse(bs4_page_data=page)
@@ -71,13 +65,15 @@ class ThreadScraper:
 
         return scraped_threads
 
-    def create_or_update_thread(self, scraped_thread_data: ScrapedThreadData) -> Thread:
+    def create_or_update_threads(self, scraped_threads: list[ScrapedThreadData]) -> list[Thread]:
+        threads = []
+        for scraped_thread in scraped_threads:
+            thread, _ = Thread.objects.update_or_create(
+                thread_id=scraped_thread.get("thread_id"), defaults=dict(scraped_thread)
+            )
+            threads.append(thread)
 
-        thread, _ = Thread.objects.update_or_create(
-            thread_id=scraped_thread_data.get("thread_id"), defaults=dict(scraped_thread_data)
-        )
-
-        return thread
+        return threads
 
 
 class ThreadParser:
@@ -103,7 +99,7 @@ class ThreadParser:
 
         return parsed_threads
 
-    def parse_thread_data(self, data_row: BeautifulSoup) -> ScrapedThreadData:
+    def parse_thread_data(self, data_row) -> ScrapedThreadData:
 
         thread_id = data_row.get("id")
         thread_title = data_row.find("span", class_="titleline").find("a").text
@@ -127,7 +123,7 @@ class ThreadParser:
             comments_link=thread_meta_data.get("comments_link"),
         )
 
-    def parse_thread_meta_data(self, meta_data_row: BeautifulSoup) -> ThreadMetaData:
+    def parse_thread_meta_data(self, meta_data_row) -> ThreadMetaData:
 
         thread_score = 0
         if thread_score_span := meta_data_row.find("td", class_="subtext").find(

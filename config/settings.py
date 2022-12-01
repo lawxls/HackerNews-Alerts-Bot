@@ -110,3 +110,6 @@ CELERY_CACHE_BACKEND = "django-cache"
 
 TELEGRAM_TOKEN = env("TELEGRAM_TOKEN")
 TELEGRAM_TOKEN_TEST = env("TELEGRAM_TOKEN_TEST")
+
+
+HACKERNEWS_URL = "https://news.ycombinator.com/"
