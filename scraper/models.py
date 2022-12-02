@@ -6,7 +6,7 @@ class Thread(TimeStampedModel, models.Model):
     """Parsed thread (story)"""
 
     thread_id = models.PositiveBigIntegerField(unique=True, help_text="thread id")
-    link = models.URLField(max_length=700, verbose_name="story link")
+    link = models.URLField(max_length=2000, verbose_name="story link")
     title = models.CharField(max_length=100, verbose_name="thread title")
     score = models.IntegerField(null=True, verbose_name="thread score")
     thread_created_at = models.DateTimeField(verbose_name="parsed thread date of creation")
