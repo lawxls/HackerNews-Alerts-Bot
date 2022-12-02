@@ -48,6 +48,6 @@ jobs:
         TELEGRAM_TOKEN: token
         TELEGRAM_TOKEN_TEST: token-test
         SENTRY_KEY: sentry-key
-        SENTRY_ENVIRONMENT: sentry-environment
+        SENTRY_ENVIRONMENT:
       run: |
         pytest --ignore=telegram_feed/tests/test_requests.py
