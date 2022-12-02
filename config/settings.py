@@ -1,6 +1,9 @@
 from pathlib import Path
 
 import environ
+import sentry_sdk
+from sentry_sdk.integrations.celery import CeleryIntegration
+from sentry_sdk.integrations.django import DjangoIntegration
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -113,3 +116,15 @@ TELEGRAM_TOKEN_TEST = env("TELEGRAM_TOKEN_TEST")
 
 
 HACKERNEWS_URL = "https://news.ycombinator.com/"
+
+
+sentry_sdk.init(
+    dsn=env("SENTRY_KEY"),
+    integrations=[DjangoIntegration(), CeleryIntegration()],
+    traces_sample_rate=1.0,
+    send_default_pii=True,
+    environment=env("SENTRY_ENVIRONMENT"),
+    _experiments={
+        "profiles_sample_rate": 1.0,
+    },
+)
