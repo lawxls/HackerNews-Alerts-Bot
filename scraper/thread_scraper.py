@@ -69,7 +69,7 @@ class ThreadScraper:
         threads = []
         for scraped_thread in scraped_threads:
             thread, _ = Thread.objects.update_or_create(
-                thread_id=scraped_thread.get("thread_id"), defaults=dict(scraped_thread)
+                thread_id=scraped_thread["thread_id"], defaults=dict(scraped_thread)
             )
             threads.append(thread)
 
