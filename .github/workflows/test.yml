@@ -47,7 +47,7 @@ jobs:
         CELERY_BROKER_URL: broker-url
         TELEGRAM_TOKEN: token
         TELEGRAM_TOKEN_TEST: token-test
-        SENTRY_KEY: sentry-key
-        SENTRY_ENVIRONMENT:
+        SENTRY_KEY:
+        SENTRY_ENVIRONMENT: workflow
       run: |
         pytest --ignore=telegram_feed/tests/test_requests.py
