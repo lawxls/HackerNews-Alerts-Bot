@@ -18,7 +18,7 @@ class TelegramUpdateFactory(DjangoModelFactory):
 
 class UserFeedFactory(DjangoModelFactory):
     chat_id = Faker("pyint")
-    keywords = ["django", "rust", "sass", "cucumber", "tomato"]
+    old_keywords = ["django", "rust", "sass", "cucumber", "tomato"]
     score_threshold = 1
 
     @factory.post_generation

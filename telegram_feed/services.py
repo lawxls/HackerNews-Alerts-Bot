@@ -70,34 +70,46 @@ class RespondToMessageService:
 
     def respond_to_help_command(self) -> str:
         return (
-            "You can use this bot to create personal feed of stories from Hacker News. "
-            "Just add keywords, maybe set score threshold (default is 1) "
-            "and the bot will send stories when "
-            "any of these keywords are mentioned in the title of Hacker News thread. "
-            "Keyword search implemented via case-insensitive containment test.\n\n"
-            "🔻 COMMANDS\n\n"
-            "▪️ /add python, machine learning, _ai_\n\n"
-            "Add keywords. Separate by comma.\n"
-            "To only match a whole word add underscore before and after desired keyword. "
-            "Underscores will be replaced with whitespace, "
-            "so '_ai_' will be equivalent to ' ai '.\n"
-            "Btw, this will match even if the keyword "
-            "is the first or the last word of the title\n\n\n"
-            "▪️ /set_score 100\n\n"
-            "Filter out stories by score. Default is 1.\n\n\n"
-            "▪️ /keywords\n\n"
-            "List your keywords.\n\n\n"
-            "▪️ /remove python, machine learning, _ai_\n\n"
-            "Remove keywords. Separate by comma.\n\n\n"
-            "▪️ /help\n\n"
-            "Show this message.\n\n\n"
-            "▪️ /stop\n\n"
-            "Stop the bot. Erases your data."
+            "This is [Hacker News](https://news.ycombinator.com/) notifications bot 🦾🤖\n\n"
+            "Repository: https://github\\.com/lawxls/HackerNews\\-personalized\n\n"
+            "Currently it can do:\n\n"
+            "✨ *Keyword based notifications* ✨\n"
+            "Create personal feed or monitor topics you're interested in\\.\n"
+            "Keyword search implemented via case\\-insensitive containment test\\.\n\n"
+            "To set\\-up:\n"
+            "● Add keywords, can specify options for each one "
+            "\\(match whole word, scan only thread titles, etc\\)\n"
+            "✔️ Done\\! You will receive a message "
+            "whenever one of your keywords is mentioned on Hacker News\n\n\n"
+            "🔻 *COMMANDS*\n\n"
+            "▪️ Add keyword\n"
+            "`/add KEYWORD [\\-\\-whole\\-word, \\-\\-stories\\-only, \\-\\-comments\\-only]`\n\n"
+            "*Options:*\n"
+            "`\\-\\-whole\\-word`\n"
+            "match whole word only\n\n"
+            "`\\-\\-stories\\-only`\n"
+            "scan only thread titles\n\n"
+            "`\\-\\-comments\\-only`\n"
+            "scan only comment bodies\n\n"
+            "*Examples:*\n"
+            "`/add machine learning`\n"
+            "`/add python \\-\\-stories\\-only`\n"
+            "`/add AI \\-\\-whole\\-word \\-\\-stories\\-only`\n\n\n"
+            "▪️ Receive story only when it reaches a certain score \\(set to 1 by default\\)\n"
+            "`/set\\_score SCORE`\n\n\n"
+            "▪️ Get list of your keywords\n"
+            "`/keywords`\n\n\n"
+            "▪️ Remove keyword from your list\n"
+            "`/remove KEYWORD`\n\n\n"
+            "▪️ Display this message\n"
+            "`/help`\n\n\n"
+            "▪️ Stop the bot\\ \\(completely removes your list and your data from database\\)\n"
+            "`/stop`"
         )
 
     def respond_to_list_keywords_command(self) -> str:
         if user_feed := UserFeed.objects.filter(chat_id=self.telegram_update.chat_id).first():
-            return "\n".join(user_feed.keywords)
+            return "\n".join(user_feed.old_keywords)
 
         return "Fail! Add keywords first. /help for info"
 
@@ -117,20 +129,20 @@ class RespondToMessageService:
 
         if user_feed := UserFeed.objects.filter(chat_id=self.telegram_update.chat_id).first():
 
-            current_keywords = user_feed.keywords
+            current_keywords = user_feed.old_keywords
             current_keywords.extend(keywords)
             new_keywords_list = sorted(set(current_keywords))
 
             if len(new_keywords_list) > 50:
                 return "Fail! Keywords limit of 50 is reached"
 
-            user_feed.keywords = new_keywords_list
-            user_feed.save(update_fields=["keywords"])
+            user_feed.old_keywords = new_keywords_list
+            user_feed.save(update_fields=["old_keywords"])
 
-            keywords_str = "\n".join(user_feed.keywords)
+            keywords_str = "\n".join(user_feed.old_keywords)
             return f"Success! Keyword(s) added. Current keywords list:\n{keywords_str}"
 
-        UserFeed.objects.create(chat_id=self.telegram_update.chat_id, keywords=keywords)
+        UserFeed.objects.create(chat_id=self.telegram_update.chat_id, old_keywords=keywords)
 
         return "Success! Keyword(s) list created. You may want to use /set_score command now"
 
@@ -143,7 +155,7 @@ class RespondToMessageService:
             self.telegram_update.text.replace("/remove", "").strip().replace("_", " ").split(", ")
         )
         keywords_to_del_set = set(keywords_to_del)
-        keywords_set = set(user_feed.keywords)
+        keywords_set = set(user_feed.old_keywords)
 
         if not bool(set(keywords_set) & set(keywords_to_del_set)):
             return "Fail! Not found in keywords list"
@@ -158,8 +170,8 @@ class RespondToMessageService:
                 "As you have emptied your keywords list, the bot will be silent for now"
             )
 
-        user_feed.keywords = updated_keywords
-        user_feed.save(update_fields=["keywords"])
+        user_feed.old_keywords = updated_keywords
+        user_feed.save(update_fields=["old_keywords"])
 
         keywords_str = "\n".join(updated_keywords)
         return f"Success! Keyword(s) deleted. Current keywords list:\n{keywords_str}"

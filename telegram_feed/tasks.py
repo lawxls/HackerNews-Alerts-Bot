@@ -22,7 +22,7 @@ def send_stories_to_user_chats_task() -> bool:
     for user_feed in user_feeds:
         threads_by_keywords = Thread.objects.none()
 
-        for keyword in user_feed.keywords:
+        for keyword in user_feed.old_keywords:
             threads_by_keyword = threads_from_24_hours.filter(
                 title__icontains=keyword,
                 score__gte=user_feed.score_threshold,
@@ -47,6 +47,10 @@ def respond_to_updates_task() -> bool:
     send_message_request = SendMessageRequest()
     for update in telegram_updates:
         text_response = RespondToMessageService(telegram_update=update).respond_to_user_message()
-        send_message_request.send_message(chat_id=update.chat_id, text=text_response)
+        send_message_request.send_message(
+            chat_id=update.chat_id,
+            text=text_response,
+            parse_mode="MarkdownV2",
+        )
 
     return True

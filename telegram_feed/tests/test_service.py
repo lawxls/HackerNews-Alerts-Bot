@@ -11,29 +11,41 @@ from telegram_feed.tests.factories import TelegramUpdateFactory, UserFeedFactory
 class TestRespondToMessageService:
 
     HELP_COMMAND_RESPONSE = (
-        "You can use this bot to create personal feed of stories from Hacker News. "
-        "Just add keywords, maybe set score threshold (default is 1) "
-        "and the bot will send stories when "
-        "any of these keywords are mentioned in the title of Hacker News thread. "
-        "Keyword search implemented via case-insensitive containment test.\n\n"
-        "🔻 COMMANDS\n\n"
-        "▪️ /add python, machine learning, _ai_\n\n"
-        "Add keywords. Separate by comma.\n"
-        "To only match a whole word add underscore before and after desired keyword. "
-        "Underscores will be replaced with whitespace, "
-        "so '_ai_' will be equivalent to ' ai '.\n"
-        "Btw, this will match even if the keyword "
-        "is the first or the last word of the title\n\n\n"
-        "▪️ /set_score 100\n\n"
-        "Filter out stories by score. Default is 1.\n\n\n"
-        "▪️ /keywords\n\n"
-        "List your keywords.\n\n\n"
-        "▪️ /remove python, machine learning, _ai_\n\n"
-        "Remove keywords. Separate by comma.\n\n\n"
-        "▪️ /help\n\n"
-        "Show this message.\n\n\n"
-        "▪️ /stop\n\n"
-        "Stop the bot. Erases your data."
+        "This is [Hacker News](https://news.ycombinator.com/) notifications bot 🦾🤖\n\n"
+        "Repository: https://github\\.com/lawxls/HackerNews\\-personalized\n\n"
+        "Currently it can do:\n\n"
+        "✨ *Keyword based notifications* ✨\n"
+        "Create personal feed or monitor topics you're interested in\\.\n"
+        "Keyword search implemented via case\\-insensitive containment test\\.\n\n"
+        "To set\\-up:\n"
+        "● Add keywords, can specify options for each one "
+        "\\(match whole word, scan only thread titles, etc\\)\n"
+        "✔️ Done\\! You will receive a message "
+        "whenever one of your keywords is mentioned on Hacker News\n\n\n"
+        "🔻 *COMMANDS*\n\n"
+        "▪️ Add keyword\n"
+        "`/add KEYWORD [\\-\\-whole\\-word, \\-\\-stories\\-only, \\-\\-comments\\-only]`\n\n"
+        "*Options:*\n"
+        "`\\-\\-whole\\-word`\n"
+        "match whole word only\n\n"
+        "`\\-\\-stories\\-only`\n"
+        "scan only thread titles\n\n"
+        "`\\-\\-comments\\-only`\n"
+        "scan only comment bodies\n\n"
+        "*Examples:*\n"
+        "`/add machine learning`\n"
+        "`/add python \\-\\-stories\\-only`\n"
+        "`/add AI \\-\\-whole\\-word \\-\\-stories\\-only`\n\n\n"
+        "▪️ Receive story only when it reaches a certain score \\(set to 1 by default\\)\n"
+        "`/set\\_score SCORE`\n\n\n"
+        "▪️ Get list of your keywords\n"
+        "`/keywords`\n\n\n"
+        "▪️ Remove keyword from your list\n"
+        "`/remove KEYWORD`\n\n\n"
+        "▪️ Display this message\n"
+        "`/help`\n\n\n"
+        "▪️ Stop the bot\\ \\(completely removes your list and your data from database\\)\n"
+        "`/stop`"
     )
 
     @pytest.mark.django_db
@@ -79,7 +91,7 @@ class TestRespondToMessageService:
 
     @pytest.mark.django_db
     def test_respond_to_user_message_create_keywords_command_user_feed_exists_success(self):
-        UserFeedFactory.create(chat_id=1, keywords=["python", "javascript"])
+        UserFeedFactory.create(chat_id=1, old_keywords=["python", "javascript"])
         telegram_update = TelegramUpdateFactory.create(
             chat_id=1, text="/add cucumber, carrot, tomato, potato, python"
         )
@@ -90,12 +102,12 @@ class TestRespondToMessageService:
         user_feed = UserFeed.objects.get(chat_id=1)
         keywords = ["python", "javascript", "cucumber", "carrot", "tomato", "potato"]
 
-        assert set(user_feed.keywords) == set(keywords)
+        assert set(user_feed.old_keywords) == set(keywords)
         assert "Success! Keyword(s) added. Current keywords list:" in text_response
 
     @pytest.mark.django_db
     def test_respond_to_user_message_create_keywords_to_match_whole_word_success(self):
-        UserFeedFactory.create(chat_id=1, keywords=["python"])
+        UserFeedFactory.create(chat_id=1, old_keywords=["python"])
         telegram_update = TelegramUpdateFactory.create(chat_id=1, text="/add _ai_")
         text_response = RespondToMessageService(
             telegram_update=telegram_update
@@ -104,7 +116,7 @@ class TestRespondToMessageService:
         user_feed = UserFeed.objects.get(chat_id=1)
         keywords = ["python", " ai "]
 
-        assert set(user_feed.keywords) == set(keywords)
+        assert set(user_feed.old_keywords) == set(keywords)
         assert "Success! Keyword(s) added. Current keywords list:" in text_response
 
     @pytest.mark.django_db
@@ -147,7 +159,7 @@ class TestRespondToMessageService:
     @pytest.mark.django_db
     def test_respond_to_user_message_list_keywords_command_success(self):
         UserFeedFactory.create(
-            chat_id=1, keywords=["python", "javascript", "rust", "linux", "booba"]
+            chat_id=1, old_keywords=["python", "javascript", "rust", "linux", "booba"]
         )
         telegram_update = TelegramUpdateFactory.create(chat_id=1, text="/keywords")
         text_response = RespondToMessageService(
@@ -170,7 +182,7 @@ class TestRespondToMessageService:
     @pytest.mark.django_db
     def test_respond_to_user_message_delete_keywords_command_success(self):
         UserFeedFactory.create(
-            chat_id=1, keywords=["python", "javascript", "rust", "linux", "booba"]
+            chat_id=1, old_keywords=["python", "javascript", "rust", "linux", "booba"]
         )
         telegram_update = TelegramUpdateFactory.create(
             chat_id=1, text="/remove python, javascript, rust, linux"
@@ -187,7 +199,7 @@ class TestRespondToMessageService:
 
     @pytest.mark.django_db
     def test_respond_to_user_message_delete_keywords_command_no_more_keywords_success(self):
-        UserFeedFactory.create(chat_id=1, keywords=["python", "django"])
+        UserFeedFactory.create(chat_id=1, old_keywords=["python", "django"])
         telegram_update = TelegramUpdateFactory.create(chat_id=1, text="/remove python, django")
         text_response = RespondToMessageService(
             telegram_update=telegram_update
@@ -214,7 +226,7 @@ class TestRespondToMessageService:
 
     @pytest.mark.django_db
     def test_respond_to_user_message_delete_keywords_command_not_found_error(self):
-        UserFeedFactory.create(chat_id=1, keywords=["python", "django"])
+        UserFeedFactory.create(chat_id=1, old_keywords=["python", "django"])
         telegram_update = TelegramUpdateFactory.create(chat_id=1, text="/remove rust")
         text_response = RespondToMessageService(
             telegram_update=telegram_update
@@ -224,7 +236,7 @@ class TestRespondToMessageService:
 
     @pytest.mark.django_db
     def test_respond_to_user_message_set_threshold_command_success(self):
-        UserFeedFactory.create(chat_id=1, keywords=["python", "django"])
+        UserFeedFactory.create(chat_id=1, old_keywords=["python", "django"])
         telegram_update = TelegramUpdateFactory.create(chat_id=1, text="/set_score 100")
         text_response = RespondToMessageService(
             telegram_update=telegram_update
@@ -247,7 +259,7 @@ class TestRespondToMessageService:
 
     @pytest.mark.django_db
     def test_respond_to_user_message_stop_command_success(self):
-        UserFeedFactory.create(chat_id=1, keywords=["python", "django"])
+        UserFeedFactory.create(chat_id=1, old_keywords=["python", "django"])
         telegram_update = TelegramUpdateFactory.create(chat_id=1, text="/stop")
         text_response = RespondToMessageService(
             telegram_update=telegram_update
