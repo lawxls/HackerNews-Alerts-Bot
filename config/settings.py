@@ -106,9 +106,11 @@ STATIC_URL = "static/"
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
 CELERY_ENABLED = True
-CELERY_BROKER_URL = env("CELERY_BROKER_URL")
-CELERY_RESULT_BACKEND = "django-db"
-CELERY_CACHE_BACKEND = "django-cache"
+broker_url = env("CELERY_BROKER_URL")
+result_backend = "django-db"
+cache_backend = "django-cache"
+task_ignore_result = True
+task_store_errors_even_if_ignored = True
 
 
 TELEGRAM_TOKEN = env("TELEGRAM_TOKEN")

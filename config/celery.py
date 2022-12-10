@@ -9,6 +9,14 @@ app = Celery("config")
 app.config_from_object("django.conf:settings", namespace="CELERY")
 app.autodiscover_tasks()
 
+app.conf.task_routes = {
+    "scraper.tasks.comments_scraper_cron_task": {"queue": "scrapers_queue"},
+    "scraper.tasks.main_page_threads_scraper_cron_task": {"queue": "scrapers_queue"},
+    "scraper.tasks.new_threads_scraper_cron_task": {"queue": "scrapers_queue"},
+    "telegram_feed.tasks.send_alerts_task": {"queue": "send_messages_queue"},
+    "telegram_feed.tasks.respond_to_messages_task": {"queue": "respond_to_updates_queue"},
+}
+
 app.conf.beat_schedule = {
     "new_threads_scraper_cron_task": {
         "task": "scraper.tasks.new_threads_scraper_cron_task",
@@ -22,13 +30,13 @@ app.conf.beat_schedule = {
         "task": "scraper.tasks.comments_scraper_cron_task",
         "schedule": crontab(minute="*/1"),
     },
-    "respond_to_updates_task": {
-        "task": "telegram_feed.tasks.respond_to_updates_task",
+    "respond_to_messages_task": {
+        "task": "telegram_feed.tasks.respond_to_messages_task",
         "schedule": 5.0,
     },
-    "send_stories_to_user_chats_task": {
-        "task": "telegram_feed.tasks.send_stories_to_user_chats_task",
-        "schedule": crontab(minute="*/1"),
+    "send_alerts_task": {
+        "task": "telegram_feed.tasks.send_alerts_task",
+        "schedule": 30,
     },
 }
 

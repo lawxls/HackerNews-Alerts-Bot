@@ -39,9 +39,9 @@ services:
       RABBITMQ_DEFAULT_USER: ${RABBITMQUSER}
       RABBITMQ_DEFAULT_PASS: ${RABBITMQPASSWORD}
 
-  celery_worker:
+  celery_worker_respond_to_updates:
     build: .
-    command: bash -c "pip install -r requirements.txt && celery -A config worker -l info"
+    command: bash -c "pip install -r requirements.txt && celery -A config worker -l info -Q respond_to_updates_queue --concurrency=1"
     volumes:
       - .:/application
     env_file:
@@ -50,6 +50,33 @@ services:
       - django
       - postgres
       - rabbitmq
+      - celery_beat
+
+  celery_worker_scrapers:
+    build: .
+    command: bash -c "pip install -r requirements.txt && celery -A config worker -l info -Q scrapers_queue --concurrency=1"
+    volumes:
+      - .:/application
+    env_file:
+      - ./.env
+    depends_on:
+      - django
+      - postgres
+      - rabbitmq
+      - celery_beat
+
+  celery_worker_send_messages:
+    build: .
+    command: bash -c "pip install -r requirements.txt && celery -A config worker -l info -Q send_messages_queue --concurrency=1"
+    volumes:
+      - .:/application
+    env_file:
+      - ./.env
+    depends_on:
+      - django
+      - postgres
+      - rabbitmq
+      - celery_beat
 
   celery_beat:
     build: .
