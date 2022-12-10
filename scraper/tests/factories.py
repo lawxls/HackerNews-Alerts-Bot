@@ -1,8 +1,9 @@
+import factory
 from django.utils import timezone
 from factory import Faker
 from factory.django import DjangoModelFactory
 
-from scraper.models import Thread
+from scraper.models import Comment, Thread
 
 
 class ThreadFactory(DjangoModelFactory):
@@ -17,3 +18,15 @@ class ThreadFactory(DjangoModelFactory):
 
     class Meta:
         model = Thread
+
+
+class CommentFactory(DjangoModelFactory):
+    thread = factory.SubFactory(ThreadFactory)
+    comment_id = Faker("pyint")
+    thread_id_int = Faker("pyint")
+    comment_created_at = timezone.now()
+    username = Faker("name")
+    body = Faker("sentence")
+
+    class Meta:
+        model = Comment

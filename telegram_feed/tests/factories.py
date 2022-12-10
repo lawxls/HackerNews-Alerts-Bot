@@ -3,7 +3,7 @@ from django.utils import timezone
 from factory import Faker
 from factory.django import DjangoModelFactory
 
-from telegram_feed.models import TelegramUpdate, UserFeed
+from telegram_feed.models import Keyword, TelegramUpdate, UserFeed
 
 
 class TelegramUpdateFactory(DjangoModelFactory):
@@ -18,7 +18,6 @@ class TelegramUpdateFactory(DjangoModelFactory):
 
 class UserFeedFactory(DjangoModelFactory):
     chat_id = Faker("pyint")
-    old_keywords = ["django", "rust", "sass", "cucumber", "tomato"]
     score_threshold = 1
 
     @factory.post_generation
@@ -30,5 +29,25 @@ class UserFeedFactory(DjangoModelFactory):
             for thread in extracted:
                 self.threads.add(thread)
 
+    @factory.post_generation
+    def comments(self, create, extracted, **kwargs):
+        if not create:
+            return
+
+        if extracted:
+            for comment in extracted:
+                self.comments.add(comment)
+
     class Meta:
         model = UserFeed
+
+
+class KeywordFactory(DjangoModelFactory):
+    user_feed = factory.SubFactory(UserFeedFactory)
+    name = Faker("name")
+    is_full_match = False
+    search_threads = True
+    search_comments = True
+
+    class Meta:
+        model = Keyword
