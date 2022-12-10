@@ -1,91 +1,53 @@
-import datetime
 from unittest import mock
 
 import pytest
-from django.utils import timezone
 
-from scraper.tests.factories import ThreadFactory
-from telegram_feed.tasks import send_stories_to_user_chats_task
-from telegram_feed.tests.factories import UserFeedFactory
+from scraper.tests.factories import CommentFactory, ThreadFactory
+from telegram_feed.tasks import send_alerts_task
+from telegram_feed.tests.factories import KeywordFactory, UserFeedFactory
 
 
 class TestSendStoriesToUserChatsTask:
     @pytest.mark.django_db
     @mock.patch("telegram_feed.requests.SendMessageRequest.send_message")
-    def test_send_stories(self, send_message_mock):
+    def test_send_alerts_task(self, send_message_mock):
         send_message_mock.return_value = True
 
-        user_feed = UserFeedFactory.create(old_keywords=["python", "django", "tomato"])
+        user_feed = UserFeedFactory.create(chat_id=1)
 
-        thread1 = ThreadFactory.create(title="test title with Python keyword", score=100)
-        thread2 = ThreadFactory.create(title="test title with Django keyword", score=100)
-        thread3 = ThreadFactory.create(title="test title with tomato keyword", score=100)
-        thread4 = ThreadFactory.create(
-            title="test title with Cucumber non-existing keyword", score=100
-        )
+        KeywordFactory.create(user_feed=user_feed, name="tomato")
+        KeywordFactory.create(user_feed=user_feed, name="potato")
 
-        send_stories_to_user_chats_task()
+        thread_1 = ThreadFactory.create(title="thread with tomato keyword")
+        thread_2 = ThreadFactory.create(title="thread with potato keyword")
+        comment_1 = CommentFactory.create(body="comment with tomato keyword")
+        comment_2 = CommentFactory.create(body="comment with potato keyword")
 
-        assert thread1 in user_feed.threads.all()
-        assert thread2 in user_feed.threads.all()
-        assert thread3 in user_feed.threads.all()
-        assert thread4 not in user_feed.threads.all()
+        send_alerts_task()
+
+        assert thread_1 in user_feed.threads.all()
+        assert thread_2 in user_feed.threads.all()
+        assert comment_1 in user_feed.comments.all()
+        assert comment_2 in user_feed.comments.all()
 
     @pytest.mark.django_db
     @mock.patch("telegram_feed.requests.SendMessageRequest.send_message")
-    def test_score_threshold(self, send_message_mock):
+    def test_send_alerts_task_send_to_multiple_user_feeds(self, send_message_mock):
         send_message_mock.return_value = True
 
-        user_feed = UserFeedFactory.create(old_keywords=["python", "tomato"], score_threshold=100)
+        user_feed_1 = UserFeedFactory.create(chat_id=1)
+        user_feed_2 = UserFeedFactory.create(chat_id=2)
 
-        thread1 = ThreadFactory.create(title="test title with Python keyword", score=500)
-        thread2 = ThreadFactory.create(
-            title="test title with Python keyword below threshold", score=5
-        )
-        thread3 = ThreadFactory.create(title="test title with tomato keyword", score=1000)
+        KeywordFactory.create(user_feed=user_feed_1, name="tomato")
+        KeywordFactory.create(user_feed=user_feed_2, name="tomato")
 
-        send_stories_to_user_chats_task()
+        thread = ThreadFactory.create(title="thread with tomato keyword")
+        comment = CommentFactory.create(body="comment with tomato keyword")
 
-        assert thread1 in user_feed.threads.all()
-        assert thread3 in user_feed.threads.all()
-        assert thread2 not in user_feed.threads.all()
+        send_alerts_task()
 
-    @pytest.mark.django_db
-    @mock.patch("telegram_feed.requests.SendMessageRequest.send_message")
-    def test_sending_stories_from_past_24_hours(self, send_message_mock):
-        send_message_mock.return_value = True
+        assert thread in user_feed_1.threads.all()
+        assert comment in user_feed_1.comments.all()
 
-        user_feed = UserFeedFactory.create(old_keywords=["python"])
-
-        date_from = timezone.now() - datetime.timedelta(days=2)
-        thread1 = ThreadFactory.create(
-            title="test title with Python keyword 2 days old", score=100, created=date_from
-        )
-        thread2 = ThreadFactory.create(title="test title with Python keyword new", score=100)
-
-        send_stories_to_user_chats_task()
-
-        assert thread1 not in user_feed.threads.all()
-        assert thread2 in user_feed.threads.all()
-
-    @pytest.mark.django_db
-    @mock.patch("telegram_feed.requests.SendMessageRequest.send_message")
-    def test_sending_stories_to_multiple_user_feeds(self, send_message_mock):
-        send_message_mock.return_value = True
-
-        user_feed1 = UserFeedFactory.create(old_keywords=["python", "django"])
-        user_feed2 = UserFeedFactory.create(old_keywords=["python", "c++"])
-
-        thread1 = ThreadFactory.create(title="test title with Python keyword", score=100)
-        thread2 = ThreadFactory.create(title="test title with c++ keyword", score=100)
-        thread3 = ThreadFactory.create(title="test title with django keyword", score=100)
-
-        send_stories_to_user_chats_task()
-
-        assert thread1 in user_feed1.threads.all()
-        assert thread3 in user_feed1.threads.all()
-        assert thread2 not in user_feed1.threads.all()
-
-        assert thread1 in user_feed2.threads.all()
-        assert thread2 in user_feed2.threads.all()
-        assert thread3 not in user_feed2.threads.all()
+        assert thread in user_feed_2.threads.all()
+        assert comment in user_feed_2.comments.all()
