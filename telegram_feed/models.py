@@ -10,7 +10,9 @@ class UserFeed(TimeStampedModel, models.Model):
     """Telegram user feed"""
 
     chat_id = models.PositiveIntegerField(verbose_name="telegram chat id")
-    old_keywords = ArrayField(models.CharField(max_length=80), verbose_name="feed keywords")
+    old_keywords = ArrayField(
+        models.CharField(max_length=80), default=list, verbose_name="feed keywords"
+    )
     score_threshold = models.PositiveSmallIntegerField(
         verbose_name="Threshold to pass for a story to be sent",
         default=1,
