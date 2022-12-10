@@ -6,6 +6,7 @@ import requests
 from django.conf import settings
 from django.utils.timezone import make_aware
 
+from scraper.utils import start_request_session
 from telegram_feed.exceptions import TelegramRequestError
 from telegram_feed.models import TelegramUpdate
 from telegram_feed.types import InlineKeyboardButton, UpdateData
@@ -85,6 +86,11 @@ class GetUpdatesRequest:
 class SendMessageRequest:
     """sendMessage telegram method"""
 
+    def __init__(self) -> None:
+        self.hn_request_session = start_request_session(
+            domen=f"https://api.telegram.org/bot{settings.TELEGRAM_TOKEN}/sendMessage"
+        )
+
     def send_message(
         self,
         chat_id: int,
@@ -99,7 +105,7 @@ class SendMessageRequest:
         if parse_mode:
             payload["parse_mode"] = parse_mode
 
-        response = requests.get(
+        response = self.hn_request_session.get(
             f"https://api.telegram.org/bot{settings.TELEGRAM_TOKEN}/sendMessage", params=payload
         )
 
