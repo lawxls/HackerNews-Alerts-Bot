@@ -49,11 +49,16 @@ class GetUpdatesRequest:
 
         updates: list[UpdateData] = []
         for update_data_dict in result:
+
+            message = update_data_dict.get("message")
+            if not message:
+                message = update_data_dict.get("edited_message")
+
             update_data = UpdateData(
                 update_id=update_data_dict.get("update_id"),
-                chat_id=update_data_dict.get("message").get("chat").get("id"),
-                text=update_data_dict.get("message").get("text"),
-                unix_timestamp_date=update_data_dict.get("message").get("date"),
+                chat_id=message.get("chat").get("id"),
+                text=message.get("text"),
+                unix_timestamp_date=message.get("date"),
             )
             updates.append(update_data)
 
