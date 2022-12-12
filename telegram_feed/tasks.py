@@ -28,7 +28,6 @@ def send_alerts_task() -> bool:
 
 @celery_app.task
 def respond_to_messages_task() -> bool:
-    """Cron task that responds to user messages"""
 
     telegram_updates = GetUpdatesRequest().get_updates()
 
