@@ -95,7 +95,7 @@ class RespondToMessageService:
             "✔️ Done\\! You will receive a message "
             "whenever one of your keywords is mentioned on Hacker News\n\n\n"
             "🔻 *COMMANDS*\n\n"
-            "▪️ Add keyword (scans comments & stories if options not provided)\n"
+            "▪️ Add keyword \\(scans comments & stories if options not provided\\)\n"
             "`/add KEYWORD [\\-whole\\-word, \\-stories, \\-comments]`\n\n"
             "*Options:*\n"
             "`\\-whole\\-word`\n"
