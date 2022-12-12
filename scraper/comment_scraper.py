@@ -54,10 +54,14 @@ class CommentScraper:
                 created_at_str = row.find_all("span")[1].get("title")
                 created_at = parser.parse(created_at_str).astimezone(tz.UTC)
 
+                body = row.find_all("div")[2].find("span").text
+                # add whitespaces before and after for full word matching
+                body_with_whitespaces = f" {body} "
+
                 scraped_comment = ScrapedCommentData(
                     comment_id=row.get("id"),
                     thread_id_int=row.find_all("span")[4].a.get("href").replace("item?id=", ""),
-                    body=row.find_all("div")[2].find("span").text,
+                    body=body_with_whitespaces,
                     username=row.find_all("a")[1].text,
                     comment_created_at=created_at,
                 )
