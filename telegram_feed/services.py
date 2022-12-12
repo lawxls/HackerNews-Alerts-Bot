@@ -321,13 +321,15 @@ class SendAlertsService:
 
         for keyword in keywords:
 
-            keyword_name = keyword.name
-            if keyword.is_full_match is True:
-                keyword_name = f" {keyword_name} "
+            if keyword.is_full_match is False:
+                comments_by_keyword = comments_from_24_hours.filter(
+                    body__search=keyword.name,
+                )
+            else:
+                comments_by_keyword = comments_from_24_hours.filter(
+                    body__icontains=f" {keyword.name} ",
+                )
 
-            comments_by_keyword = comments_from_24_hours.filter(
-                body__search=keyword_name,
-            )
             comments_by_keywords_dict[keyword.name] = comments_by_keyword
             comments_by_keywords = comments_by_keywords | comments_by_keyword
 
