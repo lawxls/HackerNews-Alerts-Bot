@@ -326,7 +326,7 @@ class SendAlertsService:
                 keyword_name = f" {keyword_name} "
 
             comments_by_keyword = comments_from_24_hours.filter(
-                body__icontains=keyword_name,
+                body__search=keyword_name,
             )
             comments_by_keywords_dict[keyword.name] = comments_by_keyword
             comments_by_keywords = comments_by_keywords | comments_by_keyword
