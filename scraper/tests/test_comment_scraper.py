@@ -5,7 +5,7 @@ from scraper.comment_scraper import CommentScraper
 
 class TestCommentScraper:
     @pytest.mark.django_db
-    def test_scraping_newcomments_page_success(self):
+    def test_scraping_newcomments_page(self):
         """
         Test scraping news.ycombinator.com/newcomments page
 

@@ -5,7 +5,7 @@ from scraper.thread_scraper import ThreadScraper
 
 class TestThreadScraper:
     @pytest.mark.django_db
-    def test_scraping_main_page_success(self):
+    def test_scraping_main_page(self):
         """
         Test scraping news.ycombinator.com/news page
 
@@ -28,7 +28,7 @@ class TestThreadScraper:
         assert len(threads) == 30
 
     @pytest.mark.django_db
-    def test_scraping_newest_page_success(self):
+    def test_scraping_newest_page(self):
         """
         Test scraping news.ycombinator.com/newest page
         """
