@@ -1,5 +1,5 @@
 import datetime
-from collections.abc import Iterable
+from collections.abc import Iterable, Mapping
 from dataclasses import asdict
 from time import sleep
 
@@ -245,7 +245,7 @@ class SendAlertsService:
         return all(messages_sent)
 
     def send_comments_to_telegram_feed(
-        self, comments_by_keywords: dict[str, Iterable[Comment]]
+        self, comments_by_keywords: Mapping[str, Iterable[Comment]]
     ) -> bool:
         send_message_request = SendMessageRequest()
 
@@ -310,7 +310,7 @@ class SendAlertsService:
 
     def find_new_comments_by_keywords(
         self,
-    ) -> tuple[QuerySet[Comment], dict[str, QuerySet[Comment]]]:
+    ) -> tuple[QuerySet[Comment], Mapping[str, QuerySet[Comment]]]:
         keywords = self.user_feed.keywords.filter(search_comments=True)
 
         date_from = timezone.now() - datetime.timedelta(days=1)
