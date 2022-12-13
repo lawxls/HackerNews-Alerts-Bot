@@ -369,11 +369,11 @@ def get_keywords_str(user_feed: UserFeed) -> str:
 
         options = []
         if keyword.search_comments is False:
-            options.append("-stories")
+            options.append("stories")
         if keyword.search_threads is False:
-            options.append("-comments")
+            options.append("comments")
         if keyword.is_full_match is True:
-            options.append("-whole-word")
+            options.append("whole-word")
 
         options_str = ", ".join(options)
         keyword_line = f"Keyword: {keyword.name}\n" f"Options: {options_str}\n\n"
