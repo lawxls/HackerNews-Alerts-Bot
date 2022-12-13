@@ -177,13 +177,13 @@ class TestRespondToMessageService:
         """Test add keyword command call with invalid option"""
 
         telegram_update = TelegramUpdateFactory.create(
-            chat_id=1, text="/add cucumber --option-invalid"
+            chat_id=1, text="/add cucumber -option-invalid"
         )
         text_response = RespondToMessageService(
             telegram_update=telegram_update
         ).respond_to_user_message()
 
-        assert text_response == "Fail! Invalid option: --option-invalid"
+        assert text_response == "Fail! Invalid option: option-invalid"
 
     @pytest.mark.django_db
     def test_response_to_add_keyword_command_option_combination_fail(self):

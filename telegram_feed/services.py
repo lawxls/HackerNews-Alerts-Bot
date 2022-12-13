@@ -129,9 +129,9 @@ class RespondToMessageService:
     def respond_to_add_keyword_command(self) -> str:
         # sourcery skip: class-extract-method
 
-        command_data = [w.strip() for w in self.telegram_update.text.split()]
-        keyword = command_data[1]
-        options = command_data[2:]
+        command_data = self.telegram_update.text.replace("/add", "").strip().split(" -")
+        keyword = command_data[0]
+        options = command_data[1:]
 
         if len(keyword) > 100:
             return "Fail! Max keyword length is 100 characters"
@@ -167,8 +167,7 @@ class RespondToMessageService:
         return f"Success! Keyword added. Current keywords list:\n\n{keywords_str}"
 
     def respond_to_remove_keyword_command(self) -> str:
-        command_data = [w.strip() for w in self.telegram_update.text.split()]
-        keyword = command_data[1]
+        keyword = self.telegram_update.text.replace("/remove", "").strip()
 
         if self.user_feed.keywords.count() == 0:
             return "Fail! Add keyword first. /help for info"
@@ -344,16 +343,16 @@ def validate_and_add_options_data_to_keyword(
     keyword_data: KeywordData, options: list[str]
 ) -> KeywordData:
 
-    if "-stories" in options and "-comments" in options:
+    if "stories" in options and "comments" in options:
         raise BadOptionCombinationError(options=["-stories", "-comments"])
 
     for option in options:
         match option:
-            case "-whole-word":
+            case "whole-word":
                 keyword_data.is_full_match = True
-            case "-stories":
+            case "stories":
                 keyword_data.search_comments = False
-            case "-comments":
+            case "comments":
                 keyword_data.search_threads = False
             case _:
                 raise InvalidOptionError(option=option)
