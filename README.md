@@ -8,6 +8,7 @@ Currently it can do:
 To-Do:
 - Reply alerts
 - Stories by domain name alerts
+- New thread comments alerts
 
 [commands](https://github.com/lawxls/HackerNews-personalized/tree/commands-2.0#commands)
 
