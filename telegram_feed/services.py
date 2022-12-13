@@ -72,7 +72,7 @@ class RespondToMessageService:
                 return self.LIST_KEYWORDS_COMMAND
             case ["/add", _, *_]:
                 return self.ADD_KEYWORD_COMMAND
-            case ["/remove", _]:
+            case ["/remove", _, *_]:
                 return self.REMOVE_KEYWORD_COMMAND
             case ["/set_score", score] if score.isnumeric():  # type: ignore
                 return self.SET_SCORE_COMMAND
