@@ -1,9 +1,9 @@
 <h1 align="center">HackerNews Alerts Bot</h1>
-<h4 align="center">Telegram bot for all kinds of notifications from Hacker News</h4>
+<p align="center"><em>Telegram bot for all kinds of notifications from Hacker News</em></p>
 
 ---
 
-<h3 align="center"><a href="https://github.com/lawxls/HackerNews-personalized/tree/commands-2.0#commands-1">commands</a></h3>
+<p align="center"><a href="https://github.com/lawxls/HackerNews-personalized/tree/commands-2.0#commands-1">commands</a></p>
 
 ---
 
