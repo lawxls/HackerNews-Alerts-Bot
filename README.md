@@ -8,11 +8,12 @@
 
 <p align="center">
 <a href="https://github.com/lawxls/HackerNews-personalized/actions" target="_blank">
-    <img src="https://github.com/lawxls/HackerNews-personalized/workflows/Test/badge.svg?event=push&branch=master" alt="Test">
+    <img src="https://github.com/lawxls/HackerNews-personalized/workflows/Test/badge.svg" alt="Test">
+</a>
+<a href="https://results.pre-commit.ci/latest/github/lawxls/HackerNews-personalized/main" target="_blank">
+    <img src="https://results.pre-commit.ci/badge/github/lawxls/HackerNews-personalized/main.svg" alt="pre-commit">
 </a>
 </p>
-
-![example workflow](https://github.com/github/docs/actions/workflows/main.yml/badge.svg)
 
 ---
 
