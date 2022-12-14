@@ -1,7 +1,7 @@
 <h1 align="center">HackerNews Alerts Bot</h1>
 
 <p align="center">
-  <a href="https://t.me/HackerNews_personalized_bot"><img src="https://user-images.githubusercontent.com/76647266/207477236-d643f05d-64ef-4ec1-9fd9-f800d25c4db3.png" alt="Telegram-bot"></a>
+  <a href="https://t.me/HackerNews_personalized_bot"><img src="https://user-images.githubusercontent.com/76647266/207596416-8636a1aa-ccbb-4d9a-bcd6-ea7a22203c48.png" alt="Telegram-bot"></a>
 </p>
 
 <p align="center"><em>Telegram bot for all kinds of notifications from Hacker News</em></p>
@@ -17,13 +17,13 @@
 
 ---
 
-<p align="center"><a href="https://github.com/lawxls/HackerNews-personalized/tree/commands-2.0#commands">commands</a></p>
+<p align="center"><a href="https://github.com/lawxls/HackerNews-Alerts-Bot#commands">commands</a></p>
 
 ---
 
 Currently it can do:
 
-- [Keyword alerts](https://github.com/lawxls/HackerNews-personalized/tree/commands-2.0#keyword-alerts)
+- [Keyword alerts](https://github.com/lawxls/HackerNews-Alerts-Bot#keyword-alerts)
 
 To-Do:
 - Reply alerts
