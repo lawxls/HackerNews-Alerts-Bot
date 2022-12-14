@@ -3,7 +3,7 @@
 
 ---
 
-<p align="center"><a href="https://github.com/lawxls/HackerNews-personalized/tree/commands-2.0#commands-1">commands</a></p>
+<p align="center"><a href="https://github.com/lawxls/HackerNews-personalized/tree/commands-2.0#commands">commands</a></p>
 
 ---
 
