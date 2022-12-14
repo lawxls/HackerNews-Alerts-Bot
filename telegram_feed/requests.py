@@ -97,6 +97,7 @@ class SendMessageRequest:
         text: str,
         inline_keyboard_markup: Mapping[str, list[list[InlineKeyboardButton]]] | None = None,
         parse_mode: str | None = None,
+        disable_web_page_preview: bool = False,
     ) -> bool:
 
         payload: MutableMapping[str, int | str] = {"chat_id": chat_id, "text": text}
@@ -104,6 +105,8 @@ class SendMessageRequest:
             payload["reply_markup"] = json.dumps(inline_keyboard_markup)
         if parse_mode:
             payload["parse_mode"] = parse_mode
+        if disable_web_page_preview:
+            payload["disable_web_page_preview"] = disable_web_page_preview
 
         response = self.hn_request_session.get(
             f"https://api.telegram.org/bot{settings.TELEGRAM_TOKEN}/sendMessage", params=payload

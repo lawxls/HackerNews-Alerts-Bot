@@ -37,13 +37,16 @@ def respond_to_messages_task() -> bool:
 
         # use MarkdownV2 only for /help and /start commands
         parse_mode: str | None = None
+        disable_web_page_preview = False
         if update.text in ["/help", "/start"]:
             parse_mode = "MarkdownV2"
+            disable_web_page_preview = True
 
         send_message_request.send_message(
             chat_id=update.chat_id,
             text=text_response,
             parse_mode=parse_mode,
+            disable_web_page_preview=disable_web_page_preview,
         )
 
     return True
