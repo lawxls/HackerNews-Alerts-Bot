@@ -6,6 +6,14 @@
 
 <p align="center"><em>Telegram bot for all kinds of notifications from Hacker News</em></p>
 
+<p align="center">
+<a href="https://github.com/lawxls/HackerNews-personalized/actions" target="_blank">
+    <img src="https://github.com/lawxls/HackerNews-personalized/workflows/Test/badge.svg?event=push&branch=master" alt="Test">
+</a>
+</p>
+
+![example workflow](https://github.com/github/docs/actions/workflows/main.yml/badge.svg)
+
 ---
 
 <p align="center"><a href="https://github.com/lawxls/HackerNews-personalized/tree/commands-2.0#commands">commands</a></p>
