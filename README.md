@@ -1,4 +1,9 @@
 <h1 align="center">HackerNews Alerts Bot</h1>
+
+<p align="center">
+  <a href="https://t.me/HackerNews_personalized_bot"><img src="https://user-images.githubusercontent.com/76647266/207477236-d643f05d-64ef-4ec1-9fd9-f800d25c4db3.png" alt="Telegram-bot"></a>
+</p>
+
 <p align="center"><em>Telegram bot for all kinds of notifications from Hacker News</em></p>
 
 ---
