@@ -1,5 +1,11 @@
-# HackerNews Alerts Bot
-Telegram bot for all kinds of notifications from Hacker News.
+<h1 align="center">HackerNews Alerts Bot</h1>
+<h4 align="center">Telegram bot for all kinds of notifications from Hacker News</h4>
+
+---
+
+<h3 align="center"><a href="https://github.com/lawxls/HackerNews-personalized/tree/commands-2.0#commands">commands</a></h3>
+
+---
 
 Currently it can do:
 
@@ -9,8 +15,6 @@ To-Do:
 - Reply alerts
 - Stories by domain name alerts
 - New thread comments alerts
-
-[commands](https://github.com/lawxls/HackerNews-personalized/tree/commands-2.0#commands)
 
 ## Keyword alerts
 Create personal feed of stories or monitor mentions of your brand, projects or topics you're interested in.
