@@ -7,8 +7,8 @@ from telegram_feed.models import Keyword, TelegramUpdate, UserFeed
 
 
 class TelegramUpdateFactory(DjangoModelFactory):
-    update_id = Faker("pyint")
-    chat_id = Faker("pyint")
+    update_id = factory.Sequence(lambda n: n)
+    chat_id = factory.Sequence(lambda n: n)
     date = timezone.now()
     text = Faker("text")
 
@@ -17,7 +17,7 @@ class TelegramUpdateFactory(DjangoModelFactory):
 
 
 class UserFeedFactory(DjangoModelFactory):
-    chat_id = Faker("pyint")
+    chat_id = factory.Sequence(lambda n: n)
     score_threshold = 1
 
     @factory.post_generation

@@ -7,7 +7,7 @@ from scraper.models import Comment, Thread
 
 
 class ThreadFactory(DjangoModelFactory):
-    thread_id = Faker("pyint")
+    thread_id = factory.Sequence(lambda n: n)
     title = Faker("sentence")
     link = Faker("url")
     comments_link = Faker("url")
@@ -22,8 +22,8 @@ class ThreadFactory(DjangoModelFactory):
 
 class CommentFactory(DjangoModelFactory):
     thread = factory.SubFactory(ThreadFactory)
-    comment_id = Faker("pyint")
-    thread_id_int = Faker("pyint")
+    comment_id = factory.Sequence(lambda n: n)
+    thread_id_int = factory.Sequence(lambda n: n)
     comment_created_at = timezone.now()
     username = Faker("name")
     body = Faker("sentence")
