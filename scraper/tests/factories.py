@@ -25,7 +25,7 @@ class CommentFactory(DjangoModelFactory):
     comment_id = factory.Sequence(lambda n: n)
     thread_id_int = factory.Sequence(lambda n: n)
     comment_created_at = timezone.now()
-    username = Faker("name")
+    username = "testuser123"
     body = Faker("sentence")
 
     class Meta:
