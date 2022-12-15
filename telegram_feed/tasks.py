@@ -6,7 +6,7 @@ from telegram_feed.services import RespondToMessageService, SendAlertsService
 
 @celery_app.task
 def send_alerts_task() -> bool:
-    user_feeds = UserFeed.objects.all()
+    user_feeds = UserFeed.objects.prefetch_related("comments", "threads", "keywords").all()
     messages_sent_to_feeds = []
     for user_feed in user_feeds:
         send_alerts = SendAlertsService(user_feed=user_feed)
