@@ -55,6 +55,9 @@ class GetUpdatesRequest:
             if not message:
                 message = update_data_dict.get("edited_message")
 
+            if message is None:
+                continue
+
             update_data = UpdateData(
                 update_id=update_data_dict.get("update_id"),
                 chat_id=message.get("chat").get("id"),
