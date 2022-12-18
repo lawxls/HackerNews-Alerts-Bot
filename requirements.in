@@ -11,7 +11,6 @@ django-stubs
 django-model-utils
 requests
 beautifulsoup4
-types-requests
 lxml
 python-dateutil
 types-python-dateutil
