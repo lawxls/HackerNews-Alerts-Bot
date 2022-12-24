@@ -46,7 +46,3 @@ repos:
     rev: v1.13.5
     hooks:
       - id: typos
--   repo: https://github.com/jazzband/pip-tools
-    rev: 6.12.1
-    hooks:
-      - id: pip-compile
