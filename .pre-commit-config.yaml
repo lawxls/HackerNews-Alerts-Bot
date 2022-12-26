@@ -24,7 +24,7 @@ repos:
     hooks:
     -   id: black
 -   repo: https://github.com/pycqa/isort
-    rev: v5.11.3
+    rev: 5.11.4
     hooks:
     -   id: isort
 -   repo: https://github.com/pycqa/flake8
@@ -43,6 +43,6 @@ repos:
         args: [--config=setup.cfg]
         additional_dependencies: [types-python-dateutil==2.8.16, types-requests]
 -   repo: https://github.com/crate-ci/typos
-    rev: v1.13.5
+    rev: v1.13.6
     hooks:
       - id: typos
