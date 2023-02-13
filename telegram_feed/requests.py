@@ -50,7 +50,6 @@ class GetUpdatesRequest:
 
         updates: list[UpdateData] = []
         for update_data_dict in result:
-
             message = update_data_dict.get("message")
             if not message:
                 message = update_data_dict.get("edited_message")
@@ -69,7 +68,6 @@ class GetUpdatesRequest:
         return updates
 
     def save_updates(self, updates: list[UpdateData]) -> list[TelegramUpdate]:
-
         update_objs: list[TelegramUpdate] = []
         for update_data in updates:
             date = datetime.utcfromtimestamp(update_data.unix_timestamp_date)
@@ -102,7 +100,6 @@ class SendMessageRequest:
         parse_mode: str | None = None,
         disable_web_page_preview: bool = False,
     ) -> bool:
-
         payload: MutableMapping[str, int | str] = {"chat_id": chat_id, "text": text}
         if inline_keyboard_markup:
             payload["reply_markup"] = json.dumps(inline_keyboard_markup)

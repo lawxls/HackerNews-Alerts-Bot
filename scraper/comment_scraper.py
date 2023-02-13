@@ -50,7 +50,6 @@ class CommentScraper:
         rows = bs4_page_data.find_all("tr")
         for row in rows:
             if isinstance(row.get("class"), list) and row.get("class")[0] == "athing":
-
                 created_at_str = row.find_all("span")[1].get("title")
                 created_at = parser.parse(created_at_str).astimezone(tz.UTC)
 
@@ -72,7 +71,6 @@ class CommentScraper:
     def create_or_update_comments(
         self, scraped_comments: list[ScrapedCommentData]
     ) -> list[Comment]:
-
         comments = []
         for scraped_comment in scraped_comments:
             comment, _ = Comment.objects.update_or_create(
