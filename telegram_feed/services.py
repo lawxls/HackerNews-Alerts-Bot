@@ -339,9 +339,10 @@ class SendAlertsService:
             comments_by_keywords_dict[keyword.name] = comments_by_keyword
             comments_by_keywords = comments_by_keywords | comments_by_keyword
 
-        new_comments = comments_by_keywords.difference(self.user_feed.comments.all())
+        all_comments = self.user_feed.comments.all()
+        new_comments = comments_by_keywords.difference(all_comments)
         for k, v in comments_by_keywords_dict.items():
-            comments_by_keywords_dict[k] = v.difference(self.user_feed.comments.all())
+            comments_by_keywords_dict[k] = v.difference(all_comments)
 
         return new_comments, comments_by_keywords_dict
 
