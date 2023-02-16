@@ -76,8 +76,6 @@ factory-boy==3.2.1
     # via -r requirements.in
 faker==15.3.4
     # via factory-boy
-flake8==6.0.0
-    # via -r requirements.in
 flower==1.2.0
     # via -r requirements.in
 humanize==4.4.0
@@ -96,8 +94,6 @@ lxml==4.9.2
     # via -r requirements.in
 matplotlib-inline==0.1.6
     # via ipython
-mccabe==0.7.0
-    # via flake8
 mypy==0.991
     # via
     #   -r requirements.in
@@ -132,10 +128,6 @@ ptyprocess==0.7.0
     # via pexpect
 pure-eval==0.2.2
     # via stack-data
-pycodestyle==2.10.0
-    # via flake8
-pyflakes==3.0.1
-    # via flake8
 pygments==2.13.0
     # via ipython
 pytest==7.2.0

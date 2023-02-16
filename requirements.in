@@ -2,7 +2,6 @@ Django
 django-environ
 django-extensions
 pip-tools
-flake8
 mypy
 psycopg2
 ipython
