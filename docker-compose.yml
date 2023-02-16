@@ -32,6 +32,7 @@ services:
       - 15672:15672
     env_file:
       - ./.env
+    restart: always
     volumes:
       - rabbitmq_data:/var/lib/rabbitmq/
       - rabbitmq_log:/var/log/rabbitmq/
@@ -46,6 +47,7 @@ services:
       - .:/application
     env_file:
       - ./.env
+    restart: always
     depends_on:
       - django
       - postgres
@@ -59,6 +61,7 @@ services:
       - .:/application
     env_file:
       - ./.env
+    restart: always
     depends_on:
       - django
       - postgres
@@ -72,6 +75,7 @@ services:
       - .:/application
     env_file:
       - ./.env
+    restart: always
     depends_on:
       - django
       - postgres
@@ -85,6 +89,7 @@ services:
       - .:/application
     env_file:
       - ./.env
+    restart: always
     depends_on:
       - django
       - postgres
