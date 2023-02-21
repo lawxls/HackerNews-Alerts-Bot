@@ -31,21 +31,6 @@ services:
     volumes:
       - redis_data:/data
 
-  rabbitmq:
-    image: rabbitmq:3.10-management-alpine
-    ports:
-      - 5672:5672
-      - 15672:15672
-    env_file:
-      - ./.env
-    restart: always
-    volumes:
-      - rabbitmq_data:/var/lib/rabbitmq/
-      - rabbitmq_log:/var/log/rabbitmq/
-    environment:
-      RABBITMQ_DEFAULT_USER: ${RABBITMQUSER}
-      RABBITMQ_DEFAULT_PASS: ${RABBITMQPASSWORD}
-
   celery_worker_respond_to_updates:
     build: .
     command: bash -c "pip install -r requirements.txt && celery -A config worker -l info -Q respond_to_updates_queue --concurrency=1"
@@ -57,7 +42,7 @@ services:
     depends_on:
       - django
       - postgres
-      - rabbitmq
+      - redis
       - celery_beat
 
   celery_worker_scrapers:
@@ -71,7 +56,7 @@ services:
     depends_on:
       - django
       - postgres
-      - rabbitmq
+      - redis
       - celery_beat
 
   celery_worker_send_messages:
@@ -85,7 +70,7 @@ services:
     depends_on:
       - django
       - postgres
-      - rabbitmq
+      - redis
       - celery_beat
 
   celery_beat:
@@ -99,7 +84,7 @@ services:
     depends_on:
       - django
       - postgres
-      - rabbitmq
+      - redis
 
   flower:
     build: .
@@ -113,10 +98,8 @@ services:
     depends_on:
       - django
       - postgres
-      - rabbitmq
+      - redis
 
 volumes:
   postgres_data:
-  rabbitmq_data:
-  rabbitmq_log:
   redis_data:

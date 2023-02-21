@@ -14,7 +14,6 @@ lxml
 python-dateutil
 types-python-dateutil
 celery
-django-celery-results
 flower
 pytest
 factory-boy
