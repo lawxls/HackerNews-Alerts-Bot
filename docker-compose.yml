@@ -25,6 +25,12 @@ services:
       - POSTGRES_PASSWORD=${DBPASSWORD}
       - POSTGRES_DB=${DBNAME}
 
+  redis:
+    image: redis:7.0.8-bullseye
+    restart: always
+    volumes:
+      - redis_data:/data
+
   rabbitmq:
     image: rabbitmq:3.10-management-alpine
     ports:
@@ -113,3 +119,4 @@ volumes:
   postgres_data:
   rabbitmq_data:
   rabbitmq_log:
+  redis_data:

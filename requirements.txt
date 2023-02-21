@@ -10,6 +10,8 @@ asgiref==3.5.2
     # via django
 asttokens==2.2.1
     # via stack-data
+async-timeout==4.0.2
+    # via redis
 attrs==22.1.0
     # via pytest
 backcall==0.2.0
@@ -144,6 +146,8 @@ pytz==2022.6
     # via
     #   celery
     #   flower
+redis==4.5.1
+    # via -r requirements.in
 requests==2.28.1
     # via -r requirements.in
 sentry-sdk==1.12.0

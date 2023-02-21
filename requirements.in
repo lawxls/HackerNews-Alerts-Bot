@@ -21,3 +21,4 @@ factory-boy
 pytest-django
 types-beautifulsoup4
 sentry-sdk
+redis

@@ -108,10 +108,7 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
 CELERY_ENABLED = True
 broker_url = env("CELERY_BROKER_URL")
-result_backend = "django-db"
-cache_backend = "django-cache"
-task_ignore_result = True
-task_store_errors_even_if_ignored = True
+result_backend = env("CELERY_RESULT_BACKEND")
 
 
 TELEGRAM_TOKEN = env("TELEGRAM_TOKEN")
