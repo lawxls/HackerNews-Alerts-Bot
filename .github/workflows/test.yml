@@ -45,6 +45,7 @@ jobs:
         DBPASSWORD: postgres
         DBHOST: localhost
         CELERY_BROKER_URL: broker-url
+        CELERY_RESULT_BACKEND: result-backend
         TELEGRAM_TOKEN: token
         TELEGRAM_TOKEN_TEST: token-test
         SENTRY_KEY:
