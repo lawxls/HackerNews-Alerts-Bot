@@ -39,7 +39,7 @@ class Comment(TimeStampedModel, models.Model):
     thread_id_int = models.PositiveIntegerField(verbose_name="thread id")
     comment_created_at = models.DateTimeField(verbose_name="parsed comment date of creation")
     username = models.CharField(max_length=20, verbose_name="comment's creator username")
-    body = models.TextField(verbose_name="comment's text body")
+    body = models.CharField(max_length=10000, verbose_name="comment's text body")
 
     def __str__(self):
         return f"({self.pk}) {self.body[:100]}"
