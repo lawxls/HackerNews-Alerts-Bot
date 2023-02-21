@@ -8,7 +8,6 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("scraper", "0004_alter_thread_link"),
         ("telegram_feed", "0005_alter_userfeed_score_threshold"),

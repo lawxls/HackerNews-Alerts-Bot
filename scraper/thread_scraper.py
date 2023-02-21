@@ -100,7 +100,6 @@ class ThreadParser:
         return parsed_threads
 
     def parse_thread_data(self, data_row) -> ScrapedThreadData:
-
         thread_id = data_row.get("id")
         thread_title = data_row.find("span", class_="titleline").find("a").text
 
@@ -126,7 +125,6 @@ class ThreadParser:
         )
 
     def parse_thread_meta_data(self, meta_data_row) -> ThreadMetaData:
-
         thread_score = 0
         if thread_score_span := meta_data_row.find("td", class_="subtext").find(
             "span", class_="score"

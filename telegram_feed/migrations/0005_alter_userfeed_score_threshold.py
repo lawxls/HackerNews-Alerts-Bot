@@ -5,7 +5,6 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("telegram_feed", "0004_alter_userfeed_score_threshold"),
     ]
