@@ -17,7 +17,6 @@ from telegram_feed.tests.factories import (
 
 
 class TestRespondToMessageService:
-
     HELP_COMMAND_RESPONSE = (
         "This is [HackerNews](https://news.ycombinator.com/) Alerts Bot 🤖\n\n"
         "Repository: https://github\\.com/lawxls/HackerNews\\-Alerts\\-Bot\n\n"
@@ -207,7 +206,6 @@ class TestRespondToMessageService:
 
     @pytest.mark.django_db
     def test_response_to_add_keyword_command_keywords_limit_fail(self):
-
         user_feed = UserFeedFactory.create(chat_id=1)
         KeywordFactory.create_batch(size=50, user_feed=user_feed)
 
@@ -220,7 +218,6 @@ class TestRespondToMessageService:
 
     @pytest.mark.django_db
     def test_response_to_add_keyword_command_keyword_max_length_fail(self):
-
         keyword = (
             "veryLongKeywordVeryVeryLongWayTooLongveryLongKeywordVeryVeryLong"
             "WayTooLongveryLongKeywordVeryVeryLongWayTooLongveryLongKeywordVeryVeryLongWayTooLong"
@@ -234,7 +231,6 @@ class TestRespondToMessageService:
 
     @pytest.mark.django_db
     def test_response_to_add_keyword_command_keyword_min_length_fail(self):
-
         telegram_update = TelegramUpdateFactory.create(text="/add L")
         text_response = RespondToMessageService(
             telegram_update=telegram_update
@@ -244,7 +240,6 @@ class TestRespondToMessageService:
 
     @pytest.mark.django_db
     def test_response_to_add_keyword_command_keyword_exists_fail(self):
-
         user_feed = UserFeedFactory.create(chat_id=1)
         KeywordFactory.create(user_feed=user_feed, name="cucumber")
 
@@ -391,7 +386,6 @@ class TestSendAlertsService:
 
     @pytest.mark.django_db
     def test_find_new_threads_by_keywords(self):
-
         ThreadFactory.create(title="new thread with potato keyword")
         ThreadFactory.create(title="new thread with tomato keyword")
         sent_thread = ThreadFactory.create(title="already sent thread with tomato keyword")
@@ -408,7 +402,6 @@ class TestSendAlertsService:
 
     @pytest.mark.django_db
     def test_find_new_threads_by_keywords_full_word_match(self):
-
         ThreadFactory.create(title="new thread with tomato keyword")
         ThreadFactory.create(title="new thread with potato keyword")
         unmatched_thread_1 = ThreadFactory.create(title="this is not a full word match - potatoes")
@@ -429,7 +422,6 @@ class TestSendAlertsService:
 
     @pytest.mark.django_db
     def test_find_new_comments_by_keywords(self):
-
         CommentFactory.create(body="new comment with tomato keyword")
         CommentFactory.create(body="new comment with potato keyword")
         sent_comment = CommentFactory.create(body="already sent comment with tomato keyword")
@@ -450,7 +442,6 @@ class TestSendAlertsService:
 
     @pytest.mark.django_db
     def test_find_new_comments_by_keywords_full_word_match(self):
-
         CommentFactory.create(body="new comment with tomato keyword")
         CommentFactory.create(body="new comment with potato keyword")
         unmatched_comment_1 = CommentFactory.create(

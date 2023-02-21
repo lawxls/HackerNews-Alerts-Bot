@@ -13,7 +13,6 @@ def migrate_keywords(apps, schema_editor):
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("telegram_feed", "0007_alter_userfeed_old_keywords"),
     ]

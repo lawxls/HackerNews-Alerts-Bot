@@ -28,7 +28,6 @@ def send_alerts_task() -> bool:
 
 @celery_app.task
 def respond_to_messages_task() -> bool:
-
     telegram_updates = GetUpdatesRequest().get_updates()
 
     send_message_request = SendMessageRequest()

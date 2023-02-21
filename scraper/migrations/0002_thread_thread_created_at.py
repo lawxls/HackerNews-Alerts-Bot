@@ -5,7 +5,6 @@ from django.utils import timezone
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("scraper", "0001_initial"),
     ]

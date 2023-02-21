@@ -5,7 +5,6 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("telegram_feed", "0006_rename_keywords_userfeed_old_keywords_and_more"),
     ]

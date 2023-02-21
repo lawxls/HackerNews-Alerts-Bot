@@ -62,7 +62,6 @@ class RespondToMessageService:
                 return self.respond_to_undefined_command()
 
     def check_user_message(self) -> str:  # type: ignore[return]
-
         match self.telegram_update.text.split():
             case ["/start"]:
                 return self.START_COMMAND
@@ -300,7 +299,6 @@ class SendAlertsService:
         threads_by_keywords = Thread.objects.none()
 
         for keyword in keywords:
-
             keyword_name = keyword.name
             if keyword.is_full_match is True:
                 keyword_name = f" {keyword_name} "
@@ -326,7 +324,6 @@ class SendAlertsService:
         comments_by_keywords_dict: dict[str, QuerySet[Comment]] = {}
 
         for keyword in keywords:
-
             if keyword.is_full_match is False:
                 comments_by_keyword = comments_from_24_hours.filter(
                     body__search=keyword.name,
@@ -350,7 +347,6 @@ class SendAlertsService:
 def validate_and_add_options_data_to_keyword(
     keyword_data: KeywordData, options: list[str]
 ) -> KeywordData:
-
     if "stories" in options and "comments" in options:
         raise BadOptionCombinationError(options=["-stories", "-comments"])
 
@@ -373,7 +369,6 @@ def get_keywords_str(user_feed: UserFeed) -> str:
 
     keyword_lines = []
     for keyword in user_feed.keywords.all():
-
         options = []
         if keyword.search_comments is False:
             options.append("stories")
