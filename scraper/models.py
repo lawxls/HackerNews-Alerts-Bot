@@ -1,4 +1,4 @@
-from django.contrib.postgres.indexes import GinIndex, OpClass
+from django.contrib.postgres.indexes import GinIndex, OpClass, HashIndex
 from django.db import models
 from django.db.models.functions import Upper
 from model_utils.models import TimeStampedModel
@@ -39,7 +39,7 @@ class Comment(TimeStampedModel, models.Model):
     thread_id_int = models.PositiveIntegerField(verbose_name="thread id")
     comment_created_at = models.DateTimeField(verbose_name="parsed comment date of creation")
     username = models.CharField(max_length=20, verbose_name="comment's creator username")
-    body = models.CharField(max_length=10000, db_index=True, verbose_name="comment's text body")
+    body = models.CharField(max_length=10000, verbose_name="comment's text body")
 
     def __str__(self):
         return f"({self.pk}) {self.body[:100]}"
@@ -47,7 +47,5 @@ class Comment(TimeStampedModel, models.Model):
     class Meta:
         ordering = ["-created"]
         indexes = [
-            models.Index(Upper("body"), name="body_upper_index"),
-            GinIndex(fields=["body"], name="body_gin_index", opclasses=["gin_trgm_ops"]),
-            GinIndex(OpClass(Upper("body"), name="gin_trgm_ops"), name="body_upper_gin_index"),
+            HashIndex(fields=("body",)),
         ]
