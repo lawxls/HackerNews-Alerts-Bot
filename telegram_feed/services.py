@@ -326,7 +326,7 @@ class SendAlertsService:
         for keyword in keywords:
             if keyword.is_full_match is False:
                 comments_by_keyword = comments_from_24_hours.filter(
-                    body__search=keyword.name,
+                    body__icontains=keyword.name,
                 )
             else:
                 comments_by_keyword = comments_from_24_hours.filter(
