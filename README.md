@@ -21,7 +21,7 @@
 
 ---
 
-Currently it can do:
+Features:
 
 - [Keyword alerts](https://github.com/lawxls/HackerNews-Alerts-Bot#keyword-alerts)
 
