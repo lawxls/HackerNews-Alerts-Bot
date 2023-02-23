@@ -19,6 +19,7 @@ class UserFeed(TimeStampedModel, models.Model):
         validators=[MaxValueValidator(10000)],
     )
     threads = models.ManyToManyField(Thread, related_name="user_feeds")
+    subscriptions = models.ManyToManyField(Thread, related_name="subscription_user_feeds")
     comments = models.ManyToManyField(Comment, related_name="user_feeds")
 
     def __str__(self):
