@@ -33,7 +33,7 @@ services:
 
   celery_worker_respond_to_updates:
     build: .
-    command: bash -c "pip install -r requirements.txt && celery -A config worker -l info -Q respond_to_updates_queue --concurrency=1"
+    command: bash -c "pip install -r requirements.txt && celery -A config worker -l info -Q respond_to_updates_queue --concurrency=1 --max-tasks-per-child 1000"
     volumes:
       - .:/application
     env_file:
@@ -47,7 +47,7 @@ services:
 
   celery_worker_scrapers:
     build: .
-    command: bash -c "pip install -r requirements.txt && celery -A config worker -l info -Q scrapers_queue --concurrency=1"
+    command: bash -c "pip install -r requirements.txt && celery -A config worker -l info -Q scrapers_queue --concurrency=1 --max-tasks-per-child 100"
     volumes:
       - .:/application
     env_file:
@@ -61,7 +61,7 @@ services:
 
   celery_worker_send_messages:
     build: .
-    command: bash -c "pip install -r requirements.txt && celery -A config worker -l info -Q send_messages_queue --concurrency=1"
+    command: bash -c "pip install -r requirements.txt && celery -A config worker -l info -Q send_messages_queue --concurrency=1 --max-tasks-per-child 100"
     volumes:
       - .:/application
     env_file:
