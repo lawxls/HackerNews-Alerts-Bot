@@ -23,6 +23,9 @@ def send_alerts_task() -> bool:
         messages_sent_to_feeds.append(comments_sent)
         user_feed.comments.add(*new_comments)
 
+        if user_feed.subscription_threads.exists():
+            send_alerts.send_subscription_comments_to_telegram_feed()
+
     return all(messages_sent_to_feeds)
 
 

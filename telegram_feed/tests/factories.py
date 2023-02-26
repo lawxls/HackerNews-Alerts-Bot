@@ -30,6 +30,15 @@ class UserFeedFactory(DjangoModelFactory):
                 self.threads.add(thread)
 
     @factory.post_generation
+    def subscription_threads(self, create, extracted, **kwargs):
+        if not create:
+            return
+
+        if extracted:
+            for thread in extracted:
+                self.subscription_threads.add(thread)
+
+    @factory.post_generation
     def comments(self, create, extracted, **kwargs):
         if not create:
             return
@@ -37,6 +46,15 @@ class UserFeedFactory(DjangoModelFactory):
         if extracted:
             for comment in extracted:
                 self.comments.add(comment)
+
+    @factory.post_generation
+    def subscription_comments(self, create, extracted, **kwargs):
+        if not create:
+            return
+
+        if extracted:
+            for comment in extracted:
+                self.subscription_comments.add(comment)
 
     class Meta:
         model = UserFeed

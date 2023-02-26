@@ -345,8 +345,126 @@ class TestRespondToMessageService:
 
         assert text_response == "Success! Data is erased"
 
+    @pytest.mark.django_db
+    def test_response_to_subscribe_command(self):
+        UserFeedFactory.create(chat_id=1)
+
+        ThreadFactory.create(title="subscription thread test", thread_id=12345)
+
+        telegram_update = TelegramUpdateFactory.create(chat_id=1, text="/subscribe 12345")
+        text_response = RespondToMessageService(
+            telegram_update=telegram_update
+        ).respond_to_user_message()
+
+        assert (
+            text_response
+            == "Success! You are now subscribed to a thread: subscription thread test"
+        )
+
+    @pytest.mark.django_db
+    def test_response_to_subscribe_command_thread_not_found_fail(self):
+        UserFeedFactory.create(chat_id=1)
+
+        ThreadFactory.create(title="subscription thread test", thread_id=12345)
+        ThreadFactory.create(title="subscription thread test 2", thread_id=54321)
+
+        telegram_update = TelegramUpdateFactory.create(chat_id=1, text="/subscribe 77777")
+        text_response = RespondToMessageService(
+            telegram_update=telegram_update
+        ).respond_to_user_message()
+
+        assert text_response == "Fail! Thread with 77777 id not found"
+
+    @pytest.mark.django_db
+    def test_response_to_subscribe_command_thread_restriction_limit_fail(self):
+        subscribed_thread = ThreadFactory.create(title="subscription thread test", thread_id=12345)
+        UserFeedFactory.create(chat_id=1, subscription_threads=[subscribed_thread])
+
+        ThreadFactory.create(title="subscription thread test 2", thread_id=54321)
+
+        telegram_update = TelegramUpdateFactory.create(chat_id=1, text="/subscribe 54321")
+        text_response = RespondToMessageService(
+            telegram_update=telegram_update
+        ).respond_to_user_message()
+
+        assert text_response == "Fail! You can only subscribe to one thread at a time"
+
+    @pytest.mark.django_db
+    def test_response_to_unsubscribe_command(self):
+        subscribed_thread = ThreadFactory.create(title="subscription thread test", thread_id=12345)
+        UserFeedFactory.create(chat_id=1, subscription_threads=[subscribed_thread])
+
+        telegram_update = TelegramUpdateFactory.create(chat_id=1, text="/unsubscribe 12345")
+        text_response = RespondToMessageService(
+            telegram_update=telegram_update
+        ).respond_to_user_message()
+
+        assert (
+            text_response
+            == "Success! You are unsubscribed from a thread: subscription thread test"
+        )
+
+    @pytest.mark.django_db
+    def test_response_to_unsubscribe_command_not_subscribed_fail(self):
+        subscribed_thread = ThreadFactory.create(title="subscription thread test", thread_id=12345)
+        UserFeedFactory.create(chat_id=1, subscription_threads=[subscribed_thread])
+
+        thread = ThreadFactory.create(title="subscription thread test 2", thread_id=666666)
+
+        telegram_update = TelegramUpdateFactory.create(chat_id=1, text="/unsubscribe 666666")
+        text_response = RespondToMessageService(
+            telegram_update=telegram_update
+        ).respond_to_user_message()
+
+        assert (
+            text_response == f"Fail! You are not subscribed to thread with {thread.thread_id} id"
+        )
+
+    @pytest.mark.django_db
+    def test_response_to_list_subscriptions_command(self):
+        thread = ThreadFactory.create(title="subscription thread test", thread_id=12345)
+        UserFeedFactory.create(chat_id=1, subscription_threads=[thread])
+
+        telegram_update = TelegramUpdateFactory.create(chat_id=1, text="/subscriptions")
+        text_response = RespondToMessageService(
+            telegram_update=telegram_update
+        ).respond_to_user_message()
+
+        assert (
+            text_response
+            == f"You are subscribed to a thread: {thread.title}\nThread id: {thread.thread_id}"
+        )
+
+    @pytest.mark.django_db
+    def test_response_to_list_subscriptions_command_not_subscribed_fail(self):
+        UserFeedFactory.create(chat_id=1)
+
+        telegram_update = TelegramUpdateFactory.create(chat_id=1, text="/subscriptions")
+        text_response = RespondToMessageService(
+            telegram_update=telegram_update
+        ).respond_to_user_message()
+
+        assert text_response == "You are currently not subscribed to a thread"
+
 
 class TestSendAlertsService:
+    @pytest.mark.django_db
+    @mock.patch("telegram_feed.requests.SendMessageRequest.send_message")
+    def test_send_subscription_comments_to_telegram_feed(self, send_message_mock):
+        send_message_mock.return_value = True
+
+        thread = ThreadFactory.create(title="subscription thread test", thread_id=12345)
+        user_feed = UserFeedFactory.create(chat_id=1, subscription_threads=[thread])
+
+        CommentFactory.create(body="comment 1 test", thread_id_int=12345)
+        CommentFactory.create(body="2nd comment test", thread_id_int=12345)
+
+        messages_sent = SendAlertsService(
+            user_feed=user_feed
+        ).send_subscription_comments_to_telegram_feed()
+
+        assert messages_sent is True
+
     @pytest.mark.django_db
     @mock.patch("telegram_feed.requests.SendMessageRequest.send_message")
     def test_send_threads_to_telegram_feed(self, send_message_mock):

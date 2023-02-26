@@ -25,6 +25,9 @@ class RespondToMessageService:
     REMOVE_KEYWORD_COMMAND = "REMOVE_KEYWORD_COMMAND"
     SET_SCORE_COMMAND = "SET_SCORE_COMMAND"
     STOP_COMMAND = "STOP_COMMAND"
+    SUBSCRIBE_COMMAND = "SUBSCRIBE_COMMAND"
+    UNSUBSCRIBE_COMMAND = "UNSUBSCRIBE_COMMAND"
+    LIST_SUBSCRIPTIONS_COMMAND = "LIST_SUBSCRIPTIONS_COMMAND"
     UNDEFINED_COMMAND = "UNDEFINED_COMMAND"
 
     def __init__(self, telegram_update: TelegramUpdate) -> None:
@@ -58,6 +61,12 @@ class RespondToMessageService:
                 return self.respond_to_set_score_command()
             case self.STOP_COMMAND:
                 return self.respond_to_stop_command()
+            case self.SUBSCRIBE_COMMAND:
+                return self.respond_to_subscribe_command()
+            case self.UNSUBSCRIBE_COMMAND:
+                return self.respond_to_unsubscribe_command()
+            case self.LIST_SUBSCRIPTIONS_COMMAND:
+                return self.respond_to_list_subscriptions_command()
             case _:
                 return self.respond_to_undefined_command()
 
@@ -77,6 +86,12 @@ class RespondToMessageService:
                 return self.SET_SCORE_COMMAND
             case ["/stop"]:
                 return self.STOP_COMMAND
+            case ["/subscribe", thread_id] if thread_id.isnumeric():  # type: ignore
+                return self.SUBSCRIBE_COMMAND
+            case ["/unsubscribe", thread_id] if thread_id.isnumeric():  # type: ignore
+                return self.UNSUBSCRIBE_COMMAND
+            case ["/subscriptions"]:
+                return self.LIST_SUBSCRIPTIONS_COMMAND
             case _:
                 return self.UNDEFINED_COMMAND
 
@@ -203,6 +218,51 @@ class RespondToMessageService:
         self.user_feed.delete()
         return "Success! Data is erased"
 
+    def respond_to_subscribe_command(self) -> str:
+        command_data = [w.strip() for w in self.telegram_update.text.split()]
+        thread_id = int(command_data[1])
+
+        thread = Thread.objects.filter(thread_id=thread_id).first()
+        if not thread:
+            return f"Fail! Thread with {thread_id} id not found"
+
+        if self.user_feed.subscription_threads.count() >= 1:
+            return "Fail! You can only subscribe to one thread at a time"
+
+        self.user_feed.subscription_threads.add(thread.id)
+
+        comment_ids_by_thread = Comment.objects.filter(thread_id_int=thread_id).values_list(
+            "id", flat=True
+        )
+        self.user_feed.subscription_comments.add(*comment_ids_by_thread)
+
+        return f"Success! You are now subscribed to a thread: {thread.title}"
+
+    def respond_to_unsubscribe_command(self) -> str:
+        command_data = [w.strip() for w in self.telegram_update.text.split()]
+        thread_id = int(command_data[1])
+
+        thread = Thread.objects.filter(thread_id=thread_id).first()
+        if not thread:
+            return f"Fail! Thread with {thread_id} id not found"
+
+        if thread not in self.user_feed.subscription_threads.all():
+            return f"Fail! You are not subscribed to thread with {thread.thread_id} id"
+
+        self.user_feed.subscription_threads.remove(thread.id)
+
+        return f"Success! You are unsubscribed from a thread: {thread.title}"
+
+    def respond_to_list_subscriptions_command(self) -> str:
+        # refactor if users will be allowed to subscribe to multiple threads
+
+        if self.user_feed.subscription_threads.exists() is False:
+            return "You are currently not subscribed to a thread"
+
+        thread = self.user_feed.subscription_threads.all()[0]
+
+        return f"You are subscribed to a thread: {thread.title}\nThread id: {thread.thread_id}"
+
     def respond_to_undefined_command(self) -> str:
         return "Huh? Use /help to see the list of implemented commands"
 
@@ -210,6 +270,56 @@ class RespondToMessageService:
 class SendAlertsService:
     def __init__(self, user_feed: UserFeed):
         self.user_feed = user_feed
+
+    def send_subscription_comments_to_telegram_feed(self):
+        # refactor if users will be allowed to subscribe to multiple threads
+        send_message_request = SendMessageRequest()
+
+        subscribed_thread = self.user_feed.subscription_threads.all()[0]
+        subscribed_thread_comments = Comment.objects.filter(
+            thread_id_int=subscribed_thread.thread_id
+        )
+
+        new_comments = subscribed_thread_comments.difference(
+            self.user_feed.subscription_comments.all()
+        )
+
+        messages_sent: list[bool] = []
+        for comment in new_comments:
+            sleep(0.02)
+
+            comment_created_at_str = comment.comment_created_at.strftime("%B %d, %H:%M")
+
+            text = (
+                f"Subscribed thread: {subscribed_thread.title}\n"
+                f"By {comment.username} on {comment_created_at_str}\n\n"
+                f"{comment.body}"
+            )
+
+            reply_button = InlineKeyboardButton(
+                text="reply", url=f"{settings.HACKERNEWS_URL}reply?id={comment.comment_id}"
+            )
+            context_button = InlineKeyboardButton(
+                text="context",
+                url=(
+                    f"{settings.HACKERNEWS_URL}item?id="
+                    f"{comment.thread_id_int}#{comment.comment_id}"
+                ),
+            )
+
+            inline_keyboard_markup = {"inline_keyboard": [[reply_button, context_button]]}
+
+            sent = send_message_request.send_message(
+                chat_id=self.user_feed.chat_id,
+                text=text,
+                inline_keyboard_markup=inline_keyboard_markup,
+                parse_mode=None,
+            )
+            messages_sent.append(sent)
+
+            self.user_feed.subscription_comments.add(comment)
+
+        return all(messages_sent)
 
     def send_threads_to_telegram_feed(self, threads: Iterable[Thread]) -> bool:
         send_message_request = SendMessageRequest()
