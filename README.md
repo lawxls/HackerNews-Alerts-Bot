@@ -24,46 +24,60 @@
 Features:
 
 - [Keyword alerts](https://github.com/lawxls/HackerNews-Alerts-Bot#keyword-alerts)
+- [Subscribe to a thread](https://github.com/lawxls/HackerNews-Alerts-Bot#subscribe-to-a-thread)
 
 To-Do:
 - Reply alerts
 - Stories by domain name alerts
-- New thread comments alerts
 
 ## Keyword alerts
 Create personal feed of stories or monitor mentions of your brand, projects or topics you're interested in.
 
-Keyword search implemented via case-insensitive containment test.
-
-By default, if you don't specify options and just type ```/add python``` the bot will begin scanning both story titles & comment bodies
-
 ![Screenshot_11](https://user-images.githubusercontent.com/76647266/207441549-4617e1c9-bdb6-41f9-8e91-cd93ce7d025e.png)
 ![Screenshot_12](https://user-images.githubusercontent.com/76647266/207441488-cf3baad1-dc21-4a29-955a-48aed2f1a30f.png)
 
-To create **personal feed of stories** add keywords with ```-stories``` option, E.g. ```/add python -stories```. With this option, the keyword will be checked only in story titles.
+To set up monitoring of story titles and comment bodies, simply add keyword via ```/add``` command: ```/add python```
 
-You can also use `/set_score` command with a specified score to filter out stories that do not pass set threshold. (Set to 1 by default)
+To monitor story titles only, use ```-stories``` option: ```/add python -stories```
+
+In addition, the `/set_score` command can be used to receive stories only if they meet a specified score threshold (set to 1 by default).
+
+Keyword search implemented via case-insensitive containment test.
+
+## Subscribe to a thread
+Monitor new comments of a thread.
+
+![Screenshot_60](https://user-images.githubusercontent.com/76647266/221961215-95fa49f1-2d3f-4b2a-9cdd-7ddbc2cf1514.png)
+
+Subscribe to a thread by id: `/subscribe 34971530`
+
+![Screenshot_62](https://user-images.githubusercontent.com/76647266/221963281-4c32d9c4-8847-411e-b7be-0a33c36071ea.png)
 
 ## COMMANDS
+
+### Keyword alerts commands
+
+<br/>
+
 - **Add keyword**
 
   ```/add KEYWORD [-whole-word, -stories, -comments]```
 
-  Bot will scan both story titles & comment bodies if options are not specified.
+  If no options are specified, the bot will monitor both story titles and comment bodies.
 
   Options:
 
     - ```-whole-word```
 
-      match whole word only
+      match whole word
 
     - ```-stories```
 
-      scan only thread titles
+      only monitor thread titles
 
     - ```-comments```
 
-      scan only comment bodies
+      only monitor comment bodies
 
   Examples:
 
@@ -81,7 +95,7 @@ You can also use `/set_score` command with a specified score to filter out stori
 
   ```/set_score SCORE```
 
-  Filter out stories that do not pass set threshold. (Set to 1 by default).
+  Receive stories only if they meet a specified score threshold (set to 1 by default).
 
 <br/>
 
@@ -97,14 +111,38 @@ You can also use `/set_score` command with a specified score to filter out stori
 
 <br/>
 
-- **Commands and general information**
+### Subscribe to a thread commands
+
+<br/>
+
+- **Subscribe to a thread**
+
+  ```/subscribe ID```
+
+<br/>
+
+- **List subscriptions**
+
+  ```/subscriptions```
+
+<br/>
+
+- **Unsubscribe from a thread**
+
+  ```/unsubscribe ID```
+
+<br/>
+
+### General commands
+
+<br/>
+
+- **Commands and other info**
 
   ```/help```
 
 <br/>
 
-- **Stop bot**
+- **Stop the bot and delete your data**
 
   ```/stop```
-
-  Stop the bot and delete your data.
