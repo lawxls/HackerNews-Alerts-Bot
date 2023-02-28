@@ -13,8 +13,6 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name="userfeed",
             name="subscriptions",
-            field=models.ManyToManyField(
-                related_name="subscription_user_feeds", to="scraper.thread"
-            ),
+            field=models.ManyToManyField(related_name="subscription_user_feeds", to="scraper.thread"),
         ),
     ]

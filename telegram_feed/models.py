@@ -10,9 +10,7 @@ class UserFeed(TimeStampedModel, models.Model):
     """Telegram user feed"""
 
     chat_id = models.PositiveIntegerField(verbose_name="telegram chat id")
-    old_keywords = ArrayField(
-        models.CharField(max_length=80), default=list, verbose_name="feed keywords"
-    )
+    old_keywords = ArrayField(models.CharField(max_length=80), default=list, verbose_name="feed keywords")
     score_threshold = models.PositiveSmallIntegerField(
         verbose_name="Threshold to pass for a story to be sent",
         default=1,
@@ -49,16 +47,10 @@ class Keyword(TimeStampedModel, models.Model):
     """Keyword to search for and it's data"""
 
     user_feed = models.ForeignKey(UserFeed, on_delete=models.CASCADE, related_name="keywords")
-    name = models.CharField(
-        max_length=100, validators=[MinLengthValidator(2)], verbose_name="keyword itself"
-    )
+    name = models.CharField(max_length=100, validators=[MinLengthValidator(2)], verbose_name="keyword itself")
     is_full_match = models.BooleanField(default=False, verbose_name="search a whole word match")
-    search_threads = models.BooleanField(
-        default=True, verbose_name="search in thread's title field"
-    )
-    search_comments = models.BooleanField(
-        default=True, verbose_name="search in comment's body field"
-    )
+    search_threads = models.BooleanField(default=True, verbose_name="search in thread's title field")
+    search_comments = models.BooleanField(default=True, verbose_name="search in comment's body field")
 
     def __str__(self):
         return f"({self.pk}) {self.name}"

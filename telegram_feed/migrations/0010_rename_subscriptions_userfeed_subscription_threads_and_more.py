@@ -18,8 +18,6 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name="userfeed",
             name="subscription_comments",
-            field=models.ManyToManyField(
-                related_name="subscription_user_feeds", to="scraper.comment"
-            ),
+            field=models.ManyToManyField(related_name="subscription_user_feeds", to="scraper.comment"),
         ),
     ]

@@ -34,9 +34,7 @@ class GetUpdatesRequest:
         if last_telegram_update := TelegramUpdate.objects.first():
             payload["offset"] = last_telegram_update.update_id + 1
 
-        response = requests.get(
-            f"https://api.telegram.org/bot{self.token}/getUpdates", params=payload
-        )
+        response = requests.get(f"https://api.telegram.org/bot{self.token}/getUpdates", params=payload)
         json_response = response.json()
 
         if json_response["ok"] is False:

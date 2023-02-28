@@ -19,9 +19,7 @@ class TestThreadScraper:
 
         thread_with_score = next((thread for thread in threads if thread.score is not None), None)
 
-        thread_with_comments_count = next(
-            (thread for thread in threads if thread.comments_count is not None), None
-        )
+        thread_with_comments_count = next((thread for thread in threads if thread.comments_count is not None), None)
 
         assert thread_with_score is not None
         assert thread_with_comments_count is not None
@@ -38,9 +36,7 @@ class TestThreadScraper:
 
         thread_with_score = next((thread for thread in threads if thread.score is not None), None)
 
-        thread_with_comments_count = next(
-            (thread for thread in threads if thread.comments_count is not None), None
-        )
+        thread_with_comments_count = next((thread for thread in threads if thread.comments_count is not None), None)
 
         assert thread_with_score is not None
         assert thread_with_comments_count is not None

@@ -16,9 +16,7 @@ class Migration(migrations.Migration):
             fields=[
                 (
                     "id",
-                    models.BigAutoField(
-                        auto_created=True, primary_key=True, serialize=False, verbose_name="ID"
-                    ),
+                    models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name="ID"),
                 ),
                 (
                     "created",
@@ -45,9 +43,7 @@ class Migration(migrations.Migration):
                 ),
                 (
                     "comments_link",
-                    models.URLField(
-                        max_length=250, null=True, verbose_name="link to thread comments"
-                    ),
+                    models.URLField(max_length=250, null=True, verbose_name="link to thread comments"),
                 ),
             ],
             options={

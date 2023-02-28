@@ -12,8 +12,6 @@ class Migration(migrations.Migration):
     operations = [
         migrations.AddIndex(
             model_name="comment",
-            index=django.contrib.postgres.indexes.HashIndex(
-                fields=["body"], name="scraper_com_body_ecb520_hash"
-            ),
+            index=django.contrib.postgres.indexes.HashIndex(fields=["body"], name="scraper_com_body_ecb520_hash"),
         ),
     ]

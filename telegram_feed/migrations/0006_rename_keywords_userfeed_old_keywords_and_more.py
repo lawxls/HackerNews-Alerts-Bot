@@ -29,9 +29,7 @@ class Migration(migrations.Migration):
             fields=[
                 (
                     "id",
-                    models.BigAutoField(
-                        auto_created=True, primary_key=True, serialize=False, verbose_name="ID"
-                    ),
+                    models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name="ID"),
                 ),
                 (
                     "created",
@@ -59,15 +57,11 @@ class Migration(migrations.Migration):
                 ),
                 (
                     "search_threads",
-                    models.BooleanField(
-                        default=True, verbose_name="search in thread's title field"
-                    ),
+                    models.BooleanField(default=True, verbose_name="search in thread's title field"),
                 ),
                 (
                     "search_comments",
-                    models.BooleanField(
-                        default=True, verbose_name="search in comment's body field"
-                    ),
+                    models.BooleanField(default=True, verbose_name="search in comment's body field"),
                 ),
                 (
                     "user_feed",

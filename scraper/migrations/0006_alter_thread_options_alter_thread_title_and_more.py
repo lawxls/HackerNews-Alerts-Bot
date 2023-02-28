@@ -22,9 +22,7 @@ class Migration(migrations.Migration):
         ),
         migrations.AddIndex(
             model_name="thread",
-            index=models.Index(
-                django.db.models.functions.text.Upper("title"), name="title_upper_index"
-            ),
+            index=models.Index(django.db.models.functions.text.Upper("title"), name="title_upper_index"),
         ),
         migrations.AddIndex(
             model_name="thread",

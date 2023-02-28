@@ -126,15 +126,11 @@ class ThreadParser:
 
     def parse_thread_meta_data(self, meta_data_row) -> ThreadMetaData:
         thread_score = 0
-        if thread_score_span := meta_data_row.find("td", class_="subtext").find(
-            "span", class_="score"
-        ):
+        if thread_score_span := meta_data_row.find("td", class_="subtext").find("span", class_="score"):
             thread_score = int("".join(i for i in thread_score_span.text if i.isdigit()))
 
         thread_created_at = timezone.now()
-        if thread_created_at_span := meta_data_row.find("td", class_="subtext").find(
-            "span", class_="age"
-        ):
+        if thread_created_at_span := meta_data_row.find("td", class_="subtext").find("span", class_="age"):
             thread_created_at = parser.parse(thread_created_at_span.get("title"))
             thread_created_at = thread_created_at.astimezone(tz.UTC)
 
@@ -145,15 +141,11 @@ class ThreadParser:
                 .next_element.next_element.next_element
             )
         elif self.page_to_parse == ThreadScraper.NEWEST:
-            comments_data_hyperlink = meta_data_row.find(
-                "a", class_="hnpast"
-            ).next_element.next_element.next_element
+            comments_data_hyperlink = meta_data_row.find("a", class_="hnpast").next_element.next_element.next_element
 
         comments_count = 0
         if "comment" in comments_data_hyperlink.text:
-            comments_count = [int(s) for s in comments_data_hyperlink.text.split() if s.isdigit()][
-                0
-            ]
+            comments_count = [int(s) for s in comments_data_hyperlink.text.split() if s.isdigit()][0]
 
         try:
             comments_data_href = comments_data_hyperlink.get("href")

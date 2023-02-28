@@ -68,9 +68,7 @@ class CommentScraper:
 
         return scraped_comments
 
-    def create_or_update_comments(
-        self, scraped_comments: list[ScrapedCommentData]
-    ) -> list[Comment]:
+    def create_or_update_comments(self, scraped_comments: list[ScrapedCommentData]) -> list[Comment]:
         comments = []
         for scraped_comment in scraped_comments:
             comment, _ = Comment.objects.update_or_create(

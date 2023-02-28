@@ -17,9 +17,7 @@ def send_alerts_task() -> bool:
         user_feed.threads.add(*new_threads)
 
         new_comments, new_comments_by_keywords_dict = send_alerts.find_new_comments_by_keywords()
-        comments_sent = send_alerts.send_comments_to_telegram_feed(
-            comments_by_keywords=new_comments_by_keywords_dict
-        )
+        comments_sent = send_alerts.send_comments_to_telegram_feed(comments_by_keywords=new_comments_by_keywords_dict)
         messages_sent_to_feeds.append(comments_sent)
         user_feed.comments.add(*new_comments)
 

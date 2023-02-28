@@ -13,9 +13,7 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name="thread",
             name="thread_created_at",
-            field=models.DateTimeField(
-                default=str(timezone.now()), verbose_name="parsed thread date of creation"
-            ),
+            field=models.DateTimeField(default=str(timezone.now()), verbose_name="parsed thread date of creation"),
             preserve_default=False,
         ),
     ]
