@@ -1,7 +1,7 @@
 [tool.black]
 target-version = ['py310']
-line-length = 99
+line-length = 120
 
 [tool.ruff]
-line-length = 99
+line-length = 120
 ignore = ["E999"]

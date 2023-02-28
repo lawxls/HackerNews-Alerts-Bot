@@ -99,28 +99,31 @@ class RespondToMessageService:
         return (
             "This is [HackerNews](https://news.ycombinator.com/) Alerts Bot 🤖\n\n"
             "Repository: https://github\\.com/lawxls/HackerNews\\-Alerts\\-Bot\n\n"
-            "Currently it can do:\n\n"
-            "✨ *Keyword alerts* ✨\n"
+            "🔻 *FEATURES*:\n\n"
+            "● *Keyword alerts*\n\n"
             "Create personal feed of stories or monitor mentions "
-            "of your brand, projects or topics you're interested in\\.\n"
-            "Keyword search implemented via case\\-insensitive containment test\\.\n\n"
-            "To set\\-up:\n"
-            "● Add keywords, can specify options for each one "
-            "\\(match whole word, scan only thread titles, etc\\.\\)\n"
-            "✔️ Done\\! You will receive a message "
-            "whenever one of your keywords is mentioned on Hacker News\n\n\n"
+            "of your brand, projects or topics you're interested in\\.\n\n"
+            "To set up monitoring of story titles and comment bodies, "
+            "simply add keyword via `/add` command: `/add python`\n\n"
+            "To monitor story titles only, use `-stories` option: `/add python \\-stories`\n\n"
+            "In addition, the `/set_score` command can be used to receive stories only if they meet "
+            "a specified score threshold \\(set to 1 by default\\)\\.\n\n"
+            "Keyword search implemented via case\\-insensitive containment test\\.\n\n\n"
+            "● *Subscribe to a thread*\n\n"
+            "Monitor new comments of a thread\\.\n\n"
+            "Subscribe to a thread by id: `/subscribe 34971530`\n\n\n"
             "🔻 *COMMANDS*\n\n"
+            "*Keyword alerts commands*\n\n"
             "● *Add keyword*\n\n"
             "   `/add KEYWORD [\\-whole\\-word, \\-stories, \\-comments]`\n\n"
-            "   Bot will scan both story titles & "
-            "   comment bodies if options are not specified\\.\n\n"
+            "   If no options are specified, the bot will monitor both story titles and comment bodies\\.\n\n"
             "   Options:\n"
             "       ○ `\\-whole\\-word`\n"
-            "         match whole word only\n\n"
+            "         match whole word\n\n"
             "       ○ `\\-stories`\n"
-            "         scan only thread titles\n\n"
+            "         only monitor thread titles\n\n"
             "       ○ `\\-comments`\n"
-            "         scan only comment bodies\n\n"
+            "         only monitor comment bodies\n\n"
             "   Examples:\n"
             "       ○ `/add project\\-name`\n"
             "       ○ `/add python \\-stories`\n"
@@ -128,17 +131,23 @@ class RespondToMessageService:
             "       ○ `/add machine learning \\-stories`\n\n\n"
             "● *Set score threshold*\n\n"
             "   `/set\\_score SCORE`\n\n"
-            "   Filter out stories that do not pass set threshold\\. "
-            "   \\(Set to 1 by default\\)\\.\n\n\n"
+            "   Receive stories only if they meet a specified score threshold \\(set to 1 by default\\)\\.\n\n\n"
             "● *List keywords*\n\n"
             "   `/keywords`\n\n\n"
             "● *Remove keyword*\n\n"
             "   `/remove KEYWORD`\n\n\n"
-            "● *Commands and general information*\n\n"
+            "*Subscribe to a thread commands*\n\n"
+            "● *Subscribe to a thread*\n\n"
+            "   `/subscribe ID`\n\n\n"
+            "● *List subscriptions*\n\n"
+            "   `/subscriptions`\n\n\n"
+            "● *Unsubscribe from a thread*\n\n"
+            "   `/unsubscribe ID`\n\n\n"
+            "*General commands*\n\n"
+            "● *Commands and other info*\n\n"
             "   `/help`\n\n\n"
-            "● *Stop bot*\n\n"
+            "● *Stop the bot and delete your data*\n\n"
             "   `/stop`\n\n"
-            "   Stop the bot and delete your data\\."
         )
 
     def respond_to_list_keywords_command(self) -> str:
@@ -179,10 +188,7 @@ class RespondToMessageService:
         Keyword.objects.create(**asdict(keyword_data))
 
         if self.user_feed.keywords.count() == 1:
-            return (
-                "Success! Keyword added. "
-                "You will receive a message when this keyword is mentioned on Hacker News"
-            )
+            return "Success! Keyword added. " "You will receive a message when this keyword is mentioned on Hacker News"
 
         keywords_str = get_keywords_str(self.user_feed)
         return f"Success! Keyword added. Current keywords list:\n\n{keywords_str}"
@@ -231,9 +237,7 @@ class RespondToMessageService:
 
         self.user_feed.subscription_threads.add(thread.id)
 
-        comment_ids_by_thread = Comment.objects.filter(thread_id_int=thread_id).values_list(
-            "id", flat=True
-        )
+        comment_ids_by_thread = Comment.objects.filter(thread_id_int=thread_id).values_list("id", flat=True)
         self.user_feed.subscription_comments.add(*comment_ids_by_thread)
 
         return f"Success! You are now subscribed to a thread: {thread.title}"
@@ -276,13 +280,9 @@ class SendAlertsService:
         send_message_request = SendMessageRequest()
 
         subscribed_thread = self.user_feed.subscription_threads.all()[0]
-        subscribed_thread_comments = Comment.objects.filter(
-            thread_id_int=subscribed_thread.thread_id
-        )
+        subscribed_thread_comments = Comment.objects.filter(thread_id_int=subscribed_thread.thread_id)
 
-        new_comments = subscribed_thread_comments.difference(
-            self.user_feed.subscription_comments.all()
-        )
+        new_comments = subscribed_thread_comments.difference(self.user_feed.subscription_comments.all())
 
         messages_sent: list[bool] = []
         for comment in new_comments:
@@ -301,10 +301,7 @@ class SendAlertsService:
             )
             context_button = InlineKeyboardButton(
                 text="context",
-                url=(
-                    f"{settings.HACKERNEWS_URL}item?id="
-                    f"{comment.thread_id_int}#{comment.comment_id}"
-                ),
+                url=(f"{settings.HACKERNEWS_URL}item?id=" f"{comment.thread_id_int}#{comment.comment_id}"),
             )
 
             inline_keyboard_markup = {"inline_keyboard": [[reply_button, context_button]]}
@@ -330,9 +327,7 @@ class SendAlertsService:
 
             thread_created_at_str = thread.thread_created_at.strftime("%B %d, %H:%M")
             escaped_title = escape_markdown(text=thread.title, version=2)
-            escaped_story_link = escape_markdown(
-                text=thread.link, version=2, entity_type="text_link"
-            )
+            escaped_story_link = escape_markdown(text=thread.link, version=2, entity_type="text_link")
             escaped_comments_link = escape_markdown(
                 text=thread.comments_link, version=2, entity_type="text_link"  # type: ignore
             )
@@ -343,9 +338,7 @@ class SendAlertsService:
             )
 
             read_button = InlineKeyboardButton(text="read", url=thread.link)
-            comments_button = InlineKeyboardButton(
-                text=f"{thread.comments_count}+ comments", url=thread.comments_link
-            )
+            comments_button = InlineKeyboardButton(text=f"{thread.comments_count}+ comments", url=thread.comments_link)
 
             inline_keyboard_markup = {"inline_keyboard": [[read_button, comments_button]]}
 
@@ -359,9 +352,7 @@ class SendAlertsService:
 
         return all(messages_sent)
 
-    def send_comments_to_telegram_feed(
-        self, comments_by_keywords: Mapping[str, Iterable[Comment]]
-    ) -> bool:
+    def send_comments_to_telegram_feed(self, comments_by_keywords: Mapping[str, Iterable[Comment]]) -> bool:
         send_message_request = SendMessageRequest()
 
         messages_sent: list[bool] = []
@@ -382,10 +373,7 @@ class SendAlertsService:
                 )
                 context_button = InlineKeyboardButton(
                     text="context",
-                    url=(
-                        f"{settings.HACKERNEWS_URL}item?id="
-                        f"{comment.thread_id_int}#{comment.comment_id}"
-                    ),
+                    url=(f"{settings.HACKERNEWS_URL}item?id=" f"{comment.thread_id_int}#{comment.comment_id}"),
                 )
 
                 inline_keyboard_markup = {"inline_keyboard": [[reply_button, context_button]]}
@@ -454,9 +442,7 @@ class SendAlertsService:
         return new_comments, comments_by_keywords_dict
 
 
-def validate_and_add_options_data_to_keyword(
-    keyword_data: KeywordData, options: list[str]
-) -> KeywordData:
+def validate_and_add_options_data_to_keyword(keyword_data: KeywordData, options: list[str]) -> KeywordData:
     if "stories" in options and "comments" in options:
         raise BadOptionCombinationError(options=["-stories", "-comments"])
 

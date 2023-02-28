@@ -20,28 +20,31 @@ class TestRespondToMessageService:
     HELP_COMMAND_RESPONSE = (
         "This is [HackerNews](https://news.ycombinator.com/) Alerts Bot 🤖\n\n"
         "Repository: https://github\\.com/lawxls/HackerNews\\-Alerts\\-Bot\n\n"
-        "Currently it can do:\n\n"
-        "✨ *Keyword alerts* ✨\n"
+        "🔻 *FEATURES*:\n\n"
+        "● *Keyword alerts*\n\n"
         "Create personal feed of stories or monitor mentions "
-        "of your brand, projects or topics you're interested in\\.\n"
-        "Keyword search implemented via case\\-insensitive containment test\\.\n\n"
-        "To set\\-up:\n"
-        "● Add keywords, can specify options for each one "
-        "\\(match whole word, scan only thread titles, etc\\.\\)\n"
-        "✔️ Done\\! You will receive a message "
-        "whenever one of your keywords is mentioned on Hacker News\n\n\n"
+        "of your brand, projects or topics you're interested in\\.\n\n"
+        "To set up monitoring of story titles and comment bodies, "
+        "simply add keyword via `/add` command: `/add python`\n\n"
+        "To monitor story titles only, use `-stories` option: `/add python \\-stories`\n\n"
+        "In addition, the `/set_score` command can be used to receive stories only if they meet "
+        "a specified score threshold \\(set to 1 by default\\)\\.\n\n"
+        "Keyword search implemented via case\\-insensitive containment test\\.\n\n\n"
+        "● *Subscribe to a thread*\n\n"
+        "Monitor new comments of a thread\\.\n\n"
+        "Subscribe to a thread by id: `/subscribe 34971530`\n\n\n"
         "🔻 *COMMANDS*\n\n"
+        "*Keyword alerts commands*\n\n"
         "● *Add keyword*\n\n"
         "   `/add KEYWORD [\\-whole\\-word, \\-stories, \\-comments]`\n\n"
-        "   Bot will scan both story titles & "
-        "   comment bodies if options are not specified\\.\n\n"
+        "   If no options are specified, the bot will monitor both story titles and comment bodies\\.\n\n"
         "   Options:\n"
         "       ○ `\\-whole\\-word`\n"
-        "         match whole word only\n\n"
+        "         match whole word\n\n"
         "       ○ `\\-stories`\n"
-        "         scan only thread titles\n\n"
+        "         only monitor thread titles\n\n"
         "       ○ `\\-comments`\n"
-        "         scan only comment bodies\n\n"
+        "         only monitor comment bodies\n\n"
         "   Examples:\n"
         "       ○ `/add project\\-name`\n"
         "       ○ `/add python \\-stories`\n"
@@ -49,43 +52,43 @@ class TestRespondToMessageService:
         "       ○ `/add machine learning \\-stories`\n\n\n"
         "● *Set score threshold*\n\n"
         "   `/set\\_score SCORE`\n\n"
-        "   Filter out stories that do not pass set threshold\\. "
-        "   \\(Set to 1 by default\\)\\.\n\n\n"
+        "   Receive stories only if they meet a specified score threshold \\(set to 1 by default\\)\\.\n\n\n"
         "● *List keywords*\n\n"
         "   `/keywords`\n\n\n"
         "● *Remove keyword*\n\n"
         "   `/remove KEYWORD`\n\n\n"
-        "● *Commands and general information*\n\n"
+        "*Subscribe to a thread commands*\n\n"
+        "● *Subscribe to a thread*\n\n"
+        "   `/subscribe ID`\n\n\n"
+        "● *List subscriptions*\n\n"
+        "   `/subscriptions`\n\n\n"
+        "● *Unsubscribe from a thread*\n\n"
+        "   `/unsubscribe ID`\n\n\n"
+        "*General commands*\n\n"
+        "● *Commands and other info*\n\n"
         "   `/help`\n\n\n"
-        "● *Stop bot*\n\n"
+        "● *Stop the bot and delete your data*\n\n"
         "   `/stop`\n\n"
-        "   Stop the bot and delete your data\\."
     )
 
     @pytest.mark.django_db
     def test_response_to_start_command(self):
         telegram_update = TelegramUpdateFactory.create(text="/start")
-        text_response = RespondToMessageService(
-            telegram_update=telegram_update
-        ).respond_to_user_message()
+        text_response = RespondToMessageService(telegram_update=telegram_update).respond_to_user_message()
 
         assert text_response == self.HELP_COMMAND_RESPONSE
 
     @pytest.mark.django_db
     def test_response_to_help_command(self):
         telegram_update = TelegramUpdateFactory.create(text="/help")
-        text_response = RespondToMessageService(
-            telegram_update=telegram_update
-        ).respond_to_user_message()
+        text_response = RespondToMessageService(telegram_update=telegram_update).respond_to_user_message()
 
         assert text_response == self.HELP_COMMAND_RESPONSE
 
     @pytest.mark.django_db
     def test_response_to_undefined_command(self):
         telegram_update = TelegramUpdateFactory.create()
-        text_response = RespondToMessageService(
-            telegram_update=telegram_update
-        ).respond_to_user_message()
+        text_response = RespondToMessageService(telegram_update=telegram_update).respond_to_user_message()
 
         assert text_response == "Huh? Use /help to see the list of implemented commands"
 
@@ -94,13 +97,10 @@ class TestRespondToMessageService:
         """Test first keyword creation."""
 
         telegram_update = TelegramUpdateFactory.create(text="/add cucumber")
-        text_response = RespondToMessageService(
-            telegram_update=telegram_update
-        ).respond_to_user_message()
+        text_response = RespondToMessageService(telegram_update=telegram_update).respond_to_user_message()
 
         assert text_response == (
-            "Success! Keyword added. "
-            "You will receive a message when this keyword is mentioned on Hacker News"
+            "Success! Keyword added. " "You will receive a message when this keyword is mentioned on Hacker News"
         )
 
     @pytest.mark.django_db
@@ -112,9 +112,7 @@ class TestRespondToMessageService:
         KeywordFactory.create(user_feed=user_feed, name="tomato")
 
         telegram_update = TelegramUpdateFactory.create(chat_id=1, text="/add pickle")
-        text_response = RespondToMessageService(
-            telegram_update=telegram_update
-        ).respond_to_user_message()
+        text_response = RespondToMessageService(telegram_update=telegram_update).respond_to_user_message()
 
         keywords_str = get_keywords_str(user_feed)
 
@@ -129,9 +127,7 @@ class TestRespondToMessageService:
         KeywordFactory.create(user_feed=user_feed, name="orange")
 
         telegram_update = TelegramUpdateFactory.create(chat_id=1, text="/add tomato -whole-word")
-        text_response = RespondToMessageService(
-            telegram_update=telegram_update
-        ).respond_to_user_message()
+        text_response = RespondToMessageService(telegram_update=telegram_update).respond_to_user_message()
 
         user_feed = UserFeed.objects.get(chat_id=1)
         keyword = Keyword.objects.get(user_feed=user_feed, name="tomato")
@@ -148,9 +144,7 @@ class TestRespondToMessageService:
         KeywordFactory.create(user_feed=user_feed, name="avocado")
 
         telegram_update = TelegramUpdateFactory.create(chat_id=1, text="/add pickle -stories")
-        text_response = RespondToMessageService(
-            telegram_update=telegram_update
-        ).respond_to_user_message()
+        text_response = RespondToMessageService(telegram_update=telegram_update).respond_to_user_message()
 
         user_feed = UserFeed.objects.get(chat_id=1)
         keyword = Keyword.objects.get(user_feed=user_feed, name="pickle")
@@ -167,9 +161,7 @@ class TestRespondToMessageService:
         KeywordFactory.create(user_feed=user_feed, name="banana")
 
         telegram_update = TelegramUpdateFactory.create(chat_id=1, text="/add cucumber -comments")
-        text_response = RespondToMessageService(
-            telegram_update=telegram_update
-        ).respond_to_user_message()
+        text_response = RespondToMessageService(telegram_update=telegram_update).respond_to_user_message()
 
         user_feed = UserFeed.objects.get(chat_id=1)
         keyword = Keyword.objects.get(user_feed=user_feed, name="cucumber")
@@ -182,12 +174,8 @@ class TestRespondToMessageService:
     def test_response_to_add_keyword_command_invalid_option_fail(self):
         """Test add keyword command call with invalid option"""
 
-        telegram_update = TelegramUpdateFactory.create(
-            chat_id=1, text="/add cucumber -option-invalid"
-        )
-        text_response = RespondToMessageService(
-            telegram_update=telegram_update
-        ).respond_to_user_message()
+        telegram_update = TelegramUpdateFactory.create(chat_id=1, text="/add cucumber -option-invalid")
+        text_response = RespondToMessageService(telegram_update=telegram_update).respond_to_user_message()
 
         assert text_response == "Fail! Invalid option: option-invalid"
 
@@ -195,12 +183,8 @@ class TestRespondToMessageService:
     def test_response_to_add_keyword_command_option_combination_fail(self):
         """Test add keyword command call which raises BadOptionCombinationError error"""
 
-        telegram_update = TelegramUpdateFactory.create(
-            chat_id=1, text="/add cucumber -stories -comments"
-        )
-        text_response = RespondToMessageService(
-            telegram_update=telegram_update
-        ).respond_to_user_message()
+        telegram_update = TelegramUpdateFactory.create(chat_id=1, text="/add cucumber -stories -comments")
+        text_response = RespondToMessageService(telegram_update=telegram_update).respond_to_user_message()
 
         assert text_response == "Fail! These options cannot be used together: -stories, -comments"
 
@@ -210,9 +194,7 @@ class TestRespondToMessageService:
         KeywordFactory.create_batch(size=50, user_feed=user_feed)
 
         telegram_update = TelegramUpdateFactory.create(chat_id=1, text="/add mango")
-        text_response = RespondToMessageService(
-            telegram_update=telegram_update
-        ).respond_to_user_message()
+        text_response = RespondToMessageService(telegram_update=telegram_update).respond_to_user_message()
 
         assert text_response == "Fail! You have reached the limit of 50 keywords"
 
@@ -223,18 +205,14 @@ class TestRespondToMessageService:
             "WayTooLongveryLongKeywordVeryVeryLongWayTooLongveryLongKeywordVeryVeryLongWayTooLong"
         )
         telegram_update = TelegramUpdateFactory.create(text=f"/add {keyword}")
-        text_response = RespondToMessageService(
-            telegram_update=telegram_update
-        ).respond_to_user_message()
+        text_response = RespondToMessageService(telegram_update=telegram_update).respond_to_user_message()
 
         assert text_response == "Fail! Max keyword length is 100 characters"
 
     @pytest.mark.django_db
     def test_response_to_add_keyword_command_keyword_min_length_fail(self):
         telegram_update = TelegramUpdateFactory.create(text="/add L")
-        text_response = RespondToMessageService(
-            telegram_update=telegram_update
-        ).respond_to_user_message()
+        text_response = RespondToMessageService(telegram_update=telegram_update).respond_to_user_message()
 
         assert text_response == "Fail! Keyword must be at least 2 characters long"
 
@@ -244,9 +222,7 @@ class TestRespondToMessageService:
         KeywordFactory.create(user_feed=user_feed, name="cucumber")
 
         telegram_update = TelegramUpdateFactory.create(chat_id=1, text="/add cucumber")
-        text_response = RespondToMessageService(
-            telegram_update=telegram_update
-        ).respond_to_user_message()
+        text_response = RespondToMessageService(telegram_update=telegram_update).respond_to_user_message()
 
         assert text_response == "Fail! Keyword already exists"
 
@@ -257,9 +233,7 @@ class TestRespondToMessageService:
         KeywordFactory.create(user_feed=user_feed, name="tomato")
 
         telegram_update = TelegramUpdateFactory.create(chat_id=1, text="/keywords")
-        text_response = RespondToMessageService(
-            telegram_update=telegram_update
-        ).respond_to_user_message()
+        text_response = RespondToMessageService(telegram_update=telegram_update).respond_to_user_message()
 
         keywords_str = get_keywords_str(user_feed)
         assert text_response == keywords_str
@@ -267,9 +241,7 @@ class TestRespondToMessageService:
     @pytest.mark.django_db
     def test_response_to_list_keywords_command_no_keywords_fail(self):
         telegram_update = TelegramUpdateFactory.create(text="/keywords")
-        text_response = RespondToMessageService(
-            telegram_update=telegram_update
-        ).respond_to_user_message()
+        text_response = RespondToMessageService(telegram_update=telegram_update).respond_to_user_message()
 
         assert text_response == "Fail! Add keyword first. /help for info"
 
@@ -280,15 +252,11 @@ class TestRespondToMessageService:
         KeywordFactory.create(user_feed=user_feed, name="tomato")
 
         telegram_update = TelegramUpdateFactory.create(chat_id=1, text="/remove cucumber")
-        text_response = RespondToMessageService(
-            telegram_update=telegram_update
-        ).respond_to_user_message()
+        text_response = RespondToMessageService(telegram_update=telegram_update).respond_to_user_message()
 
         keywords_str = get_keywords_str(user_feed)
         assert user_feed.keywords.count() == 1
-        assert (
-            text_response == f"Success! Keyword removed. Current keywords list:\n\n{keywords_str}"
-        )
+        assert text_response == f"Success! Keyword removed. Current keywords list:\n\n{keywords_str}"
 
     @pytest.mark.django_db
     def test_response_to_remove_keyword_command_last_keyword_removed(self):
@@ -296,9 +264,7 @@ class TestRespondToMessageService:
         KeywordFactory.create(user_feed=user_feed, name="tomato")
 
         telegram_update = TelegramUpdateFactory.create(chat_id=1, text="/remove tomato")
-        text_response = RespondToMessageService(
-            telegram_update=telegram_update
-        ).respond_to_user_message()
+        text_response = RespondToMessageService(telegram_update=telegram_update).respond_to_user_message()
 
         assert user_feed.keywords.count() == 0
         assert text_response == "Success! Last keyword removed"
@@ -306,9 +272,7 @@ class TestRespondToMessageService:
     @pytest.mark.django_db
     def test_response_to_remove_keyword_command_no_keywords_fail(self):
         telegram_update = TelegramUpdateFactory.create(chat_id=1, text="/remove potato")
-        text_response = RespondToMessageService(
-            telegram_update=telegram_update
-        ).respond_to_user_message()
+        text_response = RespondToMessageService(telegram_update=telegram_update).respond_to_user_message()
 
         assert text_response == "Fail! Add keyword first. /help for info"
 
@@ -318,9 +282,7 @@ class TestRespondToMessageService:
         KeywordFactory.create(user_feed=user_feed, name="cucumber")
 
         telegram_update = TelegramUpdateFactory.create(chat_id=1, text="/remove peach")
-        text_response = RespondToMessageService(
-            telegram_update=telegram_update
-        ).respond_to_user_message()
+        text_response = RespondToMessageService(telegram_update=telegram_update).respond_to_user_message()
 
         assert text_response == "Fail! Keyword not found"
 
@@ -329,9 +291,7 @@ class TestRespondToMessageService:
         UserFeedFactory.create(chat_id=1)
 
         telegram_update = TelegramUpdateFactory.create(chat_id=1, text="/set_score 100")
-        text_response = RespondToMessageService(
-            telegram_update=telegram_update
-        ).respond_to_user_message()
+        text_response = RespondToMessageService(telegram_update=telegram_update).respond_to_user_message()
 
         assert text_response == "Success! Score threshold set to 100"
 
@@ -339,9 +299,7 @@ class TestRespondToMessageService:
     def test_response_to_stop_command(self):
         UserFeedFactory.create(chat_id=1)
         telegram_update = TelegramUpdateFactory.create(chat_id=1, text="/stop")
-        text_response = RespondToMessageService(
-            telegram_update=telegram_update
-        ).respond_to_user_message()
+        text_response = RespondToMessageService(telegram_update=telegram_update).respond_to_user_message()
 
         assert text_response == "Success! Data is erased"
 
@@ -352,14 +310,9 @@ class TestRespondToMessageService:
         ThreadFactory.create(title="subscription thread test", thread_id=12345)
 
         telegram_update = TelegramUpdateFactory.create(chat_id=1, text="/subscribe 12345")
-        text_response = RespondToMessageService(
-            telegram_update=telegram_update
-        ).respond_to_user_message()
+        text_response = RespondToMessageService(telegram_update=telegram_update).respond_to_user_message()
 
-        assert (
-            text_response
-            == "Success! You are now subscribed to a thread: subscription thread test"
-        )
+        assert text_response == "Success! You are now subscribed to a thread: subscription thread test"
 
     @pytest.mark.django_db
     def test_response_to_subscribe_command_thread_not_found_fail(self):
@@ -369,9 +322,7 @@ class TestRespondToMessageService:
         ThreadFactory.create(title="subscription thread test 2", thread_id=54321)
 
         telegram_update = TelegramUpdateFactory.create(chat_id=1, text="/subscribe 77777")
-        text_response = RespondToMessageService(
-            telegram_update=telegram_update
-        ).respond_to_user_message()
+        text_response = RespondToMessageService(telegram_update=telegram_update).respond_to_user_message()
 
         assert text_response == "Fail! Thread with 77777 id not found"
 
@@ -383,9 +334,7 @@ class TestRespondToMessageService:
         ThreadFactory.create(title="subscription thread test 2", thread_id=54321)
 
         telegram_update = TelegramUpdateFactory.create(chat_id=1, text="/subscribe 54321")
-        text_response = RespondToMessageService(
-            telegram_update=telegram_update
-        ).respond_to_user_message()
+        text_response = RespondToMessageService(telegram_update=telegram_update).respond_to_user_message()
 
         assert text_response == "Fail! You can only subscribe to one thread at a time"
 
@@ -395,14 +344,9 @@ class TestRespondToMessageService:
         UserFeedFactory.create(chat_id=1, subscription_threads=[subscribed_thread])
 
         telegram_update = TelegramUpdateFactory.create(chat_id=1, text="/unsubscribe 12345")
-        text_response = RespondToMessageService(
-            telegram_update=telegram_update
-        ).respond_to_user_message()
+        text_response = RespondToMessageService(telegram_update=telegram_update).respond_to_user_message()
 
-        assert (
-            text_response
-            == "Success! You are unsubscribed from a thread: subscription thread test"
-        )
+        assert text_response == "Success! You are unsubscribed from a thread: subscription thread test"
 
     @pytest.mark.django_db
     def test_response_to_unsubscribe_command_not_subscribed_fail(self):
@@ -412,13 +356,9 @@ class TestRespondToMessageService:
         thread = ThreadFactory.create(title="subscription thread test 2", thread_id=666666)
 
         telegram_update = TelegramUpdateFactory.create(chat_id=1, text="/unsubscribe 666666")
-        text_response = RespondToMessageService(
-            telegram_update=telegram_update
-        ).respond_to_user_message()
+        text_response = RespondToMessageService(telegram_update=telegram_update).respond_to_user_message()
 
-        assert (
-            text_response == f"Fail! You are not subscribed to thread with {thread.thread_id} id"
-        )
+        assert text_response == f"Fail! You are not subscribed to thread with {thread.thread_id} id"
 
     @pytest.mark.django_db
     def test_response_to_list_subscriptions_command(self):
@@ -426,23 +366,16 @@ class TestRespondToMessageService:
         UserFeedFactory.create(chat_id=1, subscription_threads=[thread])
 
         telegram_update = TelegramUpdateFactory.create(chat_id=1, text="/subscriptions")
-        text_response = RespondToMessageService(
-            telegram_update=telegram_update
-        ).respond_to_user_message()
+        text_response = RespondToMessageService(telegram_update=telegram_update).respond_to_user_message()
 
-        assert (
-            text_response
-            == f"You are subscribed to a thread: {thread.title}\nThread id: {thread.thread_id}"
-        )
+        assert text_response == f"You are subscribed to a thread: {thread.title}\nThread id: {thread.thread_id}"
 
     @pytest.mark.django_db
     def test_response_to_list_subscriptions_command_not_subscribed_fail(self):
         UserFeedFactory.create(chat_id=1)
 
         telegram_update = TelegramUpdateFactory.create(chat_id=1, text="/subscriptions")
-        text_response = RespondToMessageService(
-            telegram_update=telegram_update
-        ).respond_to_user_message()
+        text_response = RespondToMessageService(telegram_update=telegram_update).respond_to_user_message()
 
         assert text_response == "You are currently not subscribed to a thread"
 
@@ -459,9 +392,7 @@ class TestSendAlertsService:
         CommentFactory.create(body="comment 1 test", thread_id_int=12345)
         CommentFactory.create(body="2nd comment test", thread_id_int=12345)
 
-        messages_sent = SendAlertsService(
-            user_feed=user_feed
-        ).send_subscription_comments_to_telegram_feed()
+        messages_sent = SendAlertsService(user_feed=user_feed).send_subscription_comments_to_telegram_feed()
 
         assert messages_sent is True
 
@@ -473,9 +404,7 @@ class TestSendAlertsService:
         user_feed = UserFeedFactory.create(chat_id=1)
         threads = ThreadFactory.create_batch(size=50)
 
-        messages_sent = SendAlertsService(user_feed=user_feed).send_threads_to_telegram_feed(
-            threads=threads
-        )
+        messages_sent = SendAlertsService(user_feed=user_feed).send_threads_to_telegram_feed(threads=threads)
 
         assert messages_sent is True
 
@@ -527,9 +456,7 @@ class TestSendAlertsService:
 
         user_feed = UserFeedFactory.create(chat_id=1)
 
-        KeywordFactory.create(
-            user_feed=user_feed, name="tomato", search_comments=False, is_full_match=True
-        )
+        KeywordFactory.create(user_feed=user_feed, name="tomato", search_comments=False, is_full_match=True)
         KeywordFactory.create(user_feed=user_feed, name="potato", is_full_match=True)
 
         new_threads = SendAlertsService(user_feed=user_feed).find_new_threads_by_keywords()
@@ -562,18 +489,12 @@ class TestSendAlertsService:
     def test_find_new_comments_by_keywords_full_word_match(self):
         CommentFactory.create(body="new comment with tomato keyword")
         CommentFactory.create(body="new comment with potato keyword")
-        unmatched_comment_1 = CommentFactory.create(
-            body="this is not a full word match - tomatoes"
-        )
-        unmatched_comment_2 = CommentFactory.create(
-            body="this is not a full word match - potatoes"
-        )
+        unmatched_comment_1 = CommentFactory.create(body="this is not a full word match - tomatoes")
+        unmatched_comment_2 = CommentFactory.create(body="this is not a full word match - potatoes")
 
         user_feed = UserFeedFactory.create(chat_id=1)
 
-        KeywordFactory.create(
-            user_feed=user_feed, name="tomato", search_threads=False, is_full_match=True
-        )
+        KeywordFactory.create(user_feed=user_feed, name="tomato", search_threads=False, is_full_match=True)
         KeywordFactory.create(user_feed=user_feed, name="potato", is_full_match=True)
 
         new_comments, new_comments_by_keywords_dict = SendAlertsService(
