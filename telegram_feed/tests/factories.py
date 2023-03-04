@@ -19,6 +19,7 @@ class TelegramUpdateFactory(DjangoModelFactory):
 class UserFeedFactory(DjangoModelFactory):
     chat_id = factory.Sequence(lambda n: n)
     score_threshold = 1
+    domain_names: list[str] = []
 
     @factory.post_generation
     def threads(self, create, extracted, **kwargs):

@@ -11,18 +11,27 @@ def send_alerts_task() -> bool:
     for user_feed in user_feeds:
         send_alerts = SendAlertsService(user_feed=user_feed)
 
+        # send stories by keywords
         new_threads = send_alerts.find_new_threads_by_keywords()
         stories_sent = send_alerts.send_threads_to_telegram_feed(threads=new_threads)
         messages_sent_to_feeds.append(stories_sent)
         user_feed.threads.add(*new_threads)
 
+        # send comments by keywords
         new_comments, new_comments_by_keywords_dict = send_alerts.find_new_comments_by_keywords()
         comments_sent = send_alerts.send_comments_to_telegram_feed(comments_by_keywords=new_comments_by_keywords_dict)
         messages_sent_to_feeds.append(comments_sent)
         user_feed.comments.add(*new_comments)
 
+        # send comments by subscribed threads
         if user_feed.subscription_threads.exists():
             send_alerts.send_subscription_comments_to_telegram_feed()
+
+        # send stories by domain names
+        new_stories = send_alerts.find_new_stories_by_domain_names()
+        stories_sent = send_alerts.send_threads_to_telegram_feed(threads=new_stories)
+        messages_sent_to_feeds.append(stories_sent)
+        user_feed.threads.add(*new_stories)
 
     return all(messages_sent_to_feeds)
 

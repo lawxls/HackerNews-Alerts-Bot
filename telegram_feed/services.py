@@ -28,6 +28,9 @@ class RespondToMessageService:
     SUBSCRIBE_COMMAND = "SUBSCRIBE_COMMAND"
     UNSUBSCRIBE_COMMAND = "UNSUBSCRIBE_COMMAND"
     LIST_SUBSCRIPTIONS_COMMAND = "LIST_SUBSCRIPTIONS_COMMAND"
+    FOLLOW_COMMAND = "FOLLOW_COMMAND"
+    UNFOLLOW_COMMAND = "UNFOLLOW_COMMAND"
+    DOMAINS_COMMAND = "DOMAINS_COMMAND"
     UNDEFINED_COMMAND = "UNDEFINED_COMMAND"
 
     def __init__(self, telegram_update: TelegramUpdate) -> None:
@@ -67,6 +70,12 @@ class RespondToMessageService:
                 return self.respond_to_unsubscribe_command()
             case self.LIST_SUBSCRIPTIONS_COMMAND:
                 return self.respond_to_list_subscriptions_command()
+            case self.FOLLOW_COMMAND:
+                return self.respond_to_follow_command()
+            case self.UNFOLLOW_COMMAND:
+                return self.respond_to_unfollow_command()
+            case self.DOMAINS_COMMAND:
+                return self.respond_to_domains_command()
             case _:
                 return self.respond_to_undefined_command()
 
@@ -92,6 +101,12 @@ class RespondToMessageService:
                 return self.UNSUBSCRIBE_COMMAND
             case ["/subscriptions"]:
                 return self.LIST_SUBSCRIPTIONS_COMMAND
+            case ["/follow", _]:
+                return self.FOLLOW_COMMAND
+            case ["/unfollow", _]:
+                return self.UNFOLLOW_COMMAND
+            case ["/domains"]:
+                return self.DOMAINS_COMMAND
             case _:
                 return self.UNDEFINED_COMMAND
 
@@ -267,6 +282,46 @@ class RespondToMessageService:
 
         return f"You are subscribed to a thread: {thread.title}\nThread id: {thread.thread_id}"
 
+    def respond_to_follow_command(self) -> str:
+        command_data = [w.strip() for w in self.telegram_update.text.split()]
+        domain_name = command_data[1]
+
+        if len(domain_name) > 243:
+            return "Fail! Maximum length of a domain name is 243 characters"
+
+        if len(domain_name) < 3:
+            return "Fail! Minimum length of a domain name is 3 characters"
+
+        if len(self.user_feed.domain_names) >= 5:
+            return "Fail! You are following maximum amount of domain names (5)"
+
+        if domain_name in self.user_feed.domain_names:
+            return f"Fail! You are already following {domain_name}"
+
+        self.user_feed.domain_names.append(domain_name)
+        self.user_feed.save()
+
+        return f"Success! You are now following {domain_name}"
+
+    def respond_to_unfollow_command(self) -> str:
+        command_data = [w.strip() for w in self.telegram_update.text.split()]
+        domain_name = command_data[1]
+
+        if domain_name not in self.user_feed.domain_names:
+            return f"Fail! You are not following {domain_name}"
+
+        self.user_feed.domain_names.remove(domain_name)
+        self.user_feed.save()
+
+        return f"Success! Unfollowed {domain_name}"
+
+    def respond_to_domains_command(self) -> str:
+        return (
+            "\n".join(self.user_feed.domain_names)
+            if self.user_feed.domain_names
+            else "You are not following any domain name"
+        )
+
     def respond_to_undefined_command(self) -> str:
         return "Huh? Use /help to see the list of implemented commands"
 
@@ -274,6 +329,23 @@ class RespondToMessageService:
 class SendAlertsService:
     def __init__(self, user_feed: UserFeed):
         self.user_feed = user_feed
+
+    def find_new_stories_by_domain_names(self) -> QuerySet[Thread]:
+        domain_names = self.user_feed.domain_names
+
+        date_from = timezone.now() - datetime.timedelta(days=1)
+        threads_from_24_hours = Thread.objects.filter(created__gte=date_from)
+
+        threads_by_domain_names = Thread.objects.none()
+
+        for domain_name in domain_names:
+            threads_by_domain_name = threads_from_24_hours.filter(
+                link__icontains=domain_name,
+                score__gte=self.user_feed.score_threshold,
+            )
+            threads_by_domain_names = threads_by_domain_names | threads_by_domain_name
+
+        return threads_by_domain_names.difference(self.user_feed.threads.all())
 
     def send_subscription_comments_to_telegram_feed(self):
         # refactor if users will be allowed to subscribe to multiple threads

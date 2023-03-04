@@ -379,6 +379,103 @@ class TestRespondToMessageService:
 
         assert text_response == "You are currently not subscribed to a thread"
 
+    @pytest.mark.django_db
+    def test_response_to_follow_command(self):
+        domain_name = "example.com"
+
+        UserFeedFactory.create(chat_id=1)
+
+        telegram_update = TelegramUpdateFactory.create(chat_id=1, text=f"/follow {domain_name}")
+        text_response = RespondToMessageService(telegram_update=telegram_update).respond_to_user_message()
+
+        assert text_response == f"Success! You are now following {domain_name}"
+
+    @pytest.mark.django_db
+    def test_response_to_follow_command_max_length_fail(self):
+        domain_name = "d" * 244
+
+        UserFeedFactory.create(chat_id=1)
+
+        telegram_update = TelegramUpdateFactory.create(chat_id=1, text=f"/follow {domain_name}")
+        text_response = RespondToMessageService(telegram_update=telegram_update).respond_to_user_message()
+
+        assert text_response == "Fail! Maximum length of a domain name is 243 characters"
+
+    @pytest.mark.django_db
+    def test_response_to_follow_command_min_length_fail(self):
+        domain_name = "d" * 2
+
+        UserFeedFactory.create(chat_id=1)
+
+        telegram_update = TelegramUpdateFactory.create(chat_id=1, text=f"/follow {domain_name}")
+        text_response = RespondToMessageService(telegram_update=telegram_update).respond_to_user_message()
+
+        assert text_response == "Fail! Minimum length of a domain name is 3 characters"
+
+    @pytest.mark.django_db
+    def test_response_to_follow_command_amount_restriction_fail(self):
+        domain_name = "example.io"
+
+        UserFeedFactory.create(
+            chat_id=1, domain_names=["example.com", "test.com", "example.ai", "example.xyz", "test.ru"]
+        )
+
+        telegram_update = TelegramUpdateFactory.create(chat_id=1, text=f"/follow {domain_name}")
+        text_response = RespondToMessageService(telegram_update=telegram_update).respond_to_user_message()
+
+        assert text_response == "Fail! You are following maximum amount of domain names (5)"
+
+    @pytest.mark.django_db
+    def test_response_to_follow_command_already_following_fail(self):
+        domain_name = "example.io"
+
+        UserFeedFactory.create(chat_id=1, domain_names=["example.io"])
+
+        telegram_update = TelegramUpdateFactory.create(chat_id=1, text=f"/follow {domain_name}")
+        text_response = RespondToMessageService(telegram_update=telegram_update).respond_to_user_message()
+
+        assert text_response == f"Fail! You are already following {domain_name}"
+
+    @pytest.mark.django_db
+    def test_response_to_unfollow_command(self):
+        domain_name = "example.io"
+
+        UserFeedFactory.create(chat_id=1, domain_names=["example.io"])
+
+        telegram_update = TelegramUpdateFactory.create(chat_id=1, text=f"/unfollow {domain_name}")
+        text_response = RespondToMessageService(telegram_update=telegram_update).respond_to_user_message()
+
+        assert text_response == f"Success! Unfollowed {domain_name}"
+
+    @pytest.mark.django_db
+    def test_response_to_unfollow_command_not_following_fail(self):
+        domain_name = "example.io"
+
+        UserFeedFactory.create(chat_id=1)
+
+        telegram_update = TelegramUpdateFactory.create(chat_id=1, text=f"/unfollow {domain_name}")
+        text_response = RespondToMessageService(telegram_update=telegram_update).respond_to_user_message()
+
+        assert text_response == f"Fail! You are not following {domain_name}"
+
+    @pytest.mark.django_db
+    def test_response_to_domains_command(self):
+        user_feed = UserFeedFactory.create(chat_id=1, domain_names=["example.io"])
+
+        telegram_update = TelegramUpdateFactory.create(chat_id=1, text="/domains")
+        text_response = RespondToMessageService(telegram_update=telegram_update).respond_to_user_message()
+
+        assert text_response == "\n".join(user_feed.domain_names)
+
+    @pytest.mark.django_db
+    def test_response_to_domains_command_not_following_fail(self):
+        UserFeedFactory.create(chat_id=1)
+
+        telegram_update = TelegramUpdateFactory.create(chat_id=1, text="/domains")
+        text_response = RespondToMessageService(telegram_update=telegram_update).respond_to_user_message()
+
+        assert text_response == "You are not following any domain name"
+
 
 class TestSendAlertsService:
     @pytest.mark.django_db
