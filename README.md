@@ -25,10 +25,10 @@ Features:
 
 - [Keyword alerts](https://github.com/lawxls/HackerNews-Alerts-Bot#keyword-alerts)
 - [Subscribe to a thread](https://github.com/lawxls/HackerNews-Alerts-Bot#subscribe-to-a-thread)
+- [Stories by domain names alerts](https://github.com/lawxls/HackerNews-Alerts-Bot#stories-by-domain-names-alerts)
 
 To-Do:
 - Reply alerts
-- Stories by domain name alerts
 
 ## Keyword alerts
 Create personal feed of stories or monitor mentions of your brand, projects or topics you're interested in.
@@ -45,7 +45,7 @@ In addition, the `/set_score` command can be used to receive stories only if the
 Keyword search implemented via case-insensitive containment test.
 
 ## Subscribe to a thread
-Monitor new comments of a thread.
+Receive an alert when there is a new comment in a thread.
 
 ![Screenshot_60](https://user-images.githubusercontent.com/76647266/221961215-95fa49f1-2d3f-4b2a-9cdd-7ddbc2cf1514.png)
 
@@ -53,11 +53,16 @@ Subscribe to a thread by id: `/subscribe 34971530`
 
 ![Screenshot_62](https://user-images.githubusercontent.com/76647266/221963281-4c32d9c4-8847-411e-b7be-0a33c36071ea.png)
 
+## Stories by domain names alerts
+Add domain names. Receive alerts whenever new stories are submitted.
+
+Add domain name: `/follow example.com`
+
+Stories affected by `/set_score` command.
+
 ## COMMANDS
 
 ### Keyword alerts commands
-
-<br/>
 
 - **Add keyword**
 
@@ -89,21 +94,15 @@ Subscribe to a thread by id: `/subscribe 34971530`
 
     - ```/add machine learning -stories```
 
-<br/>
-
 - **Set score threshold**
 
   ```/set_score SCORE```
 
   Receive stories only if they meet a specified score threshold (set to 1 by default).
 
-<br/>
-
 - **List keywords**
 
   ```/keywords```
-
-<br/>
 
 - **Remove keyword**
 
@@ -113,19 +112,13 @@ Subscribe to a thread by id: `/subscribe 34971530`
 
 ### Subscribe to a thread commands
 
-<br/>
-
 - **Subscribe to a thread**
 
   ```/subscribe ID```
 
-<br/>
-
 - **List subscriptions**
 
   ```/subscriptions```
-
-<br/>
 
 - **Unsubscribe from a thread**
 
@@ -133,15 +126,27 @@ Subscribe to a thread by id: `/subscribe 34971530`
 
 <br/>
 
-### General commands
+### Stories by domain names commands
+
+- **Follow a domain name**
+
+  ```/follow DOMAIN NAME```
+
+- **List domain names**
+
+  ```/domains```
+
+- **Unfollow a domain name**
+
+  ```/unfollow DOMAIN NAME```
 
 <br/>
+
+### General commands
 
 - **Commands and other info**
 
   ```/help```
-
-<br/>
 
 - **Stop the bot and delete your data**
 
