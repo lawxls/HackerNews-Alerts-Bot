@@ -31,6 +31,8 @@ class RespondToMessageService:
     FOLLOW_COMMAND = "FOLLOW_COMMAND"
     UNFOLLOW_COMMAND = "UNFOLLOW_COMMAND"
     DOMAINS_COMMAND = "DOMAINS_COMMAND"
+    NOTIFY_COMMAND = "NOTIFY_COMMAND"
+    DISABLE_COMMAND = "DISABLE_COMMAND"
     UNDEFINED_COMMAND = "UNDEFINED_COMMAND"
 
     def __init__(self, telegram_update: TelegramUpdate) -> None:
@@ -76,6 +78,10 @@ class RespondToMessageService:
                 return self.respond_to_unfollow_command()
             case self.DOMAINS_COMMAND:
                 return self.respond_to_domains_command()
+            case self.NOTIFY_COMMAND:
+                return self.respond_to_notify_command()
+            case self.DISABLE_COMMAND:
+                return self.respond_to_disable_command()
             case _:
                 return self.respond_to_undefined_command()
 
@@ -107,6 +113,10 @@ class RespondToMessageService:
                 return self.UNFOLLOW_COMMAND
             case ["/domains"]:
                 return self.DOMAINS_COMMAND
+            case ["/notify", _]:
+                return self.NOTIFY_COMMAND
+            case ["/disable"]:
+                return self.DISABLE_COMMAND
             case _:
                 return self.UNDEFINED_COMMAND
 
@@ -329,6 +339,27 @@ class RespondToMessageService:
             else "You are not following any domain name"
         )
 
+    def respond_to_notify_command(self) -> str:
+        command_data = [w.strip() for w in self.telegram_update.text.split()]
+        username = command_data[1]
+
+        if self.user_feed.hn_username:
+            return f"Fail! You already setup notifications for username: {self.user_feed.hn_username}"
+
+        self.user_feed.hn_username = username
+        self.user_feed.save()
+
+        return "Success! You will be notified when somebody replies to one of your comments"
+
+    def respond_to_disable_command(self) -> str:
+        if not self.user_feed.hn_username:
+            return "Fail! You have not setup reply notifications"
+
+        self.user_feed.hn_username = None
+        self.user_feed.save()
+
+        return "Success! Reply notifications disabled"
+
     def respond_to_undefined_command(self) -> str:
         return "Huh? Use /help to see the list of implemented commands"
 
@@ -336,6 +367,14 @@ class RespondToMessageService:
 class SendAlertsService:
     def __init__(self, user_feed: UserFeed):
         self.user_feed = user_feed
+
+    def find_new_reply_comments(self) -> QuerySet[Comment]:
+        date_from = timezone.now() - datetime.timedelta(days=1)
+        comments_from_24_hours = Comment.objects.filter(created__gte=date_from)
+
+        reply_comments = comments_from_24_hours.filter(parent_comment__username=self.user_feed.hn_username)
+
+        return reply_comments.difference(self.user_feed.reply_comments.all())
 
     def find_new_stories_by_domain_names(self) -> QuerySet[Thread]:
         domain_names = self.user_feed.domain_names
@@ -354,7 +393,41 @@ class SendAlertsService:
 
         return threads_by_domain_names.difference(self.user_feed.threads.all())
 
-    def send_subscription_comments_to_telegram_feed(self):
+    def send_reply_comments_to_telegram_feed(self, comments: Iterable[Comment]) -> bool:
+        send_message_request = SendMessageRequest()
+
+        messages_sent: list[bool] = []
+        for comment in comments:
+            sleep(0.02)
+
+            comment_created_at_str = comment.comment_created_at.strftime("%B %d, %H:%M")
+            text = (
+                f"Comment reply notification\n"
+                f"By {comment.username} on {comment_created_at_str}\n\n"
+                f"{comment.body}"
+            )
+
+            reply_button = InlineKeyboardButton(
+                text="reply", url=f"{settings.HACKERNEWS_URL}reply?id={comment.comment_id}"
+            )
+            context_button = InlineKeyboardButton(
+                text="context",
+                url=(f"{settings.HACKERNEWS_URL}item?id=" f"{comment.thread_id_int}#{comment.comment_id}"),
+            )
+
+            inline_keyboard_markup = {"inline_keyboard": [[reply_button, context_button]]}
+
+            sent = send_message_request.send_message(
+                chat_id=self.user_feed.chat_id,
+                text=text,
+                inline_keyboard_markup=inline_keyboard_markup,
+                parse_mode=None,
+            )
+            messages_sent.append(sent)
+
+        return all(messages_sent)
+
+    def send_subscription_comments_to_telegram_feed(self) -> bool:
         # refactor if users will be allowed to subscribe to multiple threads
         send_message_request = SendMessageRequest()
 

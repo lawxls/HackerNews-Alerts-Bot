@@ -483,6 +483,42 @@ class TestRespondToMessageService:
 
         assert text_response == "You are not following any domain name"
 
+    @pytest.mark.django_db
+    def test_response_to_notify_command(self):
+        UserFeedFactory.create(chat_id=1)
+
+        telegram_update = TelegramUpdateFactory.create(chat_id=1, text="/notify developer123")
+        text_response = RespondToMessageService(telegram_update=telegram_update).respond_to_user_message()
+
+        assert text_response == "Success! You will be notified when somebody replies to one of your comments"
+
+    @pytest.mark.django_db
+    def test_response_to_notify_command_already_setup_fail(self):
+        user_feed = UserFeedFactory.create(chat_id=1, hn_username="developer123")
+
+        telegram_update = TelegramUpdateFactory.create(chat_id=1, text="/notify developer123")
+        text_response = RespondToMessageService(telegram_update=telegram_update).respond_to_user_message()
+
+        assert text_response == f"Fail! You already setup notifications for username: {user_feed.hn_username}"
+
+    @pytest.mark.django_db
+    def test_response_to_disable_command(self):
+        UserFeedFactory.create(chat_id=1, hn_username="developer123")
+
+        telegram_update = TelegramUpdateFactory.create(chat_id=1, text="/disable")
+        text_response = RespondToMessageService(telegram_update=telegram_update).respond_to_user_message()
+
+        assert text_response == "Success! Reply notifications disabled"
+
+    @pytest.mark.django_db
+    def test_response_to_disable_command_no_username_fail(self):
+        UserFeedFactory.create(chat_id=1)
+
+        telegram_update = TelegramUpdateFactory.create(chat_id=1, text="/disable")
+        text_response = RespondToMessageService(telegram_update=telegram_update).respond_to_user_message()
+
+        assert text_response == "Fail! You have not setup reply notifications"
+
 
 class TestSendAlertsService:
     @pytest.mark.django_db

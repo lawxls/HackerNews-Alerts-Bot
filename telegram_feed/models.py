@@ -10,6 +10,7 @@ class UserFeed(TimeStampedModel, models.Model):
     """Telegram user feed"""
 
     chat_id = models.PositiveIntegerField(verbose_name="telegram chat id")
+    hn_username = models.CharField(max_length=20, null=True, verbose_name="hacker news username")
     old_keywords = ArrayField(models.CharField(max_length=80), default=list, verbose_name="feed keywords")
     domain_names = ArrayField(models.CharField(max_length=253), default=list, verbose_name="domain names")
     score_threshold = models.PositiveSmallIntegerField(
@@ -21,6 +22,7 @@ class UserFeed(TimeStampedModel, models.Model):
     comments = models.ManyToManyField(Comment, related_name="user_feeds")
     subscription_threads = models.ManyToManyField(Thread, related_name="subscription_user_feeds")
     subscription_comments = models.ManyToManyField(Comment, related_name="subscription_user_feeds")
+    reply_comments = models.ManyToManyField(Comment, related_name="reply_user_feeds")
 
     def __str__(self):
         return f"({self.pk}) {self.chat_id}"

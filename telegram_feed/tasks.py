@@ -33,6 +33,12 @@ def send_alerts_task() -> bool:
         messages_sent_to_feeds.append(stories_sent)
         user_feed.threads.add(*new_stories)
 
+        # send comments (reply notifications)
+        if user_feed.hn_username:
+            new_reply_comments = send_alerts.find_new_reply_comments()
+            send_alerts.send_reply_comments_to_telegram_feed(comments=new_reply_comments)
+            user_feed.reply_comments.add(*new_reply_comments)
+
     return all(messages_sent_to_feeds)
 
 
