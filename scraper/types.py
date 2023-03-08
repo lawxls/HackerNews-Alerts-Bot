@@ -1,9 +1,12 @@
 from datetime import datetime
 from typing import TypedDict
 
+from scraper.models import Comment
+
 
 class ScrapedCommentData(TypedDict):
     comment_id: int
+    parent_comment: Comment | None
     thread_id_int: int
     body: str
     username: str
