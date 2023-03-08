@@ -23,14 +23,12 @@
 
 Features:
 
-- [Keyword alerts](https://github.com/lawxls/HackerNews-Alerts-Bot#keyword-alerts)
+- [Keyword monitoring](https://github.com/lawxls/HackerNews-Alerts-Bot#keyword-monitoring)
 - [Subscribe to a thread](https://github.com/lawxls/HackerNews-Alerts-Bot#subscribe-to-a-thread)
-- [Stories by domain names alerts](https://github.com/lawxls/HackerNews-Alerts-Bot#stories-by-domain-names-alerts)
+- [Stories by domain names](https://github.com/lawxls/HackerNews-Alerts-Bot#stories-by-domain-names)
+- [Comment replies](https://github.com/lawxls/HackerNews-Alerts-Bot#comment-replies)
 
-To-Do:
-- Reply alerts
-
-## Keyword alerts
+## Keyword monitoring
 Create personal feed of stories or monitor mentions of your brand, projects or topics you're interested in.
 
 ![Screenshot_11](https://user-images.githubusercontent.com/76647266/207441549-4617e1c9-bdb6-41f9-8e91-cd93ce7d025e.png)
@@ -45,7 +43,7 @@ In addition, the `/set_score` command can be used to receive stories only if the
 Keyword search implemented via case-insensitive containment test.
 
 ## Subscribe to a thread
-Receive an alert when there is a new comment in a thread.
+Receive an alert when a new comment appears in a thread.
 
 ![Screenshot_60](https://user-images.githubusercontent.com/76647266/221961215-95fa49f1-2d3f-4b2a-9cdd-7ddbc2cf1514.png)
 
@@ -53,16 +51,21 @@ Subscribe to a thread by id: `/subscribe 34971530`
 
 ![Screenshot_62](https://user-images.githubusercontent.com/76647266/221963281-4c32d9c4-8847-411e-b7be-0a33c36071ea.png)
 
-## Stories by domain names alerts
+## Stories by domain names
 Add domain names. Receive alerts whenever new stories are submitted.
 
 Add domain name: `/follow example.com`
 
-Stories affected by `/set_score` command.
+Stories are affected by `/set_score` command.
+
+## Comment replies
+Receive notifications when somebody replies to one of your comments.
+
+Add your username: `/notify hnuser2302`
 
 ## COMMANDS
 
-### Keyword alerts commands
+### Keyword monitoring
 
 - **Add keyword**
 
@@ -110,7 +113,7 @@ Stories affected by `/set_score` command.
 
 <br/>
 
-### Subscribe to a thread commands
+### Subscribe to a thread
 
 - **Subscribe to a thread**
 
@@ -126,7 +129,7 @@ Stories affected by `/set_score` command.
 
 <br/>
 
-### Stories by domain names commands
+### Stories by domain names
 
 - **Follow a domain name**
 
@@ -139,6 +142,18 @@ Stories affected by `/set_score` command.
 - **Unfollow a domain name**
 
   ```/unfollow DOMAIN NAME```
+
+<br/>
+
+### Comment replies
+
+- **Add username**
+
+  ```/notify USERNAME```
+
+- **Disable notifications**
+
+  ```/disable```
 
 <br/>
 
