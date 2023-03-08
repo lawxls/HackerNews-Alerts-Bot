@@ -50,10 +50,10 @@ def respond_to_messages_task() -> bool:
     for update in telegram_updates:
         text_response = RespondToMessageService(telegram_update=update).respond_to_user_message()
 
-        # use MarkdownV2 only for /help and /start commands
+        # use MarkdownV2 for certain commands
         parse_mode: str | None = None
         disable_web_page_preview = False
-        if update.text in ["/help", "/start"]:
+        if update.text in ["/help", "/start", "/commands", "/contacts"]:
             parse_mode = "MarkdownV2"
             disable_web_page_preview = True
 

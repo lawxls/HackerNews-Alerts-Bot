@@ -20,6 +20,8 @@ class RespondToMessageService:
 
     START_COMMAND = "START_COMMAND"
     HELP_COMMAND = "HELP_COMMAND"
+    COMMANDS_COMMAND = "COMMANDS_COMMAND"
+    CONTACTS_COMMAND = "CONTACTS_COMMAND"
     LIST_KEYWORDS_COMMAND = "LIST_KEYWORDS_COMMAND"
     ADD_KEYWORD_COMMAND = "ADD_KEYWORD_COMMAND"
     REMOVE_KEYWORD_COMMAND = "REMOVE_KEYWORD_COMMAND"
@@ -56,6 +58,10 @@ class RespondToMessageService:
                 return self.respond_to_start_and_help_command()
             case self.HELP_COMMAND:
                 return self.respond_to_start_and_help_command()
+            case self.COMMANDS_COMMAND:
+                return self.respond_to_commands_command()
+            case self.CONTACTS_COMMAND:
+                return self.respond_to_contacts_command()
             case self.LIST_KEYWORDS_COMMAND:
                 return self.respond_to_list_keywords_command()
             case self.ADD_KEYWORD_COMMAND:
@@ -91,6 +97,10 @@ class RespondToMessageService:
                 return self.START_COMMAND
             case ["/help"]:
                 return self.HELP_COMMAND
+            case ["/commands"]:
+                return self.COMMANDS_COMMAND
+            case ["/contacts"]:
+                return self.CONTACTS_COMMAND
             case ["/keywords"]:
                 return self.LIST_KEYWORDS_COMMAND
             case ["/add", _, *_]:
@@ -124,8 +134,10 @@ class RespondToMessageService:
         return (
             "This is [HackerNews](https://news.ycombinator.com/) Alerts Bot 🤖\n\n"
             "Repository: https://github\\.com/lawxls/HackerNews\\-Alerts\\-Bot\n\n"
+            "`/commands` to see the list of commands\\.\n\n"
+            "`/contacts` to contact me\\.\n\n"
             "🔻 *FEATURES*:\n\n"
-            "● *Keyword alerts*\n\n"
+            "● *Keyword monitoring*\n\n"
             "Create personal feed of stories or monitor mentions "
             "of your brand, projects or topics you're interested in\\.\n\n"
             "To set up monitoring of story titles and comment bodies, "
@@ -135,10 +147,20 @@ class RespondToMessageService:
             "a specified score threshold \\(set to 1 by default\\)\\.\n\n"
             "Keyword search implemented via case\\-insensitive containment test\\.\n\n\n"
             "● *Subscribe to a thread*\n\n"
-            "Monitor new comments of a thread\\.\n\n"
+            "Receive an alert when a new comment appears in a thread\\.\n\n"
             "Subscribe to a thread by id: `/subscribe 34971530`\n\n\n"
+            "● *Stories by domain names*\n\n"
+            "Add domain names\\. Receive alerts whenever new stories are submitted\\.\n\n"
+            "Add domain name: `/follow example\\.com`\n\n\n"
+            "● *Comment replies*\n\n"
+            "Receive notifications when somebody replies to one of your comments\\.\n\n"
+            "Add your username: `/notify hnuser2302`\n\n\n"
+        )
+
+    def respond_to_commands_command(self) -> str:
+        return (
             "🔻 *COMMANDS*\n\n"
-            "*Keyword alerts commands*\n\n"
+            "*Keyword monitoring*\n\n"
             "● *Add keyword*\n\n"
             "   `/add KEYWORD [\\-whole\\-word, \\-stories, \\-comments]`\n\n"
             "   If no options are specified, the bot will monitor both story titles and comment bodies\\.\n\n"
@@ -161,26 +183,36 @@ class RespondToMessageService:
             "   `/keywords`\n\n\n"
             "● *Remove keyword*\n\n"
             "   `/remove KEYWORD`\n\n\n"
-            "*Subscribe to a thread commands*\n\n"
+            "*Subscribe to a thread*\n\n"
             "● *Subscribe to a thread*\n\n"
             "   `/subscribe ID`\n\n\n"
             "● *List subscriptions*\n\n"
             "   `/subscriptions`\n\n\n"
             "● *Unsubscribe from a thread*\n\n"
             "   `/unsubscribe ID`\n\n\n"
-            "*Stories by domain names commands*\n\n"
+            "*Stories by domain names*\n\n"
             "● *Follow a domain name*\n\n"
             "   `/follow DOMAIN NAME`\n\n\n"
             "● *List domain names*\n\n"
             "   `/domains`\n\n\n"
             "● *Unfollow a domain name*\n\n"
             "   `/unfollow DOMAIN NAME`\n\n\n"
+            "*Comment replies*\n\n"
+            "● *Add username*\n\n"
+            "   `/notify USERNAME`\n\n\n"
+            "● *Disable notifications*\n\n"
+            "   `/disable`\n\n\n"
             "*General commands*\n\n"
-            "● *Commands and other info*\n\n"
+            "● *Info*\n\n"
             "   `/help`\n\n\n"
+            "● *Contacts*\n\n"
+            "   `/contacts`\n\n\n"
             "● *Stop the bot and delete your data*\n\n"
             "   `/stop`\n\n"
         )
+
+    def respond_to_contacts_command(self) -> str:
+        return "email: stanislavchmlv\\@gmail\\.com\n" "telegram: \\@lsxslx"
 
     def respond_to_list_keywords_command(self) -> str:
         if self.user_feed.keywords.count() == 0:
