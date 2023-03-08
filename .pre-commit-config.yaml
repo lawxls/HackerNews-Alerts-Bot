@@ -27,7 +27,7 @@ repos:
     rev: 'v0.0.254'
     hooks:
     -   id: ruff
-        args: ["--force-exclude", "--fix"]
+        args: ["--fix"]
 -   repo: https://github.com/pre-commit/mirrors-mypy
     rev: v1.0.1
     hooks:
