@@ -138,7 +138,7 @@ class TestRespondToMessageService:
         text_response = RespondToMessageService(telegram_update=telegram_update).respond_to_user_message()
 
         assert text_response == (
-            "Success! Keyword added. " "You will receive a message when this keyword is mentioned on Hacker News"
+            "Success! Keyword added. You will be notified when this keyword is mentioned on Hacker News"
         )
 
     @pytest.mark.django_db
@@ -229,12 +229,12 @@ class TestRespondToMessageService:
     @pytest.mark.django_db
     def test_response_to_add_keyword_command_keywords_limit_fail(self):
         user_feed = UserFeedFactory.create(chat_id=1)
-        KeywordFactory.create_batch(size=50, user_feed=user_feed)
+        KeywordFactory.create_batch(size=10, user_feed=user_feed)
 
         telegram_update = TelegramUpdateFactory.create(chat_id=1, text="/add mango")
         text_response = RespondToMessageService(telegram_update=telegram_update).respond_to_user_message()
 
-        assert text_response == "Fail! You have reached the limit of 50 keywords"
+        assert text_response == "Fail! You have reached the limit of 10 keywords"
 
     @pytest.mark.django_db
     def test_response_to_add_keyword_command_keyword_max_length_fail(self):
@@ -339,7 +339,7 @@ class TestRespondToMessageService:
         telegram_update = TelegramUpdateFactory.create(chat_id=1, text="/stop")
         text_response = RespondToMessageService(telegram_update=telegram_update).respond_to_user_message()
 
-        assert text_response == "Success! Data is erased"
+        assert text_response == "Success! You data is deleted"
 
     @pytest.mark.django_db
     def test_response_to_subscribe_command(self):

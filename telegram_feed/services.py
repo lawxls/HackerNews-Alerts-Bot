@@ -233,8 +233,8 @@ class RespondToMessageService:
         if len(keyword) < 2:
             return "Fail! Keyword must be at least 2 characters long"
 
-        if self.user_feed.keywords.count() == 50:
-            return "Fail! You have reached the limit of 50 keywords"
+        if self.user_feed.keywords.count() == 10:
+            return "Fail! You have reached the limit of 10 keywords"
 
         if keyword in self.user_feed.keywords.values_list("name", flat=True):
             return "Fail! Keyword already exists"
@@ -252,7 +252,7 @@ class RespondToMessageService:
         Keyword.objects.create(**asdict(keyword_data))
 
         if self.user_feed.keywords.count() == 1:
-            return "Success! Keyword added. " "You will receive a message when this keyword is mentioned on Hacker News"
+            return "Success! Keyword added. You will be notified when this keyword is mentioned on Hacker News"
 
         keywords_str = get_keywords_str(self.user_feed)
         return f"Success! Keyword added. Current keywords list:\n\n{keywords_str}"
@@ -286,7 +286,7 @@ class RespondToMessageService:
 
     def respond_to_stop_command(self) -> str:
         self.user_feed.delete()
-        return "Success! Data is erased"
+        return "Success! You data is deleted"
 
     def respond_to_subscribe_command(self) -> str:
         command_data = [w.strip() for w in self.telegram_update.text.split()]
