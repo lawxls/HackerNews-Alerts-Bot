@@ -233,7 +233,7 @@ class RespondToMessageService:
         if len(keyword) < 2:
             return "Fail! Keyword must be at least 2 characters long"
 
-        if self.user_feed.keywords.count() > 10:
+        if self.user_feed.keywords.count() >= 10:
             return "Fail! You have reached the limit of 10 keywords"
 
         if keyword in self.user_feed.keywords.values_list("name", flat=True):
