@@ -159,9 +159,17 @@ Add your username: `/notify hnuser2302`
 
 ### General commands
 
-- **Commands and other info**
+- **General info**
 
   ```/help```
+
+- **List of commands**
+
+  ```/commands```
+
+- **Contacts**
+
+  ```/contacts```
 
 - **Stop the bot and delete your data**
 
