@@ -4,7 +4,7 @@ from telegram_feed.requests import GetUpdatesRequest, SendMessageRequest
 from telegram_feed.services import RespondToMessageService, SendAlertsService
 
 
-@celery_app.task
+@celery_app.task(time_limit=250)
 def send_alerts_task() -> bool:
     user_feeds = UserFeed.objects.prefetch_related("comments", "threads", "keywords").all()
     messages_sent_to_feeds = []
@@ -42,7 +42,7 @@ def send_alerts_task() -> bool:
     return all(messages_sent_to_feeds)
 
 
-@celery_app.task
+@celery_app.task(time_limit=60)
 def respond_to_messages_task() -> bool:
     telegram_updates = GetUpdatesRequest().get_updates()
 
