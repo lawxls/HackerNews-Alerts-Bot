@@ -9,7 +9,7 @@ from scraper.models import Comment, Thread
 class UserFeed(TimeStampedModel, models.Model):
     """Telegram user feed"""
 
-    chat_id = models.PositiveIntegerField(verbose_name="telegram chat id")
+    chat_id = models.PositiveBigIntegerField(verbose_name="telegram chat id")
     hn_username = models.CharField(max_length=20, null=True, verbose_name="hacker news username")
     old_keywords = ArrayField(models.CharField(max_length=80), default=list, verbose_name="feed keywords")
     domain_names = ArrayField(models.CharField(max_length=253), default=list, verbose_name="domain names")
@@ -34,7 +34,7 @@ class UserFeed(TimeStampedModel, models.Model):
 class TelegramUpdate(TimeStampedModel, models.Model):
     """Update data from getUpdates method"""
 
-    update_id = models.PositiveIntegerField()
+    update_id = models.PositiveBigIntegerField()
     chat_id = models.PositiveBigIntegerField(verbose_name="telegram chat id")
     date = models.DateTimeField()
     text = models.TextField()
