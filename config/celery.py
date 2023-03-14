@@ -32,7 +32,7 @@ app.conf.beat_schedule = {
     },
     "respond_to_messages_task": {
         "task": "telegram_feed.tasks.respond_to_messages_task",
-        "schedule": 5.0,
+        "schedule": 6.0,
     },
     "send_alerts_task": {
         "task": "telegram_feed.tasks.send_alerts_task",
