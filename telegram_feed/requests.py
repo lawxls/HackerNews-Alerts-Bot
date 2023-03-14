@@ -34,7 +34,7 @@ class GetUpdatesRequest:
         if last_telegram_update := TelegramUpdate.objects.first():
             payload["offset"] = last_telegram_update.update_id + 1
 
-        response = requests.get(f"https://api.telegram.org/bot{self.token}/getUpdates", params=payload)
+        response = requests.get(f"https://api.telegram.org/bot{self.token}/getUpdates", params=payload, timeout=30)
         json_response = response.json()
 
         if json_response["ok"] is False:
@@ -107,7 +107,7 @@ class SendMessageRequest:
             payload["disable_web_page_preview"] = disable_web_page_preview
 
         response = self.hn_request_session.get(
-            f"https://api.telegram.org/bot{settings.TELEGRAM_TOKEN}/sendMessage", params=payload
+            f"https://api.telegram.org/bot{settings.TELEGRAM_TOKEN}/sendMessage", params=payload, timeout=30
         )
 
         return response.json().get("ok") is True

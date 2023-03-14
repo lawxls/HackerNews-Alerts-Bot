@@ -47,7 +47,7 @@ class ThreadScraper:
         return self.create_or_update_threads(scraped_threads)
 
     def scrape_newest_page(self) -> list[ScrapedThreadData]:
-        response = self.hn_request_session.get(f"{settings.HACKERNEWS_URL}newest")
+        response = self.hn_request_session.get(f"{settings.HACKERNEWS_URL}newest", timeout=30)
         page = BeautifulSoup(response.text, "lxml")
 
         return self.thread_parser.parse(bs4_page_data=page)
@@ -57,7 +57,7 @@ class ThreadScraper:
         for p_num in range(1, self.news_page_count + 1):
             sleep(0.5)
 
-            response = self.hn_request_session.get(f"{settings.HACKERNEWS_URL}news?p={p_num}")
+            response = self.hn_request_session.get(f"{settings.HACKERNEWS_URL}news?p={p_num}", timeout=30)
             page = BeautifulSoup(response.text, "lxml")
 
             page_scraped_threads = self.thread_parser.parse(bs4_page_data=page)

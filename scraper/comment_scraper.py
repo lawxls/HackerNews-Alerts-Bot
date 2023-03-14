@@ -34,7 +34,7 @@ class CommentScraper:
             if last_comment_id:
                 url += f"?next={last_comment_id}"
 
-            response = self.hn_request_session.get(url)
+            response = self.hn_request_session.get(url, timeout=30)
             page = BeautifulSoup(response.text, "lxml")
 
             scraped_comments_by_page = self.parse_newcomments_page(bs4_page_data=page)
