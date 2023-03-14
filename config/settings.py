@@ -121,10 +121,10 @@ HACKERNEWS_URL = "https://news.ycombinator.com/"
 sentry_sdk.init(
     dsn=env("SENTRY_KEY"),
     integrations=[DjangoIntegration(), CeleryIntegration()],
-    traces_sample_rate=1.0,
+    traces_sample_rate=0.2,
     send_default_pii=True,
     environment=env("SENTRY_ENVIRONMENT"),
     _experiments={
-        "profiles_sample_rate": 1.0,
+        "profiles_sample_rate": 0.5,
     },
 )
