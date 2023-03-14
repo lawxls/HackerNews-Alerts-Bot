@@ -5,7 +5,6 @@ pip-tools
 mypy
 psycopg2
 ipython
-django_debug_toolbar
 django-stubs
 django-model-utils
 requests

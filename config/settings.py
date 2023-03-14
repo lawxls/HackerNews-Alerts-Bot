@@ -26,8 +26,6 @@ INSTALLED_APPS = [
     "django.contrib.postgres",
     # 3rd party apps
     "django_extensions",
-    "debug_toolbar",
-    "django_celery_results",
     # local apps
     "scraper",
     "telegram_feed",
@@ -39,7 +37,6 @@ INTERNAL_IPS = [
 
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
-    "debug_toolbar.middleware.DebugToolbarMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",

@@ -50,13 +50,10 @@ decorator==5.1.1
 django==4.1.7
     # via
     #   -r requirements.in
-    #   django-debug-toolbar
     #   django-extensions
     #   django-model-utils
     #   django-stubs
     #   django-stubs-ext
-django-debug-toolbar==3.8.1
-    # via -r requirements.in
 django-environ==0.10.0
     # via -r requirements.in
 django-extensions==3.2.1
@@ -156,9 +153,7 @@ six==1.16.0
 soupsieve==2.4
     # via beautifulsoup4
 sqlparse==0.4.3
-    # via
-    #   django
-    #   django-debug-toolbar
+    # via django
 stack-data==0.6.2
     # via ipython
 tomli==2.0.1
