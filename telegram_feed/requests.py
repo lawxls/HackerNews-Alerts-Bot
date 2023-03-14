@@ -31,7 +31,7 @@ class GetUpdatesRequest:
         """
 
         payload = {"timeout": 2}
-        if last_telegram_update := TelegramUpdate.objects.first():
+        if last_telegram_update := TelegramUpdate.objects.order_by("-created").first():
             payload["offset"] = last_telegram_update.update_id + 1
 
         response = requests.get(f"https://api.telegram.org/bot{self.token}/getUpdates", params=payload, timeout=30)
