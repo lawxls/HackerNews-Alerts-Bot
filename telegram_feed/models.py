@@ -27,9 +27,6 @@ class UserFeed(TimeStampedModel, models.Model):
     def __str__(self):
         return f"({self.pk}) {self.chat_id}"
 
-    class Meta:
-        ordering = ["-created"]
-
 
 class TelegramUpdate(TimeStampedModel, models.Model):
     """Update data from getUpdates method"""
@@ -41,9 +38,6 @@ class TelegramUpdate(TimeStampedModel, models.Model):
 
     def __str__(self):
         return f"({self.pk}) {self.update_id}"
-
-    class Meta:
-        ordering = ["-created"]
 
 
 class Keyword(TimeStampedModel, models.Model):
@@ -57,6 +51,3 @@ class Keyword(TimeStampedModel, models.Model):
 
     def __str__(self):
         return f"({self.pk}) {self.name}"
-
-    class Meta:
-        ordering = ["-created"]

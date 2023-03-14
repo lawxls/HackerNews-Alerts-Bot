@@ -19,7 +19,6 @@ class Thread(TimeStampedModel, models.Model):
         return f"({self.pk}) {self.title}"
 
     class Meta:
-        ordering = ["-created"]
         indexes = [
             models.Index(Upper("title"), name="title_upper_index"),
             GinIndex(fields=["title"], name="title_gin_index", opclasses=["gin_trgm_ops"]),
@@ -42,7 +41,6 @@ class Comment(TimeStampedModel, models.Model):
         return f"({self.pk}) {self.body[:100]}"
 
     class Meta:
-        ordering = ["-created"]
         indexes = [
             HashIndex(fields=("body",)),
         ]
