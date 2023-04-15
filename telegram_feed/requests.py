@@ -55,10 +55,15 @@ class GetUpdatesRequest:
             if message is None:
                 continue
 
+            if not message.get("text"):
+                text = "sticker"
+            else:
+                text = message.get("text")
+
             update_data = UpdateData(
                 update_id=update_data_dict.get("update_id"),
                 chat_id=message.get("chat").get("id"),
-                text=message.get("text"),
+                text=text,
                 unix_timestamp_date=message.get("date"),
             )
             updates.append(update_data)
