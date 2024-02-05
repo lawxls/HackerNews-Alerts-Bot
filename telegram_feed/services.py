@@ -249,10 +249,10 @@ class RespondToMessageService:
         Keyword.objects.create(**asdict(keyword_data))
 
         if self.user_feed.keywords.count() == 1:
-            return "Success! Keyword added. You will be notified when this keyword is mentioned on Hacker News"
+            return "Keyword added. You will be notified when this keyword is mentioned on Hacker News"
 
         keywords_str = get_keywords_str(self.user_feed)
-        return f"Success! Keyword added. Current keywords list:\n\n{keywords_str}"
+        return f"Keyword added. Current keywords list:\n\n{keywords_str}"
 
     def respond_to_remove_keyword_command(self) -> str:
         keyword = self.telegram_update.text.replace("/remove", "").strip()
@@ -267,10 +267,10 @@ class RespondToMessageService:
         keyword.delete()
 
         if self.user_feed.keywords.count() == 0:
-            return "Success! Last keyword removed"
+            return "Last keyword removed"
 
         keywords_str = get_keywords_str(self.user_feed)
-        return f"Success! Keyword removed. Current keywords list:\n\n{keywords_str}"
+        return f"Keyword removed. Current keywords list:\n\n{keywords_str}"
 
     def respond_to_set_score_command(self) -> str:
         command_data = [w.strip() for w in self.telegram_update.text.split()]
@@ -279,11 +279,11 @@ class RespondToMessageService:
         self.user_feed.score_threshold = score
         self.user_feed.save(update_fields=["score_threshold"])
 
-        return f"Success! Score threshold set to {score}"
+        return f"Score threshold set to {score}"
 
     def respond_to_stop_command(self) -> str:
         self.user_feed.delete()
-        return "Success! You data is deleted"
+        return "You data is deleted"
 
     def respond_to_subscribe_command(self) -> str:
         command_data = [w.strip() for w in self.telegram_update.text.split()]
@@ -301,7 +301,7 @@ class RespondToMessageService:
         comment_ids_by_thread = Comment.objects.filter(thread_id_int=thread_id).values_list("id", flat=True)
         self.user_feed.subscription_comments.add(*comment_ids_by_thread)
 
-        return f"Success! You are now subscribed to a thread: {thread.title}"
+        return f"You are now subscribed to a thread: {thread.title}"
 
     def respond_to_unsubscribe_command(self) -> str:
         command_data = [w.strip() for w in self.telegram_update.text.split()]
@@ -316,7 +316,7 @@ class RespondToMessageService:
 
         self.user_feed.subscription_threads.remove(thread.id)
 
-        return f"Success! You are unsubscribed from a thread: {thread.title}"
+        return f"You are unsubscribed from a thread: {thread.title}"
 
     def respond_to_list_subscriptions_command(self) -> str:
         # refactor if users will be allowed to subscribe to multiple threads
@@ -347,7 +347,7 @@ class RespondToMessageService:
         self.user_feed.domain_names.append(domain_name)
         self.user_feed.save()
 
-        return f"Success! You are now following {domain_name}"
+        return f"You are now following {domain_name}"
 
     def respond_to_abandon_command(self) -> str:
         command_data = [w.strip() for w in self.telegram_update.text.split()]
@@ -359,7 +359,7 @@ class RespondToMessageService:
         self.user_feed.domain_names.remove(domain_name)
         self.user_feed.save()
 
-        return f"Success! Unfollowed {domain_name}"
+        return f"Unfollowed {domain_name}"
 
     def respond_to_domains_command(self) -> str:
         return (
@@ -378,7 +378,7 @@ class RespondToMessageService:
         self.user_feed.hn_username = username
         self.user_feed.save()
 
-        return "Success! You will be notified when somebody replies to one of your comments"
+        return "You will be notified when somebody replies to one of your comments"
 
     def respond_to_disable_command(self) -> str:
         if not self.user_feed.hn_username:
@@ -387,7 +387,7 @@ class RespondToMessageService:
         self.user_feed.hn_username = None
         self.user_feed.save()
 
-        return "Success! Reply notifications disabled"
+        return "Reply notifications disabled"
 
     def respond_to_undefined_command(self) -> str:
         return "Huh? Use /help to see the list of implemented commands"

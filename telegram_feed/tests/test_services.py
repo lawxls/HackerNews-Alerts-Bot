@@ -138,7 +138,7 @@ class TestRespondToMessageService:
         text_response = RespondToMessageService(telegram_update=telegram_update).respond_to_user_message()
 
         assert text_response == (
-            "Success! Keyword added. You will be notified when this keyword is mentioned on Hacker News"
+            "Keyword added. You will be notified when this keyword is mentioned on Hacker News"
         )
 
     @pytest.mark.django_db
@@ -155,7 +155,7 @@ class TestRespondToMessageService:
         keywords_str = get_keywords_str(user_feed)
 
         assert "pickle" in user_feed.keywords.values_list("name", flat=True)
-        assert text_response == f"Success! Keyword added. Current keywords list:\n\n{keywords_str}"
+        assert text_response == f"Keyword added. Current keywords list:\n\n{keywords_str}"
 
     @pytest.mark.django_db
     def test_response_to_add_keyword_command_with_whole_word_option(self):
@@ -171,7 +171,7 @@ class TestRespondToMessageService:
         keyword = Keyword.objects.get(user_feed=user_feed, name="tomato")
 
         keywords_str = get_keywords_str(user_feed)
-        assert text_response == f"Success! Keyword added. Current keywords list:\n\n{keywords_str}"
+        assert text_response == f"Keyword added. Current keywords list:\n\n{keywords_str}"
         assert keyword.is_full_match is True
 
     @pytest.mark.django_db
@@ -188,7 +188,7 @@ class TestRespondToMessageService:
         keyword = Keyword.objects.get(user_feed=user_feed, name="pickle")
 
         keywords_str = get_keywords_str(user_feed)
-        assert text_response == f"Success! Keyword added. Current keywords list:\n\n{keywords_str}"
+        assert text_response == f"Keyword added. Current keywords list:\n\n{keywords_str}"
         assert keyword.search_comments is False
 
     @pytest.mark.django_db
@@ -205,7 +205,7 @@ class TestRespondToMessageService:
         keyword = Keyword.objects.get(user_feed=user_feed, name="cucumber")
 
         keywords_str = get_keywords_str(user_feed)
-        assert text_response == f"Success! Keyword added. Current keywords list:\n\n{keywords_str}"
+        assert text_response == f"Keyword added. Current keywords list:\n\n{keywords_str}"
         assert keyword.search_threads is False
 
     @pytest.mark.django_db
@@ -284,7 +284,7 @@ class TestRespondToMessageService:
 
         keywords_str = get_keywords_str(user_feed)
         assert user_feed.keywords.count() == 1
-        assert text_response == f"Success! Keyword removed. Current keywords list:\n\n{keywords_str}"
+        assert text_response == f"Keyword removed. Current keywords list:\n\n{keywords_str}"
 
     @pytest.mark.django_db
     def test_response_to_remove_keyword_command_last_keyword_removed(self):
@@ -295,7 +295,7 @@ class TestRespondToMessageService:
         text_response = RespondToMessageService(telegram_update=telegram_update).respond_to_user_message()
 
         assert user_feed.keywords.count() == 0
-        assert text_response == "Success! Last keyword removed"
+        assert text_response == "Last keyword removed"
 
     @pytest.mark.django_db
     def test_response_to_remove_keyword_command_no_keywords_fail(self):
@@ -321,7 +321,7 @@ class TestRespondToMessageService:
         telegram_update = TelegramUpdateFactory.create(chat_id=1, text="/set_score 100")
         text_response = RespondToMessageService(telegram_update=telegram_update).respond_to_user_message()
 
-        assert text_response == "Success! Score threshold set to 100"
+        assert text_response == "Score threshold set to 100"
 
     @pytest.mark.django_db
     def test_response_to_stop_command(self):
@@ -329,7 +329,7 @@ class TestRespondToMessageService:
         telegram_update = TelegramUpdateFactory.create(chat_id=1, text="/stop")
         text_response = RespondToMessageService(telegram_update=telegram_update).respond_to_user_message()
 
-        assert text_response == "Success! You data is deleted"
+        assert text_response == "You data is deleted"
 
     @pytest.mark.django_db
     def test_response_to_subscribe_command(self):
@@ -340,7 +340,7 @@ class TestRespondToMessageService:
         telegram_update = TelegramUpdateFactory.create(chat_id=1, text="/subscribe 12345")
         text_response = RespondToMessageService(telegram_update=telegram_update).respond_to_user_message()
 
-        assert text_response == "Success! You are now subscribed to a thread: subscription thread test"
+        assert text_response == "You are now subscribed to a thread: subscription thread test"
 
     @pytest.mark.django_db
     def test_response_to_subscribe_command_thread_not_found_fail(self):
@@ -374,7 +374,7 @@ class TestRespondToMessageService:
         telegram_update = TelegramUpdateFactory.create(chat_id=1, text="/unsubscribe 12345")
         text_response = RespondToMessageService(telegram_update=telegram_update).respond_to_user_message()
 
-        assert text_response == "Success! You are unsubscribed from a thread: subscription thread test"
+        assert text_response == "You are unsubscribed from a thread: subscription thread test"
 
     @pytest.mark.django_db
     def test_response_to_unsubscribe_command_not_subscribed_fail(self):
@@ -416,7 +416,7 @@ class TestRespondToMessageService:
         telegram_update = TelegramUpdateFactory.create(chat_id=1, text=f"/watch {domain_name}")
         text_response = RespondToMessageService(telegram_update=telegram_update).respond_to_user_message()
 
-        assert text_response == f"Success! You are now following {domain_name}"
+        assert text_response == f"You are now following {domain_name}"
 
     @pytest.mark.django_db
     def test_response_to_watch_command_max_length_fail(self):
@@ -473,7 +473,7 @@ class TestRespondToMessageService:
         telegram_update = TelegramUpdateFactory.create(chat_id=1, text=f"/abandon {domain_name}")
         text_response = RespondToMessageService(telegram_update=telegram_update).respond_to_user_message()
 
-        assert text_response == f"Success! Unfollowed {domain_name}"
+        assert text_response == f"Unfollowed {domain_name}"
 
     @pytest.mark.django_db
     def test_response_to_abandon_command_not_following_fail(self):
@@ -511,7 +511,7 @@ class TestRespondToMessageService:
         telegram_update = TelegramUpdateFactory.create(chat_id=1, text="/notify developer123")
         text_response = RespondToMessageService(telegram_update=telegram_update).respond_to_user_message()
 
-        assert text_response == "Success! You will be notified when somebody replies to one of your comments"
+        assert text_response == "You will be notified when somebody replies to one of your comments"
 
     @pytest.mark.django_db
     def test_response_to_notify_command_already_setup_fail(self):
@@ -529,7 +529,7 @@ class TestRespondToMessageService:
         telegram_update = TelegramUpdateFactory.create(chat_id=1, text="/disable")
         text_response = RespondToMessageService(telegram_update=telegram_update).respond_to_user_message()
 
-        assert text_response == "Success! Reply notifications disabled"
+        assert text_response == "Reply notifications disabled"
 
     @pytest.mark.django_db
     def test_response_to_disable_command_no_username_fail(self):
