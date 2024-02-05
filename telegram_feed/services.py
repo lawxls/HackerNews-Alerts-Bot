@@ -30,8 +30,8 @@ class RespondToMessageService:
     SUBSCRIBE_COMMAND = "SUBSCRIBE_COMMAND"
     UNSUBSCRIBE_COMMAND = "UNSUBSCRIBE_COMMAND"
     LIST_SUBSCRIPTIONS_COMMAND = "LIST_SUBSCRIPTIONS_COMMAND"
-    FOLLOW_COMMAND = "FOLLOW_COMMAND"
-    UNFOLLOW_COMMAND = "UNFOLLOW_COMMAND"
+    WATCH_COMMAND = "WATCH_COMMAND"
+    ABANDON_COMMAND = "ABANDON_COMMAND"
     DOMAINS_COMMAND = "DOMAINS_COMMAND"
     NOTIFY_COMMAND = "NOTIFY_COMMAND"
     DISABLE_COMMAND = "DISABLE_COMMAND"
@@ -78,10 +78,10 @@ class RespondToMessageService:
                 return self.respond_to_unsubscribe_command()
             case self.LIST_SUBSCRIPTIONS_COMMAND:
                 return self.respond_to_list_subscriptions_command()
-            case self.FOLLOW_COMMAND:
-                return self.respond_to_follow_command()
-            case self.UNFOLLOW_COMMAND:
-                return self.respond_to_unfollow_command()
+            case self.WATCH_COMMAND:
+                return self.respond_to_watch_command()
+            case self.ABANDON_COMMAND:
+                return self.respond_to_abandon_command()
             case self.DOMAINS_COMMAND:
                 return self.respond_to_domains_command()
             case self.NOTIFY_COMMAND:
@@ -117,10 +117,10 @@ class RespondToMessageService:
                 return self.UNSUBSCRIBE_COMMAND
             case ["/subscriptions"]:
                 return self.LIST_SUBSCRIPTIONS_COMMAND
-            case ["/follow", _]:
-                return self.FOLLOW_COMMAND
-            case ["/unfollow", _]:
-                return self.UNFOLLOW_COMMAND
+            case ["/watch", _]:
+                return self.WATCH_COMMAND
+            case ["/abandon", _]:
+                return self.ABANDON_COMMAND
             case ["/domains"]:
                 return self.DOMAINS_COMMAND
             case ["/notify", _]:
@@ -151,7 +151,7 @@ class RespondToMessageService:
             "Subscribe to a thread by id: `/subscribe 34971530`\n\n\n"
             "● *Stories by domain names*\n\n"
             "Add domain names\\. Receive alerts whenever new stories are submitted\\.\n\n"
-            "Add domain name: `/follow example\\.com`\n\n\n"
+            "Add domain name: `/watch example\\.com`\n\n\n"
             "● *Comment replies*\n\n"
             "Receive notifications when somebody replies to one of your comments\\.\n\n"
             "Add your username: `/notify hnuser2302`\n\n\n"
@@ -192,11 +192,11 @@ class RespondToMessageService:
             "   `/unsubscribe ID`\n\n\n"
             "*Stories by domain names*\n\n"
             "● *Follow a domain name*\n\n"
-            "   `/follow DOMAIN NAME`\n\n\n"
+            "   `/watch DOMAIN NAME`\n\n\n"
             "● *List domain names*\n\n"
             "   `/domains`\n\n\n"
             "● *Unfollow a domain name*\n\n"
-            "   `/unfollow DOMAIN NAME`\n\n\n"
+            "   `/abandon DOMAIN NAME`\n\n\n"
             "*Comment replies*\n\n"
             "● *Add username*\n\n"
             "   `/notify USERNAME`\n\n\n"
@@ -328,7 +328,7 @@ class RespondToMessageService:
 
         return f"You are subscribed to a thread: {thread.title}\nThread id: {thread.thread_id}"
 
-    def respond_to_follow_command(self) -> str:
+    def respond_to_watch_command(self) -> str:
         command_data = [w.strip() for w in self.telegram_update.text.split()]
         domain_name = command_data[1]
 
@@ -349,7 +349,7 @@ class RespondToMessageService:
 
         return f"Success! You are now following {domain_name}"
 
-    def respond_to_unfollow_command(self) -> str:
+    def respond_to_abandon_command(self) -> str:
         command_data = [w.strip() for w in self.telegram_update.text.split()]
         domain_name = command_data[1]
 

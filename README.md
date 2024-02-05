@@ -54,7 +54,7 @@ Subscribe to a thread by id: `/subscribe 34971530`
 ## Stories by domain names
 Add domain names. Receive alerts whenever new stories are submitted.
 
-Add domain name: `/follow example.com`
+Add domain name: `/watch example.com`
 
 Stories are affected by `/set_score` command.
 
@@ -133,7 +133,7 @@ Add your username: `/notify hnuser2302`
 
 - **Follow a domain name**
 
-  ```/follow DOMAIN NAME```
+  ```/watch DOMAIN NAME```
 
 - **List domain names**
 
@@ -141,7 +141,7 @@ Add your username: `/notify hnuser2302`
 
 - **Unfollow a domain name**
 
-  ```/unfollow DOMAIN NAME```
+  ```/abandon DOMAIN NAME```
 
 <br/>
 
