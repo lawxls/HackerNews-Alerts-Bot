@@ -17,6 +17,7 @@ class ScrapedThreadData(TypedDict):
     thread_id: int
     title: str
     thread_created_at: datetime
+    creator_username: str | None
     score: int
     link: str
     comments_count: int
@@ -26,5 +27,6 @@ class ScrapedThreadData(TypedDict):
 class ThreadMetaData(TypedDict):
     thread_score: int
     thread_created_at: datetime
+    thread_creator_username: str | None
     comments_count: int
     comments_link: str | None

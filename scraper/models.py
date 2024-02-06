@@ -10,19 +10,23 @@ class Thread(TimeStampedModel, models.Model):
     thread_id = models.PositiveBigIntegerField(unique=True, help_text="thread id")
     link = models.URLField(max_length=2000, verbose_name="story link")
     title = models.CharField(max_length=100, verbose_name="thread title", db_index=True)
+    creator_username = models.CharField(max_length=15, null=True, verbose_name="thread creator username")
     score = models.IntegerField(null=True, verbose_name="thread score")
     thread_created_at = models.DateTimeField(verbose_name="parsed thread date of creation")
     comments_count = models.IntegerField(null=True, verbose_name="thread comments count")
     comments_link = models.URLField(max_length=250, null=True, verbose_name="link to thread comments")
 
     def __str__(self):
-        return f"({self.pk}) {self.title}"
+        return f"({self.pk}) {self.title} by {self.creator_username}"
 
     class Meta:
         indexes = [
             models.Index(Upper("title"), name="title_upper_index"),
             GinIndex(fields=["title"], name="title_gin_index", opclasses=["gin_trgm_ops"]),
             GinIndex(OpClass(Upper("title"), name="gin_trgm_ops"), name="title_upper_gin_index"),
+            models.Index(Upper("creator_username"), name="creator_upper_index"),
+            GinIndex(fields=["creator_username"], name="creator_gin_index", opclasses=["gin_trgm_ops"]),
+            GinIndex(OpClass(Upper("creator_username"), name="gin_trgm_ops"), name="creator_upper_gin_index"),
         ]
 
 
@@ -43,4 +47,7 @@ class Comment(TimeStampedModel, models.Model):
     class Meta:
         indexes = [
             HashIndex(fields=("body",)),
+            models.Index(Upper("username"), name="username_upper_index"),
+            GinIndex(fields=["username"], name="username_gin_index", opclasses=["gin_trgm_ops"]),
+            GinIndex(OpClass(Upper("username"), name="gin_trgm_ops"), name="username_upper_gin_index"),
         ]

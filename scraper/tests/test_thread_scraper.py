@@ -10,8 +10,6 @@ class TestThreadScraper:
         Test scraping news.ycombinator.com/news page
 
         scraper should create/update 30 Thread objects
-        there should be at least 1 Thread object where comments_count is not None
-        there should be at least 1 Thread object where score is not None
         """
 
         main_page_thread_scraper = ThreadScraper(page_to_scrape=ThreadScraper.NEWS)

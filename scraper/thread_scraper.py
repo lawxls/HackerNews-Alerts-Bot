@@ -15,13 +15,13 @@ class ThreadScraper:
     Scrape and (create or update) threads from Hacker News /newest or /news pages
 
     Scrape /newest page
-    >>> from scraper.parsers import ThreadScraper
+    >>> from scraper.thread_scraper import ThreadScraper
     >>> newest_threads_scraper = ThreadScraper()
     >>> newest_threads_scraper.scrape()
     -> <list[Thread]>
 
     Scrape threads from first 10 /news pages
-    >>> from scraper.parsers import ThreadScraper
+    >>> from scraper.thread_scraper import ThreadScraper
     >>> news_page_threads_scraper = ThreadScraper(
             page_to_scrape=ThreadScraper.NEWS, news_page_count=10
         )
@@ -100,6 +100,7 @@ class ThreadParser:
         return parsed_threads
 
     def parse_thread_data(self, data_row) -> ScrapedThreadData:
+
         thread_id = data_row.get("id")
         thread_title = data_row.find("span", class_="titleline").find("a").text
 
@@ -118,6 +119,7 @@ class ThreadParser:
             thread_id=thread_id,
             title=thread_title_with_whitespaces,
             link=story_link,
+            creator_username=thread_meta_data.get("thread_creator_username"),
             score=thread_meta_data.get("thread_score", 0),
             thread_created_at=thread_meta_data.get("thread_created_at", timezone.now()),
             comments_count=thread_meta_data.get("comments_count", 0),
@@ -125,6 +127,7 @@ class ThreadParser:
         )
 
     def parse_thread_meta_data(self, meta_data_row) -> ThreadMetaData:
+
         thread_score = 0
         if thread_score_span := meta_data_row.find("td", class_="subtext").find("span", class_="score"):
             thread_score = int("".join(i for i in thread_score_span.text if i.isdigit()))
@@ -133,6 +136,10 @@ class ThreadParser:
         if thread_created_at_span := meta_data_row.find("td", class_="subtext").find("span", class_="age"):
             thread_created_at = parser.parse(thread_created_at_span.get("title"))
             thread_created_at = thread_created_at.astimezone(tz.UTC)
+
+        thread_creator_username = None
+        if username_span := meta_data_row.find("td", class_="subtext").find("a", class_="hnuser"):
+            thread_creator_username = username_span.text
 
         if self.page_to_parse == ThreadScraper.NEWS:
             comments_data_hyperlink = (
@@ -156,6 +163,7 @@ class ThreadParser:
         return ThreadMetaData(
             thread_score=thread_score,
             thread_created_at=thread_created_at,
+            thread_creator_username=thread_creator_username,
             comments_count=comments_count,
             comments_link=comments_link,
         )
