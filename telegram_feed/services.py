@@ -147,56 +147,58 @@ class RespondToMessageService:
 
     def respond_to_start_and_help_command(self) -> str:
         return (
-            "This is [HackerNews](https://news.ycombinator.com/) Alerts Bot 🤖\n\n"
+            "This is the [HackerNews](https://news.ycombinator.com/) Alerts Bot 🤖\n\n"
             "Repository: https://github\\.com/lawxls/HackerNews\\-Alerts\\-Bot\n\n"
-            "`/commands` to see the list of commands\\.\n\n"
-            "`/contacts` to contact me\\.\n\n"
+            "Use `/commands` to see the list of commands\\.\n\n"
+            "Use `/contacts` to contact me\\.\n\n"
             "🔻 *FEATURES*:\n\n"
             "● *Keyword monitoring*\n\n"
-            "Create personal feed of stories or monitor mentions "
-            "of your brand, projects or topics you're interested in\\.\n\n"
-            "To set up monitoring of story titles and comment bodies, "
-            "simply add keyword via `/add` command: `/add python`\n\n"
-            "To monitor story titles only, use `-stories` option: `/add python \\-stories`\n\n"
+            "Create a personal feed of stories or monitor mentions "
+            "of your brand, projects, or topics you're interested in\\.\n\n"
+            "To set up monitoring of story titles and comments, "
+            "simply add a keyword via the `/add` command: `/add python`\n\n"
+            "To monitor story titles only, use the `\\-stories` option: `/add python \\-stories`\n\n"
             "In addition, the `/set_score` command can be used to receive stories only if they meet "
-            "a specified score threshold \\(set to 1 by default\\)\\.\n\n"
-            "Keyword search implemented via case\\-insensitive containment test\\.\n\n\n"
+            "a specified score threshold (set to 1 by default)\\.\n\n"
+            "Keyword search is implemented via a case\\-insensitive containment test\\.\n\n\n"
+            "● *Follow a user*\n\n"
+            "Get notified when a user posts a new story or comment\\.\n\n"
+            "Monitor new stories and comments: `/follow hnuser123`\n\n\n"
+            "To monitor stories only, use the `\\-stories` option: `/follow hnuser123 \\-stories`\n\n"
+            "Use the `\\-comments` option for new comments notifications only\\.\n\n"
             "● *Subscribe to a thread*\n\n"
             "Receive an alert when a new comment appears in a thread\\.\n\n"
-            "Subscribe to a thread by id: `/subscribe 34971530`\n\n\n"
+            "Subscribe to a thread by ID: `/subscribe 34971530`\n\n\n"
             "● *Stories by domain names*\n\n"
-            "Add domain names\\. Receive alerts whenever new stories are submitted\\.\n\n"
-            "Add domain name: `/watch example\\.com`\n\n\n"
+            "Add domain names. Receive alerts whenever new stories are submitted\\.\n\n"
+            "Add a domain name: `/watch example\\.com`\n\n\n"
             "● *Comment replies*\n\n"
             "Receive notifications when somebody replies to one of your comments\\.\n\n"
-            "Add your username: `/notify hnuser2302`\n\n\n"
+            "Add your username: `/notify hnuser123`\n\n\n"
         )
 
     def respond_to_commands_command(self) -> str:
         return (
             "🔻 *COMMANDS*\n\n"
             "*Keyword monitoring*\n\n"
-            "● *Add keyword*\n\n"
+            "● *Add a keyword*\n\n"
             "   `/add KEYWORD [\\-whole\\-word, \\-stories, \\-comments]`\n\n"
             "   If no options are specified, the bot will monitor both story titles and comment bodies\\.\n\n"
             "   Options:\n"
-            "       ○ `\\-whole\\-word`\n"
-            "         match whole word\n\n"
-            "       ○ `\\-stories`\n"
-            "         only monitor thread titles\n\n"
-            "       ○ `\\-comments`\n"
-            "         only monitor comment bodies\n\n"
+            "       ○ `\\-whole\\-word` to match the whole word\n"
+            "       ○ `\\-stories` to monitor only thread titles\n"
+            "       ○ `\\-comments` to monitor only comment bodies\n\n"
             "   Examples:\n"
             "       ○ `/add project\\-name`\n"
             "       ○ `/add python \\-stories`\n"
             "       ○ `/add AI \\-whole\\-word \\-stories`\n"
             "       ○ `/add machine learning \\-stories`\n\n\n"
-            "● *Set score threshold*\n\n"
+            "● *Set a score threshold*\n\n"
             "   `/set\\_score SCORE`\n\n"
-            "   Receive stories only if they meet a specified score threshold \\(set to 1 by default\\)\\.\n\n\n"
+            "   Receive stories only if they meet a specified score threshold (set to 1 by default)\\.\n\n\n"
             "● *List keywords*\n\n"
             "   `/keywords`\n\n\n"
-            "● *Remove keyword*\n\n"
+            "● *Remove a keyword*\n\n"
             "   `/remove KEYWORD`\n\n\n"
             "*Subscribe to a thread*\n\n"
             "● *Subscribe to a thread*\n\n"
@@ -205,6 +207,13 @@ class RespondToMessageService:
             "   `/subscriptions`\n\n\n"
             "● *Unsubscribe from a thread*\n\n"
             "   `/unsubscribe ID`\n\n\n"
+            "*Follow users*\n\n"
+            "● *Follow a user*\n\n"
+            "   `/follow USERNAME`\n\n\n"
+            "● *List followed users*\n\n"
+            "   `/followed_users`\n\n\n"
+            "● *Unfollow a user*\n\n"
+            "   `/unfollow USERNAME`\n\n\n"
             "*Stories by domain names*\n\n"
             "● *Follow a domain name*\n\n"
             "   `/watch DOMAIN NAME`\n\n\n"
@@ -213,17 +222,16 @@ class RespondToMessageService:
             "● *Unfollow a domain name*\n\n"
             "   `/abandon DOMAIN NAME`\n\n\n"
             "*Comment replies*\n\n"
-            "● *Add username*\n\n"
+            "● *Add a username*\n\n"
             "   `/notify USERNAME`\n\n\n"
             "● *Disable notifications*\n\n"
             "   `/disable`\n\n\n"
             "*General commands*\n\n"
-            "● *Info*\n\n"
+            "● *Information*\n\n"
             "   `/help`\n\n\n"
             "● *Contacts*\n\n"
             "   `/contacts`\n\n\n"
             "● *Stop the bot and delete your data*\n\n"
-            "   `/stop`\n\n"
         )
 
     def respond_to_contacts_command(self) -> str:
@@ -247,6 +255,9 @@ class RespondToMessageService:
 
         if len(keyword) < 2:
             return "Fail! Keyword must be at least 2 characters long"
+
+        if self.user_feed.keywords.count() >= 30:
+            return "Fail! You have reached the limit of 30 keywords"
 
         if keyword in self.user_feed.keywords.values_list("name", flat=True):
             return "Fail! Keyword already exists"
@@ -360,6 +371,9 @@ class RespondToMessageService:
         if len(username) < 2:
             return "Fail! Username must be at least 2 characters long"
 
+        if self.user_feed.follow_list.count() >= 30:
+            return "Fail! You have reached the limit of 30 followed users"
+
         if username in self.user_feed.follow_list.values_list("username", flat=True):
             return f"Fail! You are already following {username}"
 
@@ -389,7 +403,7 @@ class RespondToMessageService:
         followed_user = FollowedUser.objects.get(user_feed=self.user_feed, username=username)
         followed_user.delete()
 
-        return f"{username} unfollowed."
+        return f"{username} unfollowed"
 
     def respond_to_watch_command(self) -> str:
         command_data = [w.strip() for w in self.telegram_update.text.split()]
