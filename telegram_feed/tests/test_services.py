@@ -137,9 +137,7 @@ class TestRespondToMessageService:
         telegram_update = TelegramUpdateFactory.create(text="/add cucumber")
         text_response = RespondToMessageService(telegram_update=telegram_update).respond_to_user_message()
 
-        assert text_response == (
-            "Keyword added. You will be notified when this keyword is mentioned on Hacker News"
-        )
+        assert text_response == ("Keyword added. You will be notified when this keyword is mentioned on Hacker News")
 
     @pytest.mark.django_db
     def test_response_to_add_keyword_command_if_user_feed_exists(self):

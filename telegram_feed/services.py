@@ -350,7 +350,6 @@ class RespondToMessageService:
         return "\n".join(self.user_feed.follow_list.values_list("username", flat=True))
 
     def respond_to_follow_command(self) -> str:
-
         command_data = self.telegram_update.text.replace("/follow", "").strip().split(" -")
         username = command_data[0]
         options = command_data[1:]

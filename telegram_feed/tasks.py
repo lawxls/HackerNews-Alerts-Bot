@@ -7,7 +7,13 @@ from telegram_feed.services import RespondToMessageService, SendAlertsService
 @celery_app.task(time_limit=250)
 def send_alerts_task() -> bool:
     user_feeds = UserFeed.objects.prefetch_related(
-        "comments", "threads", "keywords", "follow_list", "subscription_threads", "subscription_comments", "reply_comments"
+        "comments",
+        "threads",
+        "keywords",
+        "follow_list",
+        "subscription_threads",
+        "subscription_comments",
+        "reply_comments",
     )
     messages_sent_to_feeds = []
     for user_feed in user_feeds:
