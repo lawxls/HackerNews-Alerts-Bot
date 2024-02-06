@@ -7,7 +7,7 @@ from telegram_feed.services import RespondToMessageService, SendAlertsService
 @celery_app.task(time_limit=250)
 def send_alerts_task() -> bool:
     user_feeds = UserFeed.objects.prefetch_related(
-        "comments", "threads", "keywords", "subscription_threads", "subscription_comments", "reply_comments"
+        "comments", "threads", "keywords", "follow_list", "subscription_threads", "subscription_comments", "reply_comments"
     )
     messages_sent_to_feeds = []
     for user_feed in user_feeds:
@@ -40,6 +40,16 @@ def send_alerts_task() -> bool:
             new_reply_comments = send_alerts.find_new_reply_comments()
             send_alerts.send_reply_comments_to_telegram_feed(comments=new_reply_comments)
             user_feed.reply_comments.add(*new_reply_comments)
+
+        # send stories by followed users
+        new_followed_users_threads = send_alerts.find_new_followed_users_threads()
+        send_alerts.send_new_followed_users_threads_to_telegram_feed(threads=new_followed_users_threads)
+        user_feed.followed_user_threads.add(*new_followed_users_threads)
+
+        # send comments by followed users
+        new_followed_users_comments = send_alerts.find_new_followed_users_comments()
+        send_alerts.send_new_followed_users_comments_to_telegram_feed(comments=new_followed_users_comments)
+        user_feed.followed_user_comments.add(*new_followed_users_comments)
 
     return all(messages_sent_to_feeds)
 

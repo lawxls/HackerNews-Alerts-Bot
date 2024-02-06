@@ -25,6 +25,16 @@ class KeywordData:
     search_comments: bool = True
 
 
+@dataclass
+class FollowedUserData:
+    """Followed user data to create FollowedUser object from"""
+
+    user_feed: UserFeed
+    username: str
+    follow_threads: bool = True
+    follow_comments: bool = True
+
+
 class InlineKeyboardButton(TypedDict):
     text: str
     url: str | None

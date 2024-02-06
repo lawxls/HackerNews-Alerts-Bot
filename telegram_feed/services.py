@@ -9,9 +9,9 @@ from django.utils import timezone
 
 from scraper.models import Comment, Thread
 from telegram_feed.exceptions import BadOptionCombinationError, InvalidOptionError
-from telegram_feed.models import Keyword, TelegramUpdate, UserFeed
+from telegram_feed.models import FollowedUser, Keyword, TelegramUpdate, UserFeed
 from telegram_feed.requests import SendMessageRequest
-from telegram_feed.types import InlineKeyboardButton, KeywordData
+from telegram_feed.types import FollowedUserData, InlineKeyboardButton, KeywordData
 from telegram_feed.utils import escape_markdown
 
 
@@ -31,6 +31,9 @@ class RespondToMessageService:
     UNSUBSCRIBE_COMMAND = "UNSUBSCRIBE_COMMAND"
     LIST_SUBSCRIPTIONS_COMMAND = "LIST_SUBSCRIPTIONS_COMMAND"
     WATCH_COMMAND = "WATCH_COMMAND"
+    LIST_FOLLOWED_USERS_COMMAND = "LIST_FOLLOWED_USERS_COMMAND"
+    FOLLOW_COMMAND = "FOLLOW_COMMAND"
+    UNFOLLOW_COMMAND = "UNFOLLOW_COMMAND"
     ABANDON_COMMAND = "ABANDON_COMMAND"
     DOMAINS_COMMAND = "DOMAINS_COMMAND"
     NOTIFY_COMMAND = "NOTIFY_COMMAND"
@@ -80,6 +83,12 @@ class RespondToMessageService:
                 return self.respond_to_list_subscriptions_command()
             case self.WATCH_COMMAND:
                 return self.respond_to_watch_command()
+            case self.LIST_FOLLOWED_USERS_COMMAND:
+                return self.respond_to_list_followed_users_command()
+            case self.FOLLOW_COMMAND:
+                return self.respond_to_follow_command()
+            case self.UNFOLLOW_COMMAND:
+                return self.respond_to_unfollow_command()
             case self.ABANDON_COMMAND:
                 return self.respond_to_abandon_command()
             case self.DOMAINS_COMMAND:
@@ -117,6 +126,12 @@ class RespondToMessageService:
                 return self.UNSUBSCRIBE_COMMAND
             case ["/subscriptions"]:
                 return self.LIST_SUBSCRIPTIONS_COMMAND
+            case ["/followed_users"]:
+                return self.LIST_FOLLOWED_USERS_COMMAND
+            case ["/follow", _, *_]:
+                return self.FOLLOW_COMMAND
+            case ["/unfollow", _, *_]:
+                return self.UNFOLLOW_COMMAND
             case ["/watch", _]:
                 return self.WATCH_COMMAND
             case ["/abandon", _]:
@@ -328,6 +343,55 @@ class RespondToMessageService:
 
         return f"You are subscribed to a thread: {thread.title}\nThread id: {thread.thread_id}"
 
+    def respond_to_list_followed_users_command(self) -> str:
+        if self.user_feed.follow_list.count() == 0:
+            return "You are not following anybody"
+
+        return "\n".join(self.user_feed.follow_list.values_list("username", flat=True))
+
+    def respond_to_follow_command(self) -> str:
+
+        command_data = self.telegram_update.text.replace("/follow", "").strip().split(" -")
+        username = command_data[0]
+        options = command_data[1:]
+
+        if len(username) > 15:
+            return "Fail! Max username length is 15 characters"
+
+        if len(username) < 2:
+            return "Fail! Username must be at least 2 characters long"
+
+        if username in self.user_feed.follow_list.values_list("username", flat=True):
+            return f"Fail! You are already following {username}"
+
+        try:
+            user_data = validate_and_add_options_data_to_username(
+                user_data=FollowedUserData(user_feed=self.user_feed, username=username), options=options
+            )
+        except BadOptionCombinationError as e:
+            options_str = ", ".join(e)
+            return f"Fail! These options cannot be used together: {options_str}"
+        except InvalidOptionError as e:
+            return f"Fail! Invalid option: {e}"
+
+        FollowedUser.objects.create(**asdict(user_data))
+
+        return f"You are now following {username}"
+
+    def respond_to_unfollow_command(self) -> str:
+        username = self.telegram_update.text.replace("/unfollow", "").strip()
+
+        if self.user_feed.follow_list.count() == 0:
+            return "Fail! Follow somebody first. /help for info"
+
+        if username not in self.user_feed.follow_list.values_list("username", flat=True):
+            return f"Fail! You are not following {username}"
+
+        followed_user = FollowedUser.objects.get(user_feed=self.user_feed, username=username)
+        followed_user.delete()
+
+        return f"{username} unfollowed."
+
     def respond_to_watch_command(self) -> str:
         command_data = [w.strip() for w in self.telegram_update.text.split()]
         domain_name = command_data[1]
@@ -396,6 +460,104 @@ class RespondToMessageService:
 class SendAlertsService:
     def __init__(self, user_feed: UserFeed):
         self.user_feed = user_feed
+
+    def find_new_followed_users_threads(self) -> QuerySet[Thread]:
+        followed_users = self.user_feed.follow_list.values_list("username", flat=True)
+
+        date_from = timezone.now() - datetime.timedelta(days=1)
+        threads_from_24_hours = Thread.objects.filter(created__gte=date_from)
+
+        threads_by_followed_users = Thread.objects.none()
+
+        for username in followed_users:
+            threads_by_user = threads_from_24_hours.filter(creator_username=username)
+            threads_by_followed_users = threads_by_followed_users | threads_by_user
+
+        return threads_by_followed_users.difference(self.user_feed.followed_user_threads.all())
+
+    def find_new_followed_users_comments(self) -> QuerySet[Comment]:
+        followed_users = self.user_feed.follow_list.values_list("username", flat=True)
+
+        date_from = timezone.now() - datetime.timedelta(days=1)
+        comments_from_24_hours = Comment.objects.filter(created__gte=date_from)
+
+        comments_by_followed_users = Comment.objects.none()
+
+        for username in followed_users:
+            comments_by_user = comments_from_24_hours.filter(username=username)
+            comments_by_followed_users = comments_by_followed_users | comments_by_user
+
+        return comments_by_followed_users.difference(self.user_feed.followed_user_comments.all())
+
+    def send_new_followed_users_threads_to_telegram_feed(self, threads: Iterable[Thread]) -> bool:
+        send_message_request = SendMessageRequest()
+
+        messages_sent: list[bool] = []
+        for thread in threads:
+            sleep(0.02)
+
+            thread_created_at_str = thread.thread_created_at.strftime("%B %d, %H:%M")
+            escaped_title = escape_markdown(text=thread.title, version=2)
+            escaped_creator_username = escape_markdown(text=thread.username, version=2)
+            escaped_story_link = escape_markdown(text=thread.link, version=2, entity_type="text_link")
+            escaped_comments_link = escape_markdown(
+                text=thread.comments_link, version=2, entity_type="text_link"  # type: ignore
+            )
+            text = (
+                f"New story by followed user: {escaped_creator_username}\n\n"
+                f"[*{escaped_title}*]({escaped_story_link}) \n\n"
+                f"{thread.score}\\+ points \\| [{thread.comments_count}\\+ "
+                f"comments]({escaped_comments_link}) \\| {thread_created_at_str}"
+            )
+
+            read_button = InlineKeyboardButton(text="read", url=thread.link)
+            comments_button = InlineKeyboardButton(text=f"{thread.comments_count}+ comments", url=thread.comments_link)
+
+            inline_keyboard_markup = {"inline_keyboard": [[read_button, comments_button]]}
+
+            sent = send_message_request.send_message(
+                chat_id=self.user_feed.chat_id,
+                text=text,
+                inline_keyboard_markup=inline_keyboard_markup,
+                parse_mode="MarkdownV2",
+            )
+            messages_sent.append(sent)
+
+        return all(messages_sent)
+
+    def send_new_followed_users_comments_to_telegram_feed(self, comments: Iterable[Comment]) -> bool:
+        send_message_request = SendMessageRequest()
+
+        messages_sent: list[bool] = []
+        for comment in comments:
+            sleep(0.02)
+
+            comment_created_at_str = comment.comment_created_at.strftime("%B %d, %H:%M")
+            text = (
+                f"New comment by followed user: {comment.username}\n\n"
+                f"{comment.body}\n\n"
+                f"on {comment_created_at_str}"
+            )
+
+            reply_button = InlineKeyboardButton(
+                text="reply", url=f"{settings.HACKERNEWS_URL}reply?id={comment.comment_id}"
+            )
+            context_button = InlineKeyboardButton(
+                text="context",
+                url=(f"{settings.HACKERNEWS_URL}item?id=" f"{comment.thread_id_int}#{comment.comment_id}"),
+            )
+
+            inline_keyboard_markup = {"inline_keyboard": [[reply_button, context_button]]}
+
+            sent = send_message_request.send_message(
+                chat_id=self.user_feed.chat_id,
+                text=text,
+                inline_keyboard_markup=inline_keyboard_markup,
+                parse_mode=None,
+            )
+            messages_sent.append(sent)
+
+        return all(messages_sent)
 
     def find_new_reply_comments(self) -> QuerySet[Comment]:
         date_from = timezone.now() - datetime.timedelta(days=1)
@@ -639,6 +801,22 @@ def validate_and_add_options_data_to_keyword(keyword_data: KeywordData, options:
                 raise InvalidOptionError(option=option)
 
     return keyword_data
+
+
+def validate_and_add_options_data_to_username(user_data: FollowedUserData, options: list[str]) -> FollowedUserData:
+    if "stories" in options and "comments" in options:
+        raise BadOptionCombinationError(options=["-stories", "-comments"])
+
+    for option in options:
+        match option:
+            case "stories":
+                user_data.follow_comments = False
+            case "comments":
+                user_data.follow_threads = False
+            case _:
+                raise InvalidOptionError(option=option)
+
+    return user_data
 
 
 def get_keywords_str(user_feed: UserFeed) -> str:
