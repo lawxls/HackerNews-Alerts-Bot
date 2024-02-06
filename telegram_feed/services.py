@@ -498,7 +498,7 @@ class SendAlertsService:
 
             thread_created_at_str = thread.thread_created_at.strftime("%B %d, %H:%M")
             escaped_title = escape_markdown(text=thread.title, version=2)
-            escaped_creator_username = escape_markdown(text=thread.username, version=2)
+            escaped_creator_username = escape_markdown(text=thread.creator_username, version=2)
             escaped_story_link = escape_markdown(text=thread.link, version=2, entity_type="text_link")
             escaped_comments_link = escape_markdown(
                 text=thread.comments_link, version=2, entity_type="text_link"  # type: ignore
