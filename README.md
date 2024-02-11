@@ -48,7 +48,7 @@ Follow a user to get notified of new posts and/or comments.
 
 Use the ```/follow``` command to receive notifications when a user posts a new story or comment: ```/follow hnuser123```
 
-Use the ```-stories``` or ```-comments``` option to monitor only stories or comments, respectively: ```/follow hnuser123 -stories```
+Use the ```-stories``` or ```-comments``` option to monitor only stories or comments: ```/follow hnuser123 -stories```
 
 ## Subscribe to a Thread
 Receive an alert when a new comment appears in a thread.
