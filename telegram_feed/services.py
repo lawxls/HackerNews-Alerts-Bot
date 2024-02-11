@@ -152,9 +152,7 @@ class RespondToMessageService:
         )
 
     def respond_to_commands_command(self) -> str:
-        return (
-            "Visit GitHub Repository for features and commands info: https://github.com/lawxls/HackerNews-Alerts-Bot"
-        )
+        return "Visit GitHub Repository for features and commands info: https://github.com/lawxls/HackerNews-Alerts-Bot"
 
     def respond_to_contacts_command(self) -> str:
         return "stanislavchmlv@gmail.com"
