@@ -10,31 +10,31 @@ repos:
     -   id: check-yaml
     -   id: check-added-large-files
 -   repo: https://github.com/asottile/pyupgrade
-    rev: v3.15.0
+    rev: v3.15.2
     hooks:
     -   id: pyupgrade
         args: [--py310-plus]
 -   repo: https://github.com/adamchainz/django-upgrade
-    rev: 1.15.0
+    rev: 1.16.0
     hooks:
     -   id: django-upgrade
         args: [--target-version, "4.0"]
 -   repo: https://github.com/psf/black
-    rev: 24.1.1
+    rev: 24.3.0
     hooks:
     -   id: black
 -   repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: 'v0.2.0'
+    rev: 'v0.3.4'
     hooks:
     -   id: ruff
         args: ["--fix"]
 -   repo: https://github.com/pre-commit/mirrors-mypy
-    rev: v1.8.0
+    rev: v1.9.0
     hooks:
     -   id: mypy
         args: [--config=setup.cfg]
         additional_dependencies: [types-python-dateutil==2.8.16, types-requests]
 -   repo: https://github.com/crate-ci/typos
-    rev: v1.18.1
+    rev: v1.19.0
     hooks:
       - id: typos
