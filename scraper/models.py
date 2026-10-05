@@ -1,4 +1,4 @@
-from django.contrib.postgres.indexes import GinIndex, OpClass, HashIndex
+from django.contrib.postgres.indexes import GinIndex, HashIndex, OpClass
 from django.db import models
 from django.db.models.functions import Upper
 from model_utils.models import TimeStampedModel
